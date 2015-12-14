@@ -1,3 +1,50 @@
+var Test = {
+    init: function(){
+      this.message = "------> Page 2 <------"
+    },
+    show: function(){
+      document.getElementById('main-content').innerHTML = this.message;
+    }
+};
+
+var Test2 = {
+    init: function(){
+      this.message = "------> Page 3 <------"
+    },
+    show: function(){
+      document.getElementById('main-content').innerHTML = this.message;
+    }
+};
+
+var Router = {
+    init: function(){
+      this.currentPathname = window.location.pathname;
+      this.currentHostname = window.location.pathname;
+      this.routes = new Map();
+    },
+    navigate: function(newPath){
+      if (this.routes.get(newPath).relative){
+          window.location.assign(this.currentPathname + newPath)
+      }
+      window.location.assign(this.currentHostname + newPath)
+
+      route = this.routes.get(newPath);
+      if (!route.isInitialized){
+        route.handler.init();
+        this.routes.get(newPath).isInitialized = true;
+      }
+      route.handler.show();
+    },
+    addRoute: function(path, handler, navigation, relative){
+      this.routes.set(path, {
+                              handler: handler,
+                              navigation: navigation,
+                              relative: relative,
+                              isInitialized: false});
+    }
+}
+
+/*
 var Router = {
     routes: [],
     mode: null,
@@ -80,14 +127,4 @@ var Router = {
         }
         return this;
     }
-}
-
-var Router {
-    routes: [],
-    navigate(newPath){
-      
-    }
-    addRoute(route, handler){
-      this.routes.push({route: route, hanler: handler});
-    }
-}
+}*/
