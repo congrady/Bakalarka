@@ -2,30 +2,14 @@
 <html>
 <head>
 <title>Page Title</title>
-<script type="text/javascript" src="Frontend/scripts/router.js"></script>
-<script>
-function pageInit(){
-  router = new Router();
-  router.addRoute("", Home, false, true);
-  router.addRoute("/Test", Test, false, false);
-  router.addRoute("/Test2", Test2, false, false);
-}
-function servePage(){
-  if (router == undefined){
-    pageInit();
-  }
-  router.servePage();
-}
-
-pageInit();
-window.addEventListener('popstate', servePage);
-</script>
+<script type="text/javascript" src="Frontend/scripts/router.js" defer></script>
+<script type="text/javascript" src="Frontend/scripts/pageInit.js" defer></script>
 </head>
 <body>
 
-<button onclick="router.navigate('/Test')">Test</button>
-<button onclick="router.navigate('/Test2')">Test</button>
-<p id="main-content">Home page</p>
+<button onclick="router.navigate('/Page1')">Test</button>
+<button onclick="router.navigate('/Page2')">Test</button>
+<p id="main-content">Loading...</p>
 
 </body>
 </html>

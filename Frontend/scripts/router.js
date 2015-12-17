@@ -2,14 +2,23 @@
 
 var Home = {
     init: function(){
-      this.message = "------> Home <------"
+      this.message = "------> Home page <------"
     },
     show: function(){
       document.getElementById('main-content').innerHTML = this.message;
     }
 };
 
-var Test = {
+var Page1 = {
+    init: function(){
+      this.message = "------> Page 1 <------"
+    },
+    show: function(){
+      document.getElementById('main-content').innerHTML = this.message;
+    }
+};
+
+var Page2 = {
     init: function(){
       this.message = "------> Page 2 <------"
     },
@@ -18,21 +27,21 @@ var Test = {
     }
 };
 
-var Test2 = {
-    init: function(){
-      this.message = "------> Page 3 <------"
-    },
-    show: function(){
-      document.getElementById('main-content').innerHTML = this.message;
-    }
-};
-
 class Router {
-  constructor() {
+  constructor(routes) {
     this.siteName = window.location.hostname + ":" + window.location.port;
     this.currentURL = this.siteName;
     this.routes = new Map();
+    for (let route of routes){
+      this.routes.set(route.path, {
+                      handler: route.handler,
+                      navigation: route.navigation,
+                      isRelative: route.isRelative,
+                      isInitialized: false
+                      });
+      }
   }
+
   navigate(newPath){
     if (this.routes.get(newPath).isRelative){
         this.currentURL += newPath;
@@ -42,26 +51,28 @@ class Router {
     window.history.pushState(null, null, "http://" + this.currentURL);
     this.servePage();
   }
+
   servePage() {
     let pathName = location.pathname;
+    let additionalParams = pathName.substring(1).split("/");
+    additionalParams.shift();
     let currentRoute = this.routes.get(pathName);
     if (!currentRoute.isInitialized){
-      currentRoute.handler.init();
+      currentRoute.handler.init(additionalParams);
       this.routes.get(pathName).isInitialized = true;
     }
     currentRoute.handler.show();
   }
 
-  addRoute(path, handler, navigation, isRelative){
-    this.routes.set(path, {
-                            handler: handler,
-                            navigation: navigation,
-                            isRelative: isRelative,
-                            isInitialized: false
-                          });
+  addRoute(route){
+    this.routes.set(route.path, {
+                    handler: route.handler,
+                    navigation: route.navigation,
+                    isRelative: route.isRelative,
+                    isInitialized: false
+                    });
   }
 }
-
 /*
 var Router = {
     routes: [],
