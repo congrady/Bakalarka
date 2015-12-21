@@ -10,7 +10,6 @@ class Router {
                       handler: route.handler,
                       navigation: route.navigation,
                       isRelative: route.isRelative,
-                      isInitialized: false
                       });
       }
   }
@@ -29,14 +28,20 @@ class Router {
     let pathName = location.pathname;
     let additionalParams = pathName.substring(1).split("/");
     additionalParams.shift();
-    let currentRoute = this.routes.get(pathName);
-    if (!currentRoute.isInitialized){
-      //import currentRoute.handler from "../models/"+currentRoute.handler+".js";
-      //todo AJAX resource call
-      currentRoute.handler.init(additionalParams);
-      this.routes.get(pathName).isInitialized = true;
+    var handler = this.routes.get(pathName).handler;
+    if (!handler){
+      main_content.innerHTML = "Page does not exist.";
+      alert("neni path");
     }
-    currentRoute.handler.show();
+    if (handler.isInitialized){
+      window[handler].show();
+    }
+    else {
+      loadScript("Frontend/pages/"+handler+".js", function(){
+        window[handler]["init"]();
+        window[handler]["show"]();
+      });
+    }
   }
 
   addRoute(route){
@@ -44,7 +49,6 @@ class Router {
                     handler: route.handler,
                     navigation: route.navigation,
                     isRelative: route.isRelative,
-                    isInitialized: false
                     });
   }
 }
