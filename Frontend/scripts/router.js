@@ -25,21 +25,24 @@ class Router {
   }
 
   servePage() {
-    let pathName = location.pathname;
-    let additionalParams = pathName.substring(1).split("/");
-    additionalParams.shift();
-    var handler = this.routes.get(pathName).handler;
-    if (!handler){
-      main_content.innerHTML = "Page does not exist.";
-      alert("neni path");
+    var routeParams = location.pathname.substring(1).split("/");
+    var path = "/"+routeParams.shift();
+    if (!this.routes.has(path)){
+      document.getElementById('main-content').innerHTML = "Page does not exist.";
+      return
     }
+    var handler = this.routes.get(path).handler;
     if (handler.isInitialized){
       window[handler].show();
     }
     else {
-      loadScript("Frontend/pages/"+handler+".js", function(){
-        window[handler]["init"]();
-        window[handler]["show"]();
+      loadScript("/Frontend/pages/"+handler+".js", function(){
+        if (routeParams != ""){
+          window[handler].init(routeParams);
+        } else {
+          window[handler].init();
+        }
+        window[handler].show();
       });
     }
   }

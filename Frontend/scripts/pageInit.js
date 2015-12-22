@@ -16,7 +16,6 @@ function servePage(){
   router.servePage();
 }
 
-var main_content = document.getElementById('main-content').innerHTML;
 var router = initRouter()
 router.servePage();
 window.addEventListener('popstate', servePage);
