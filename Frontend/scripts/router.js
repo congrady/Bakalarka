@@ -17,7 +17,8 @@ class Router {
   navigate(newPath){
     if (this.routes.get(newPath).isRelative){
         this.currentURL += newPath;
-    } else{
+    }
+    else {
         this.currentURL = this.siteName + newPath;
     }
     window.history.pushState(null, null, "http://" + this.currentURL);
@@ -36,14 +37,21 @@ class Router {
       window[handler].show();
     }
     else {
+      if (typeof loadResourcesWorker === null){
+        dontLoadByWorker(handler+".js");
+      }
       loadScript("/Frontend/pages/"+handler+".js", function(){
         if (routeParams != ""){
           window[handler].init(routeParams);
-        } else {
+        }
+        else {
           window[handler].init();
         }
         window[handler].show();
       });
+      if (typeof loadResourcesWorker === null){
+        loadResources();
+      }
     }
   }
 

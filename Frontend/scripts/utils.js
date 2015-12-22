@@ -1,31 +1,15 @@
-function get_request(options){
-  if (options.async){
-    request = new XMLHttpRequest();
-    request.open("GET", options.url, true);
-    request.send();
-    xhttp.onreadystatechange = function() {
-      if (xhttp.readyState == 4 && xhttp.status == 200) {
-        if (options.successHandler){
-          options.successHandler(request.responseText);
-        }
-        return request.responseText;
-      } else{
-        if (options.errorHandler){
-          options.errorHandler(request.status);
-        }
-      }
-    }
-  } else {
-    request = new XMLHttpRequest();
-    request.open("GET", options.url, false);
-    request.send();
-    if (request.status == 200){
+function getRequest(options){
+  request = new XMLHttpRequest();
+  request.open("GET", options.url, true);
+  request.send();
+  request.onreadystatechange = function() {
+    if (request.readyState == 4 && request.status == 200) {
       if (options.successHandler){
-        options.successHandler(request.responseText);
+        options.successHandler(request.status);
       }
       return request.responseText;
     }
-    else{
+    else {
       if (options.errorHandler){
         options.errorHandler(request.status);
       }
@@ -46,4 +30,17 @@ function loadScript(url, callback)
     }
 
     head.appendChild(script);
+}
+
+function loadResources(){
+  function sendWork(responseText){
+    pageNames = responseText.split(",");
+    loadResourcesWorker = new Worker("/Frontend/scripts/Webworkers/load_Pages.js");
+    loadResourcesWorker.postMessage(pageNames);
+  }
+  getRequest({url: "/pageNames", successHandler: sendWork, errorHandler: null});
+}
+
+function dontLoadByWorker(pageName){
+  loadResourcesWorker.postMessage(pageName);
 }

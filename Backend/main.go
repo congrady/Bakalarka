@@ -59,7 +59,6 @@ func dataResourceHandler() {
 
 		filePath := "/Frontend/data/texts/" + text.Name()
 		fileExtension := filepath.Ext("../" + filePath)
-		fmt.Println(fileExtension)
 		if fileExtension == ".txt" {
 			http.HandleFunc(filePath, sendResources("text/plain"))
 		}
@@ -94,6 +93,18 @@ func pageComponentsResourceHandler() {
 	}
 }
 
+func getPageNames(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/javascript")
+	var res = ""
+	contents, _ := ioutil.ReadDir("../Frontend/pages")
+	for _, content := range contents {
+		if !content.IsDir() {
+			res += content.Name() + ","
+		}
+	}
+	fmt.Fprint(w, res[:len(res)-1])
+}
+
 func main() {
 	//Create handlers to serve static resources
 	cssResourceHandler()
@@ -102,6 +113,7 @@ func main() {
 	pagesResourceHandler()
 	pageComponentsResourceHandler()
 
+	http.HandleFunc("/pageNames", getPageNames)
 	http.HandleFunc("/", index)
 	http.ListenAndServe(":8080", nil)
 }
