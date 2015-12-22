@@ -1,21 +1,19 @@
-'use strict';
-
 function initRouter(){
-  let routes = [
+  var routes = [
             {path: "/", handler: 'Home', navigation: false, isRelative: false},
-            {path: "/Page1", handler: 'Page1', navigation: false, isRelative: false},
-            {path: "/Page2", handler: 'Page2', navigation: false, isRelative: false}
+            {path: "/Page1", handler: 'Page1', navigation: true, isRelative: false},
+            {path: "/Page2", handler: 'Page2', navigation: true, isRelative: false}
             ];
-  let router = new Router(routes);
-  return router;
+  router = new Router(routes);
 }
 function servePage(){
-  if (!router){
+  if (!window["router"]){
+    //alert("init router");
     initRouter();
+    router.servePage();
+    router.createNavigation();
   }
-  router.servePage();
 }
 
-var router = initRouter()
-router.servePage();
+servePage();
 window.addEventListener('popstate', servePage);
