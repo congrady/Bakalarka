@@ -1,14 +1,17 @@
 'use strict';
 
+window["navigationPaths"] = [];
+
 class Router {
   constructor(routes) {
+    var self = this;
     this.siteName = window.location.hostname + ":" + window.location.port;
     this.currentURL = this.siteName;
     this.routes = new Map();
     this.navigationPaths = [];
     for (let route of routes){
       if (route.navigation){
-        this.navigationPaths.push(route.path);
+        window["navigationPaths"].push(route.path);
       }
       this.routes.set(route.path, {
                       handler: route.handler,
@@ -16,19 +19,11 @@ class Router {
                       isRelative: route.isRelative,
                       });
       }
-  }
-  
-  createNavigation(){
-    var navigation = document.createElement("nav");
-    var body = document.getElementsByTagName("body")[0];
-    var mainContent = document.getElementById("main-content");
-    for (let path of this.navigationPaths){
-      var nav = document.createElement("P");
-      nav.innerHTML = path.substring(1);
-      nav.onclick = this.navigate(path);
-      navigation.appendChild(nav);
+    var self = this;
+    window.onhashchange = function (event){
+      event.preventDefault;
+      self.navigate(event.newURL);
     }
-    body.insertBefore(navigation, mainContent);
   }
 
   navigate(newPath){
@@ -43,33 +38,23 @@ class Router {
   }
 
   servePage() {
-    var routeParams = location.pathname.substring(1).split("/");
-    var path = "/"+routeParams.shift();
+    var urlParams = location.pathname.substring(1).split("/");
+    var path = "/"+urlParams.shift();
     if (!this.routes.has(path)){
       document.getElementById('main-content').innerHTML = "Page does not exist.";
       return
     }
     var handler = this.routes.get(path).handler;
-    if (handler.isInitialized){
+    if (window[handler]){
+      window[handler].init();
       window[handler].show();
+      return
     }
-    else {
-      if (typeof loadResourcesWorker === null){
-        dontLoadByWorker(handler+".js");
-      }
-      loadScript("/Frontend/pages/"+handler+".js", function(){
-        if (routeParams != ""){
-          window[handler].init(routeParams);
-        }
-        else {
-          window[handler].init();
-        }
-        window[handler].show();
-      });
-      if (typeof loadResourcesWorker === null){
-        loadResources();
-      }
-    }
+    loadScript(handler, function(){
+      window[handler].urlParams = urlParams;
+      window[handler].init();
+      window[handler].show();
+    });
   }
 
   addRoute(route){

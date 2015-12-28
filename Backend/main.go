@@ -3,92 +3,66 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"mime"
 	"net/http"
 	"path/filepath"
 )
 
 func index(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
 	http.ServeFile(w, r, "../index.html")
 }
 
-func sendResources(contentType string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", contentType)
-		http.ServeFile(w, r, "../"+r.URL.Path)
-	}
+func sendResources(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", mime.TypeByExtension(filepath.Ext(r.URL.Path)))
+	http.ServeFile(w, r, "../"+r.URL.Path)
+	fmt.Println(mime.TypeByExtension(filepath.Ext(r.URL.Path)))
 }
 
-func cssResourceHandler() {
-	contentType := "text/css"
-	files, _ := ioutil.ReadDir("../Frontend/css")
-	for _, file := range files {
-		http.HandleFunc("/Frontend/css/"+file.Name(), sendResources(contentType))
-	}
-}
-
-func scriptsResourceHandler() {
-	contentType := "application/javascript"
-	files, _ := ioutil.ReadDir("../Frontend/scripts")
-	for _, file := range files {
-		http.HandleFunc("/Frontend/scripts/"+file.Name(), sendResources(contentType))
-	}
-}
-
-func dataResourceHandler() {
-	videos, _ := ioutil.ReadDir("../Frontend/data/videos")
-	for _, video := range videos {
-		filePath := "/Frontend/data/videos/" + video.Name()
-		fileExtension := filepath.Ext("../" + filePath)
-		if fileExtension == ".mp4" {
-			http.HandleFunc(filePath, sendResources("video/mp4"))
-		}
-	}
-	imgs, _ := ioutil.ReadDir("../Frontend/data/imgs")
-	for _, img := range imgs {
-		filePath := "/Frontend/data/imgs/" + img.Name()
-		fileExtension := filepath.Ext("../" + filePath)
-		if fileExtension == ".jpg" || fileExtension == "jpeg" {
-			http.HandleFunc(filePath, sendResources("image/jpeg"))
-		}
-		if fileExtension == ".gif" {
-			http.HandleFunc(filePath, sendResources("image/gif"))
-		}
-	}
-	texts, _ := ioutil.ReadDir("../Frontend/data/texts")
-	for _, text := range texts {
-
-		filePath := "/Frontend/data/texts/" + text.Name()
-		fileExtension := filepath.Ext("../" + filePath)
-		if fileExtension == ".txt" {
-			http.HandleFunc(filePath, sendResources("text/plain"))
-		}
-	}
-}
-
-func pagesResourceHandler() {
-	contents, _ := ioutil.ReadDir("../Frontend/pages")
-	for _, content := range contents {
-		if content.IsDir() {
-			files, _ := ioutil.ReadDir("../Frontend/pages/html-schemas")
-			for _, file := range files {
-				http.HandleFunc("/Frontend/pages/html-schemas/"+file.Name(), sendResources("text/html"))
+func makeResourceHandlers() {
+	folders, _ := ioutil.ReadDir("../Frontend")
+	for _, folder := range folders {
+		files, _ := ioutil.ReadDir("../Frontend/" + folder.Name())
+		for _, file := range files {
+			if file.IsDir() {
+				dataFolder, _ := ioutil.ReadDir("../Frontend/" + folder.Name() + "/" + file.Name())
+				for _, dataFile := range dataFolder {
+					path := "/Frontend/" + folder.Name() + "/" + file.Name() + "/" + dataFile.Name()
+					http.HandleFunc(path, sendResources)
+				}
+			} else {
+				path := "/Frontend/" + folder.Name() + "/" + file.Name()
+				http.HandleFunc(path, sendResources)
 			}
-		} else {
-			http.HandleFunc("/Frontend/pages/"+content.Name(), sendResources("application/javascript"))
 		}
 	}
 }
 
-func pageComponentsResourceHandler() {
-	contents, _ := ioutil.ReadDir("../Frontend/page-components")
-	for _, content := range contents {
-		if content.IsDir() {
-			files, _ := ioutil.ReadDir("../Frontend/page-components/html-schemas")
-			for _, file := range files {
-				http.HandleFunc("/Frontend/page-components/html-schemas/"+file.Name(), sendResources("text/html"))
+func main() {
+	makeResourceHandlers()
+
+	http.HandleFunc("/", index)
+	http.ListenAndServe(":8080", nil)
+}
+
+/*
+var availableHandlers []string
+handlers, _ := ioutil.ReadDir("../Frontend/pages")
+for _, handler := range handlers {
+	availableHandlers := handler.Name()
+}
+
+func index(availableHandlers *[]string) http.HandlerFunc {
+	urlPath = r.URL.Path
+	for (i := 0; i < len(*availableHandlers)); i++ {
+		if (*availableHandlers == urlPath) {
+			return func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "text/html")
+				http.ServeFile(w, r, "../index.html")
 			}
-		} else {
-			http.HandleFunc("/Frontend/page-components/"+content.Name(), sendResources("application/javascript"))
+		}
+		return func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, "../sdgksdflkgjfdlkgndfjklgn")
 		}
 	}
 }
@@ -105,15 +79,8 @@ func getPageNames(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, res[:len(res)-1])
 }
 
-func main() {
-	//Create handlers to serve static resources
-	cssResourceHandler()
-	scriptsResourceHandler()
-	dataResourceHandler()
-	pagesResourceHandler()
-	pageComponentsResourceHandler()
-
-	http.HandleFunc("/pageNames", getPageNames)
-	http.HandleFunc("/", index)
-	http.ListenAndServe(":8080", nil)
-}
+func getHTML(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
+	var res = "<p>Ahoj</p>"
+	fmt.Fprint(w, res)
+}*/

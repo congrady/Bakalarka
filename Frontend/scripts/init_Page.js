@@ -8,10 +8,8 @@ function initRouter(){
 }
 function servePage(){
   if (!window["router"]){
-    //alert("init router");
     initRouter();
     router.servePage();
-    router.createNavigation();
   }
 }
 

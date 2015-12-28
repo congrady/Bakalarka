@@ -5,7 +5,7 @@ function getRequest(options){
   request.onreadystatechange = function() {
     if (request.readyState == 4 && request.status == 200) {
       if (options.successHandler){
-        options.successHandler(request.status);
+        options.successHandler(request.responseText);
       }
       return request.responseText;
     }
@@ -17,30 +17,17 @@ function getRequest(options){
   }
 }
 
-function loadScript(url, callback)
-{
-    var head = document.getElementsByTagName('head')[0];
-    var script = document.createElement('script');
-    script.type = 'application/javascript';
-    script.src = url;
-
-    if (callback){
-      script.onreadystatechange = callback;
-      script.onload = callback;
-    }
-
-    head.appendChild(script);
-}
-
-function loadResources(){
-  function sendWork(responseText){
-    pageNames = responseText.split(",");
-    loadResourcesWorker = new Worker("/Frontend/scripts/Webworkers/load_Pages.js");
-    loadResourcesWorker.postMessage(pageNames);
+function loadScript(handler, callback){
+  var url = "/Frontend/pages/"+handler+".js";
+  var head = document.getElementsByTagName('head')[0];
+  var script = document.createElement('script');
+  script.type = 'application/javascript';
+  script.src = url;
+  
+  if (callback){
+    script.onreadystatechange = callback;
+    script.onload = callback;
   }
-  getRequest({url: "/pageNames", successHandler: sendWork, errorHandler: null});
-}
 
-function dontLoadByWorker(pageName){
-  loadResourcesWorker.postMessage(pageName);
+  head.appendChild(script);
 }
