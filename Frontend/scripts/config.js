@@ -1,6 +1,6 @@
 window["routes"] = [
-  {path: "/", handler: 'Home', navigation: false},
-  {path: "/Home", handler: 'Home', navigation: true},
-  {path: "/Page1", handler: 'Page1', navigation: true},
-  {path: "/Page2", handler: 'Page2', navigation: true}
+  {path: "/", page: 'Home', navigation: false, resources: []},
+  {path: "/Home", page: 'Home', navigation: true, resources: []},
+  {path: "/Page1", page: 'Page1', navigation: true, resources: []},
+  {path: "/Page2", page: 'Page2', navigation: true, resources: []}
 ];

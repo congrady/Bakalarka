@@ -16,18 +16,3 @@ function getRequest(options){
     }
   }
 }
-
-function loadScript(handler, callback){
-  var url = "/Frontend/pages/"+handler+".js";
-  var head = document.getElementsByTagName('head')[0];
-  var script = document.createElement('script');
-  script.type = 'application/javascript';
-  script.src = url;
-  
-  if (callback){
-    script.onreadystatechange = callback;
-    script.onload = callback;
-  }
-
-  head.appendChild(script);
-}

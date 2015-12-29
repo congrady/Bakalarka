@@ -12,7 +12,7 @@
           var anchor = document.createElement("a");
           anchor.innerHTML = path.substring(1);
           anchor.href = path;
-          anchor.onclick = navigate;
+          anchor.onclick = window["navigate"];
           this.$nav.appendChild(anchor);
       }
     };
