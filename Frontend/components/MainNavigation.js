@@ -8,14 +8,11 @@
     createdCallback() {
       this.createShadowRoot().innerHTML = template;
       this.$nav = this.shadowRoot.querySelector('nav');
-      for (let path of navigationPaths){
+      for (let path of window["navigationPaths"]){
           var anchor = document.createElement("a");
           anchor.innerHTML = path.substring(1);
           anchor.href = path;
-          anchor.onclick = function(event) {
-            event.preventDefault();
-            router.navigate(path);
-          }
+          anchor.onclick = navigate;
           this.$nav.appendChild(anchor);
       }
     };

@@ -8,26 +8,16 @@ class Router {
     this.siteName = window.location.hostname + ":" + window.location.port;
     this.currentURL = this.siteName;
     this.routes = new Map();
-    this.navigationPaths = [];
-    for (let route of routes){
+    for (let route of window["routes"]){
       if (route.navigation){
         window["navigationPaths"].push(route.path);
       }
-      this.routes.set(route.path, {
-                      handler: route.handler,
-                      navigation: route.navigation,
-                      isRelative: route.isRelative,
-                      });
-      }
-    var self = this;
-    window.onhashchange = function (event){
-      event.preventDefault;
-      self.navigate(event.newURL);
+      this.routes.set(route.path, route.handler);
     }
   }
 
-  navigate(newPath){
-    if (this.routes.get(newPath).isRelative){
+  navigate(newPath, relative){
+    if (relative){
         this.currentURL += newPath;
     }
     else {
@@ -44,7 +34,7 @@ class Router {
       document.getElementById('main-content').innerHTML = "Page does not exist.";
       return
     }
-    var handler = this.routes.get(path).handler;
+    var handler = this.routes.get(path);
     if (window[handler]){
       window[handler].init();
       window[handler].show();
@@ -58,10 +48,6 @@ class Router {
   }
 
   addRoute(route){
-    this.routes.set(route.path, {
-                    handler: route.handler,
-                    navigation: route.navigation,
-                    isRelative: route.isRelative,
-                    });
+    this.routes.set(route.path, route.handler);
   }
 }

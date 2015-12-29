@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"mime"
 	"net/http"
@@ -16,7 +15,6 @@ func index(w http.ResponseWriter, r *http.Request) {
 func sendResources(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", mime.TypeByExtension(filepath.Ext(r.URL.Path)))
 	http.ServeFile(w, r, "../"+r.URL.Path)
-	fmt.Println(mime.TypeByExtension(filepath.Ext(r.URL.Path)))
 }
 
 func makeResourceHandlers() {
