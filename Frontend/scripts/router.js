@@ -33,7 +33,7 @@ class Router {
     this.urlParams = location.pathname.substring(1).split("/");
     var path = "/"+this.urlParams.shift();
     if (!this.routes.has(path)){
-      document.getElementById('main-content').innerHTML = "Page does not exist.";
+      document.querySelector('main').innerHTML = "Page does not exist.";
       return
     }
     this.currentPage = this.routes.get(path);
@@ -44,23 +44,37 @@ class Router {
     }
   }
 
+  showPage(){
+    let page = window[this.currentPage];
+    let $mainContent = document.querySelector('main');
+    if (page.title) {
+      document.getElementsByTagName('title')[0].innerHTML = page.title;
+    }
+    if (page.css){
+      let $style = document.createElement("style");
+      $style.innerHTML = page.css;
+      $mainContent.appendChild($style);
+    }
+    while ($mainContent.lastChild) {
+      $mainContent.removeChild($mainContent.lastChild);
+    }
+    $mainContent.appendChild(page.root);
+  }
+
   loadPage(){
-    let neededResources = new Set();
-    neededResources.add("/Frontend/pages/"+this.currentPage+".js");
+    let neededResources = [];
+    neededResources.push("/Frontend/pages/"+this.currentPage+".js");
     for (let component of this.resources.get(this.currentPage)){
       if (!this.availableComponents.has(component)){
-        neededResources.add("/Frontend/components/"+component+".js");
+        neededResources.push("/Frontend/components/"+component+".js");
         this.availableComponents.add(component);
       }
     }
-
+    var self = this;
     ResourceLoader.load(neededResources, function(){
-      this.showPage();
-    })
-  }
-
-  showPage() {
-    window[this.currentPage].show();
+      window[self.currentPage].init(self.urlParams);
+      self.showPage();
+    });
   }
 
   addRoute(route){

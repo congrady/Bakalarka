@@ -16,3 +16,17 @@ function getRequest(options){
     }
   }
 }
+
+String.prototype.capitalizeFirstLetter = function() {
+  return this.charAt(0).toUpperCase() + this.substring(1);
+}
+
+function createFragment(template){
+  var fragment = document.createDocumentFragment();
+  var temp = document.createElement('body');
+  temp.innerHTML = template;
+  while(element = temp.firstElementChild){
+    fragment.appendChild(element);
+  }
+  return fragment;
+}
