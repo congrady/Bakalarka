@@ -1,5 +1,7 @@
+'use strict';
+
 function getRequest(options){
-  request = new XMLHttpRequest();
+  let request = new XMLHttpRequest();
   request.open("GET", options.url, true);
   request.send();
   request.onreadystatechange = function() {
@@ -25,6 +27,7 @@ function createFragment(template){
   var fragment = document.createDocumentFragment();
   var temp = document.createElement('body');
   temp.innerHTML = template;
+  let element;
   while(element = temp.firstElementChild){
     fragment.appendChild(element);
   }

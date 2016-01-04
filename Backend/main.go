@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"mime"
 	"net/http"
@@ -36,9 +37,16 @@ func makeResourceHandlers() {
 	}
 }
 
+func login(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	userName := r.PostFormValue("userName")
+	fmt.Fprintf(w, "%s,%s", userName, "sdfasfasdf")
+}
+
 func main() {
 	makeResourceHandlers()
 
+	http.HandleFunc("/login", login)
 	http.HandleFunc("/", index)
 	http.ListenAndServe(":8080", nil)
 }
