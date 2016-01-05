@@ -9,12 +9,14 @@ class Router {
     this.routes = new Map();
     this.resources = new Map();
     this.availableComponents = new Set();
+    this.needAuthentification = new Set();
     for (let route of window["routes"]){
       if (route.navigation){
         window["navigationPaths"].push(route.path);
       }
       this.routes.set(route.path, route.page);
       this.resources.set(route.page, route.resources);
+      this.needAuthentification.add(route.page);
     }
   }
 

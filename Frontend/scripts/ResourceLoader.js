@@ -1,12 +1,16 @@
 'use strict';
 
 var ResourceLoader = {
-  load: function(neededResources, callback){
+  load: function(neededResources, auth, callback){
     let unresolvedResourcesCounter = neededResources.length;
     let $head = document.getElementsByTagName('head')[0];
     for (let resourcePath of neededResources) {
       let $script = document.createElement('script');
-      $script.src = resourcePath;
+      if auth {
+        $script.src = resourcePath + "#" + sessionStorage.token;
+      } else {
+        $script.src = resourcePath;
+      }
       $script.async = true;
       $script.onload = function(){
         unresolvedResourcesCounter -= 1;

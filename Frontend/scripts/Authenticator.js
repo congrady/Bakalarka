@@ -1,24 +1,20 @@
 'use strict';
 
 var Authenticator = {
-  token: null,
-  loginRequest: function(options){
-    var self = this;
+  userName: null,
+  loginRequest: function(login, password, url, loginSuccessful, loginError){
     var request = new XMLHttpRequest();
-    request.open("POST", options.url, true);
+    request.open("POST", url, true);
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    let params = `userName=${options.userName}&password=${options.password}`;
+    let params = encodeURI(`login=${login}&password=${password}`);
     request.onload = function() {
       let response = request.responseText.split(",");
-      if (options.loginSuccessful){
-        options.loginSuccessful(response[0]);
-        this.token = response[1];
-      }
+      this.userName = response[0];
+      sessionStorage.setItem('token', response[1]);
+      loginSuccessful(this.userName);
     };
     request.onerror = function(){
-      if (options.loginError){
-        options.loginError();
-      }
+      loginError();
     };
     request.send(params);
   }

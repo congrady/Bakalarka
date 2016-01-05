@@ -39,8 +39,8 @@ func makeResourceHandlers() {
 
 func login(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	userName := r.PostFormValue("userName")
-	fmt.Fprintf(w, "%s,%s", userName, "sdfasfasdf")
+	login := r.PostFormValue("login")
+	fmt.Fprintf(w, "%s,%s", login, "token")
 }
 
 func main() {
