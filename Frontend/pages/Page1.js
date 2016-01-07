@@ -1,22 +1,29 @@
 'use strict';
-(function() {
 
-let template = `
-<h3 id="page-title">Page 1</h3>
-<div id="main-div"></div>
-`;
-
-window["Page1"] = {
-  root: createFragment(template),
+router.showPage({
   title: "Page 1",
+  template: `
+  <h3 id="page-title"></h3>
+  <div id="main-div"></div>
+  `,
   init: function(urlParams) {
-    var $mainDIV = this.root.getElementById("main-div");
-    var $mainUL = document.createElement("ul");
+    let root = createFragment(this.template);
+    root.getElementById("page-title").innerHTML = this.title;
+    let $mainDIV = root.getElementById("main-div");
+    let $mainUL = document.createElement("ul");
+    var self = this;
     for (let urlParam of urlParams){
-      $mainUL.innerHTML += `<li>${urlParam}</li>`;
+      let $li = document.createElement("li");
+      $li.innerHTML = urlParam;
+      $li.onclick = function(event){
+        self.showAlert(event);
+      }
+      $mainUL.appendChild($li);
     }
     $mainDIV.appendChild($mainUL);
+    return root;
+  },
+  showAlert: function(event){
+    alert(`Alert od ${event.target.innerHTML}`);
   }
-}
-
-})();
+});

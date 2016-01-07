@@ -8,7 +8,7 @@
     createdCallback() {
       this.createShadowRoot().innerHTML = template;
       this.$nav = this.shadowRoot.querySelector('nav');
-      for (let path of window["navigationPaths"]){
+      for (let path of router.navigationPaths){
           var anchor = document.createElement("a");
           anchor.innerHTML = path.substring(1);
           anchor.href = path;

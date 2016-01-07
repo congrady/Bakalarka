@@ -3,19 +3,25 @@
 var Authenticator = {
   userName: null,
   loginRequest: function(login, password, url, loginSuccessful, loginError){
-    var request = new XMLHttpRequest();
-    request.open("POST", url, true);
-    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     let params = encodeURI(`login=${login}&password=${password}`);
-    request.onload = function() {
-      let response = request.responseText.split(",");
-      this.userName = response[0];
-      sessionStorage.setItem('token', response[1]);
-      loginSuccessful(this.userName);
+    var self = this;
+    xhr.onload = function() {
+      if (xhr.status == 200){
+        let response = xhr.responseText.split(",");
+        self.userName = response[0];
+        sessionStorage.setItem('token', response[1]);
+        loginSuccessful(self.userName);
+      }
+      else {
+        loginError();
+      }
     };
-    request.onerror = function(){
+    xhr.onerror = function(){
       loginError();
     };
-    request.send(params);
+    xhr.send(params);
   }
 }
