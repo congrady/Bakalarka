@@ -68,18 +68,6 @@ class Router {
 
   showPage(page){
     let $mainContent = document.getElementsByTagName('main')[0];
-    if (page.unauthorizedError){
-      $mainContent.innerHTML = "This page is available only to logged in users.";
-      return
-    }
-    else if (page.timeoutError){
-      $mainContent.innerHTML = "We can't load this page. Server timeout.";
-      return;
-    }
-    else if (page.pageNotFoundError){
-      $mainContent.innerHTML = "Page does not exist.";
-      return;
-    }
     if (page.title) {
       document.getElementsByTagName('title')[0].innerHTML = page.title;
     }
@@ -124,9 +112,5 @@ class Router {
                                   self.showError({timeout: true});
                                 });
     }
-  }
-
-  addRoute(route){
-    this.routes.set(route.path, route.page);
   }
 }
