@@ -1,6 +1,6 @@
 # Bakalárka - UXP data processing
 
-Project will be based on currently developed framewrok (for now without it's own name).
+Project is based on currently developed framewrok (for now without it's own name).
 
 Framework serves for creating SPAs - Single Page Applications.
 
