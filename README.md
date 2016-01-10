@@ -32,7 +32,7 @@ Disadvantages:
 2. Web components are not supported in all browsers. They are available for Chrome and Opera, for Mozilla with flag. Safari and Edge support was announced, and is currently under development. For now, if you need to target all browsers, you can use polyfill http://webcomponents.org/polyfills/
 
 -------------------------------------------------------
-Application structure
+#Application structure
 
 As I mentioned above, frontend is purely javascript. Backend is based on golang https://golang.org/  
 
