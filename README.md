@@ -47,7 +47,7 @@ As I mentioned above, frontend is purely javascript. Backend is based on golang 
 
 **css**
 
-Contains globalStyle.css file - Default elements style (doesn't apply on webcomponents, that have their own style that lives in their shadow DOM)
+Contains globalStyle.css file - Default elements style (Doesn't apply on webcomponents. They have their own style that lives in private shadow DOM)
 
 **data**
 
