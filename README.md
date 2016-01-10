@@ -16,9 +16,9 @@ Features:
 
 5. History API routing
 
-6. Asynchronous on-demand resource loading.
+6. Asynchronous on-demand resource loading with support for external libraries.
 
-7. You CAN use external libraries. Just specify them in config file, and they will load automatically.
+7. Contains util functions, that facilitate creation of your pages.
 
 
 Disadvantages:
