@@ -43,12 +43,21 @@ Backend routing:
 #Frontend
 
 **css**
+
 Contains globalStyle.css file - Default elements style (doesn't apply on webcomponents, that have their own style that lives in their shadow DOM)
+
 **data**
+
 Contains static data. Videos, Texts and Audio
+
 **components**
-Contains .js files with webcomponents. 1 file for 1 webcomponent. 
+
+Contains .js files with webcomponents. 1 file for 1 webcomponent.
+
 **pages**
+
 Contains .js files that represent page itself. Views (or viewmodels) are webcomponents-like. They contain in-line html template strings. You can store templates in a separate file (todo) if you wish to.
+
 **scripts**
+
 For now, contains scripts for framework itself. In the future, those scripts will be merged and minified, and this folder will contain external scripts. (In the case you want to store them locally, not using cdn).
