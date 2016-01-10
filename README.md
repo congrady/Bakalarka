@@ -35,6 +35,7 @@ As I mentioned above, frontend is purely javascript. Backend is based on golang 
 #Backend
 
 **main.go**
+
 Backend routing:
 1. Serves static files  
 2. Handles authentication 
