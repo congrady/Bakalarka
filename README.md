@@ -1,6 +1,10 @@
 # Bakalárka - UXP data processing
 
+Project processes and vizualizes data from UXP (user experience) tests.
+
 Project is based on currently developed framewrok (for now without it's own name).
+
+#Framework
 
 Framework serves for creating SPAs - Single Page Applications.
 
