@@ -10,7 +10,7 @@ Features:
 
 2. Integrated web components http://webcomponents.org/
 
-3. Amazingly fast. Everything is developed with performance as a first concern.
+3. Fast. Everything is developed with performance as my biggest concern.
 
 4. Authentication based on a new JWT standard - JSON web tokens. https://en.wikipedia.org/wiki/JSON_Web_Token
 
