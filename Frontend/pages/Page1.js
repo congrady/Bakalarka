@@ -6,6 +6,15 @@ router.showPage({
   <h3 id="page-title"></h3>
   <div id="main-div"></div>
   `,
+  beforeAttachedCallback: function(urlParams){
+    alert("beforeAttachedCallback");
+  },
+  afterAttachedCallback: function(urlParams){
+    alert("afterAttachedCallback");
+  },
+  detachedCallback: function(urlParams){
+    alert("detachedCallback");
+  },
   init: function(urlParams) {
     let root = createFragment(this.template);
     root.getElementById("page-title").innerHTML = this.title;

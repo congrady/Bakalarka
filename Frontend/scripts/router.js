@@ -36,6 +36,7 @@ class Router {
     this.urlParams = location.pathname.substring(1).split("/");
     var path = "/"+this.urlParams.shift();
     if (!this.routes.has(path)){
+      this.detachedHandler(null);
       this.showError({pageNotFound: true});
       return
     }
@@ -45,6 +46,7 @@ class Router {
         this.loadPage(true);
       }
       else {
+        this.detachedHandler(null);
         this.showError({unauthorized: true});
       }
     }
@@ -67,19 +69,41 @@ class Router {
   }
 
   showPage(page){
+    let urlParams = this.urlParams;
     let $mainContent = document.getElementsByTagName('main')[0];
     if (page.title) {
       document.getElementsByTagName('title')[0].innerHTML = page.title;
+    }
+    this.detachedHandler(page.detachedCallback);
+    while ($mainContent.lastChild) {
+      $mainContent.removeChild($mainContent.lastChild);
+    }
+    if (page.beforeAttachedCallback) {
+      page.beforeAttachedCallback(urlParams);
     }
     if (page.css){
       let $style = document.createElement("style");
       $style.innerHTML = page.css;
       $mainContent.appendChild($style);
     }
-    while ($mainContent.lastChild) {
-      $mainContent.removeChild($mainContent.lastChild);
+    $mainContent.appendChild(page.init(urlParams));
+    if (page.afterAttachedCallback) {
+      page.afterAttachedCallback(urlParams);
     }
-    $mainContent.appendChild(page.init(this.urlParams));
+  }
+
+  detachedHandler(newPageDetachedCallback){
+    if (this.detachedCallback){
+      this.detachedCallback(this.previousPageUrlParams);
+    }
+    if (newPageDetachedCallback){
+      this.detachedCallback = newPageDetachedCallback;
+      this.previousPageUrlParams = this.urlParams;
+    }
+    else {
+      this.detachedCallback = null;
+      this.previousPageUrlParams = [];
+    }
   }
 
   loadPage(needAuthentication){
