@@ -69,6 +69,12 @@ class Router {
   }
 
   showPage(page){
+    if (page){
+      this.visitedPages.set(this.currentPage, page);
+    }
+    else{
+      var page = this.visitedPages.get(this.currentPage);
+    }
     let urlParams = this.urlParams;
     let $mainContent = document.getElementsByTagName('main')[0];
     if (page.title) {

@@ -2,13 +2,13 @@
 
 router.showPage({
   title: "Home",
-  template: `
-  <h3 id="page-title"></h3>
-  <div id="main-div"></div>
-  `,
   init: function(urlParams) {
-    let root = createFragment(this.template);
-    root.getElementById("page-title").innerHTML = this.title;
+    let root = new DocumentFragment();
+    root.add({elementType: "h3", id: "page-title", innerHTML: this.title});
+    let div = root.add({elementType: "div"});
+    for (let urlParam of urlParams){
+      div.add({elementType: "p", innerHTML: `Parameter: ${urlParam[0]}`});
+    }
     return root;
   }
-});
+})

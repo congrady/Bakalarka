@@ -1,20 +1,23 @@
 'use strict';
 
 router.showPage({
-  title: "Page 2",
-  template: `
-  <h3 id="page-title"></h3>
-  <div id="main-div"></div>
-  `,
+  title: "Page2",
   init: function(urlParams) {
-    let root = createFragment(this.template);
-    root.getElementById("page-title").innerHTML = this.title;
-    let $mainDIV = root.getElementById("main-div");
-    let $mainUL = document.createElement("ul");
+    let root = new DocumentFragment();
+    root.add({
+     elementType: "h3",
+     id: "page-title",
+     innerHTML: this.title
+    });
+    let div = root.add({elementType:
+      "div"
+    });
     for (let urlParam of urlParams){
-      $mainUL.innerHTML += `<li>${urlParam}</li>`;
+      div.add({
+        elementType: "p",
+        innerHTML: `Parameter: ${urlParam[0]}`
+      });
     }
-    $mainDIV.appendChild($mainUL);
     return root;
   }
-});
+})
