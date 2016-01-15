@@ -1,14 +1,35 @@
 'use strict';
 
 (function() {
-
   class MainLogin extends HTMLElement {
     createdCallback() {
       this.notLoggedInTemplate = `
+      <style>
+      p {
+        font-weight: bold;
+        text-shadow:
+          -0.5px -0.5px 0 #000,
+          0.5px -0.5px 0 #000,
+          -0.5px 0.5px 0 #000,
+          0.5px 0.5px 0 #000;
+        display: inline;
+      }
+      input {
+        float:right;
+        clear:both;
+      }
+      button {
+        float:right;
+        clear:both;
+      }
+      #message {
+        text-align: right;
+      }
+      </style>
       <form>
-        <p id="message">Please, enter your login data</p>
-        User name: <input name="login" type="text">
-        Password: <input name="password" type="password">
+        <p id="message"></p><br>
+        <p>Username: </p><input name="login" type="text"><br>
+        <p>Password: </p><input name="password" type="password"><br>
         <input type="submit">
       </form>
       `;
@@ -22,15 +43,15 @@
     login(event) {
       event.preventDefault();
       var self = this;
-      Authenticator.loginRequest(event.target.login.value,
-                                 event.target.password.value,
-                                 "/login",
-                                 function(userName){
-                                   self.loggedInCallback(userName);
-                                 },
-                                 function(){
-                                   self.loginErrorCallback();
-                                 });
+      router.login({login: event.target.login.value,
+                    password: event.target.password.value,
+                    success: function(userName){
+                      self.loggedInCallback(userName);
+                    },
+                    error: function(){
+                      self.loginErrorCallback();
+                    }
+                   });
     }
     loggedInCallback(userName){
       this.shadowRoot.innerHTML = `
@@ -41,10 +62,10 @@
       this.shadowRoot.querySelector("#logout").onclick = function(){
         self.logout();
       }
-      router.servePage();
     }
     loginErrorCallback(){
       this.shadowRoot.getElementById("message").innerHTML = "Wrong username or password";
+
       this.$form.login.value = "";
       this.$form.password.value = "";
     }
@@ -54,8 +75,7 @@
       this.$form.onsubmit = function(event){
         this.login(event);
       };
-      sessionStorage.removeItem('token');
-      router.servePage();
+      router.logout();
     }
   }
   document.registerElement('main-login', MainLogin);

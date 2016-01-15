@@ -1,0 +1,55 @@
+main-login {
+  position: absolute;
+  top: 10%;
+  right: 0.5%;
+  line-height: 140%;
+}
+
+main-navigation {
+  margin: 0.2%;
+  padding: 0.5%;
+}
+
+main{
+  margin: 0.2%;
+  background-color: #cccccc;
+  padding: 0.5%;
+  box-shadow: 0 0 10px #000000;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+header {
+  display: block;
+  padding: 0.9%;
+  background-color: #404040;
+  color: #fff;
+  box-shadow: 0 0 8px #000000;
+  position: relative;
+}
+footer {
+  padding: 0.5%;
+  padding-left: 1%;
+  margin-top: 0.4%;
+  background-color: #404040;
+  color: #fff;
+  box-shadow: 0 0 8px #000000;
+}
+h1 {
+  font-size: 38px;
+}
+h2 {
+  font-size: 26px;
+}
+p {
+  font-size: 15px;
+  padding-left: 15px;
+}
+.shadow {
+  text-shadow:
+    -0.5px -0.5px 0 #000,
+    0.5px -0.5px 0 #000,
+    -0.5px 0.5px 0 #000,
+    0.5px 0.5px 0 #000;
+}

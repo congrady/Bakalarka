@@ -1,6 +1,6 @@
 'use strict';
 
-router.showPage({
+router.newPage({
   title: "Home",
   init: function(urlParams) {
     let root = new DocumentFragment();

@@ -6,6 +6,7 @@ class Router {
     this.currentURL = this.siteName + window.location.pathname;
     this.routes = new Map();
     this.resources = new Map();
+    this.Pages = new Map(); //key: name of the page, value: page object
     this.availableComponents = new Set();
     this.needAuthentication = new Set();
     this.navigationPaths = [];
@@ -21,6 +22,10 @@ class Router {
     }
   }
 
+  newPage(page){
+    this.Pages.set(this.currentPage, page);
+  }
+
   navigate(newPath, relative){
     if (relative){
       this.currentURL += newPath;
@@ -32,18 +37,43 @@ class Router {
     this.servePage();
   }
 
+  logout(){
+    sessionStorage.removeItem('token');
+    for (let page of this.needAuthentication){
+      this.Pages.delete(page);
+    }
+    this.servePage();
+  }
+
+  login(options){
+    var self = this;
+    Authenticator.loginRequest(options.login,
+                               options.password,
+                               "/login",
+                               function(userName){
+                                 options.success(userName);
+                                 self.servePage();
+                               },
+                               options.error);
+  }
+
   servePage() {
+    //alert("ahoj");
     this.urlParams = location.pathname.substring(1).split("/");
     var path = "/"+this.urlParams.shift();
     if (!this.routes.has(path)){
       this.detachedHandler(null);
       this.showError({pageNotFound: true});
-      return
+      return;
     }
     this.currentPage = this.routes.get(path);
     if (this.needAuthentication.has(this.currentPage)){
       if (sessionStorage.token){
-        this.loadPage(true);
+        if (this.Pages.has(this.currentPage)){
+          this.showPage();
+        } else{
+          this.loadPage(true);
+        }
       }
       else {
         this.detachedHandler(null);
@@ -51,7 +81,11 @@ class Router {
       }
     }
     else {
-      this.loadPage(false);
+      if (this.Pages.has(this.currentPage)){
+        this.showPage();
+      } else{
+        this.loadPage(false);
+      }
     }
   }
 
@@ -68,13 +102,8 @@ class Router {
     }
   }
 
-  showPage(page){
-    if (page){
-      this.visitedPages.set(this.currentPage, page);
-    }
-    else{
-      var page = this.visitedPages.get(this.currentPage);
-    }
+  showPage(){
+    let page = this.Pages.get(this.currentPage);
     let urlParams = this.urlParams;
     let $mainContent = document.getElementsByTagName('main')[0];
     if (page.title) {
@@ -115,7 +144,7 @@ class Router {
   loadPage(needAuthentication){
     let neededResources = [];
     neededResources.push("/Frontend/pages/"+this.currentPage+".js");
-    for (var component of this.resources.get(this.currentPage)){
+    for (let component of this.resources.get(this.currentPage)){
       if (!this.availableComponents.has(component)){
         neededResources.push("/Frontend/components/"+component+".js");
       }
@@ -124,7 +153,10 @@ class Router {
     if (needAuthentication) {
       ResourceLoader.loadRestrictedScript(neededResources,
                                           function(){
-                                            self.availableComponents.add(component);
+                                            for (let component of neededResources.shift()){
+                                              self.availableComponents.add(component);
+                                            }
+                                            self.showPage();
                                           },
                                           function(){
                                             self.showError({unauthorized: true});
@@ -136,7 +168,10 @@ class Router {
     else {
       ResourceLoader.loadScript(neededResources,
                                 function(){
-                                  self.availableComponents.add(component);
+                                  for (let component of neededResources.shift()){
+                                    self.availableComponents.add(component);
+                                  }
+                                  self.showPage();
                                 },
                                 function(){
                                   self.showError({timeout: true});
