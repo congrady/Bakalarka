@@ -1,7 +1,7 @@
 'use strict';
 
 class Router {
-  constructor(routes) {
+  constructor() {
     this.siteName = window.location.hostname + ":" + window.location.port;
     this.currentURL = this.siteName + window.location.pathname;
     this.routes = new Map();
@@ -20,10 +20,6 @@ class Router {
         this.needAuthentication.add(route.page);
       }
     }
-  }
-
-  newPage(page){
-    this.Pages.set(this.currentPage, page);
   }
 
   navigate(newPath, relative){
@@ -58,7 +54,6 @@ class Router {
   }
 
   servePage() {
-    //alert("ahoj");
     this.urlParams = location.pathname.substring(1).split("/");
     var path = "/"+this.urlParams.shift();
     if (!this.routes.has(path)){
@@ -91,14 +86,18 @@ class Router {
 
   showError(error){
     let $mainContent = document.getElementsByTagName('main')[0];
+    let $title = document.getElementsByTagName('title')[0];
     if (error.unauthorized){
       $mainContent.innerHTML = "This page is available only to logged in users.";
+      $title.innerHTML = "Unauthorized access";
     }
     else if (error.timeout){
       $mainContent.innerHTML = "We can't load this page. Server timeout.";
+      $title.innerHTML = "Server timeout";
     }
     else if (error.pageNotFound){
       $mainContent.innerHTML = "Page does not exist.";
+      $title.innerHTML = "Page not found";
     }
   }
 

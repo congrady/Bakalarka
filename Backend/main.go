@@ -19,6 +19,7 @@ func sendResources(w http.ResponseWriter, r *http.Request) {
 }
 
 func makeResourceHandlers() {
+	http.HandleFunc("/config.js", sendResources)
 	folders, _ := ioutil.ReadDir("../Frontend")
 	for _, folder := range folders {
 		files, _ := ioutil.ReadDir("../Frontend/" + folder.Name())
