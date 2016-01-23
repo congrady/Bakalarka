@@ -17,6 +17,7 @@
       height: 100%;
       text-align: center;
       line-height: 45px;
+      box-shadow: -0.7px 0px 0.7px 0.7px #666666;
     }
     .active {
       background-color: #fff;
@@ -27,15 +28,16 @@
       background-color: #fff;
       color: #404040;
       text-shadow: none;
-      -moz-box-shadow:    inset 0 0 10px #000000;
-      -webkit-box-shadow: inset 0 0 10px #000000;
-      box-shadow:         inset 0 0 10px #000000;
+      -moz-box-shadow:    inset 0 0 2px #000000;
+      -webkit-box-shadow: inset 0 0 2px #000000;
+      box-shadow:         inset 0 0 2px #000000;
     }
     nav {
+      overflow: hidden;
       height: 45px;
-      background-color: #1a1a1a;
+      background-color: #333333;
       box-shadow: 0 0 4px #000000;
-      margin: 0.4%;
+      margin-top: 0.4%;
     }
     </style>
     <nav></nav>
