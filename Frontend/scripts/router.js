@@ -10,6 +10,7 @@ class Router {
     this.availableComponents = new Set();
     this.needAuthentication = new Set();
     this.navigationPaths = [];
+    this.appTitle = FrameworkConfig.title;
     for (let route of FrameworkConfig.routes){
       if (route.navigation){
         this.navigationPaths.push(route.path);
@@ -56,6 +57,7 @@ class Router {
   servePage() {
     this.urlParams = location.pathname.substring(1).split("/");
     var path = "/"+this.urlParams.shift();
+    alert(path);
     if (!this.routes.has(path)){
       this.detachedHandler(null);
       this.showError({pageNotFound: true});
@@ -87,17 +89,18 @@ class Router {
   showError(error){
     let $mainContent = document.getElementsByTagName('main')[0];
     let $title = document.getElementsByTagName('title')[0];
+    title.innerHTML = this.appTitle;
     if (error.unauthorized){
       $mainContent.innerHTML = "This page is available only to logged in users.";
-      $title.innerHTML = "Unauthorized access";
+      $title.innerHTML += "Unauthorized access";
     }
     else if (error.timeout){
       $mainContent.innerHTML = "We can't load this page. Server timeout.";
-      $title.innerHTML = "Server timeout";
+      $title.innerHTML += "Server timeout";
     }
     else if (error.pageNotFound){
       $mainContent.innerHTML = "Page does not exist.";
-      $title.innerHTML = "Page not found";
+      $title.innerHTML += "Page not found";
     }
   }
 
@@ -106,7 +109,7 @@ class Router {
     let urlParams = this.urlParams;
     let $mainContent = document.getElementsByTagName('main')[0];
     if (page.title) {
-      document.getElementsByTagName('title')[0].innerHTML = page.title;
+      document.getElementsByTagName('title')[0].innerHTML = this.appTitle + page.title;
     }
     this.detachedHandler(page.detachedCallback);
     while ($mainContent.lastChild) {

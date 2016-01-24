@@ -6,5 +6,6 @@ FrameworkConfig = {
     {path: "/Page2", page: 'Page2', navigation: true, auth: true, resources: []},
     {path: "/Page3", page: 'Page3', navigation: true, auth: false, resources: []},
     {path: "/Kontakt", page: 'Kontakt', navigation: true, auth: false, resources: []}
-  ]
+  ],
+  title: "UX | "
 };

@@ -38,6 +38,7 @@
       background-color: #333333;
       box-shadow: 0 0 4px #000000;
       margin-top: 0.4%;
+      border-radius: 5px;
     }
     </style>
     <nav></nav>
