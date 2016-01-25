@@ -6,8 +6,9 @@ class Router {
     this.currentURL = this.siteName + window.location.pathname;
     this.routes = new Map();
     this.resources = new Map();
+    this.templates = new Map();
     this.Pages = new Map(); //key: name of the page, value: page object
-    this.availableComponents = new Set();
+    this.availableResources = new Set();
     this.needAuthentication = new Set();
     this.navigationPaths = [];
     this.appTitle = FrameworkConfig.title;
@@ -15,6 +16,7 @@ class Router {
       if (route.navigation){
         this.navigationPaths.push(route.path);
       }
+      this.templates.set(route.page, route.template);
       this.routes.set(route.path, route.page);
       this.resources.set(route.page, route.resources);
       if (route.auth){
@@ -39,31 +41,34 @@ class Router {
     for (let page of this.needAuthentication){
       this.Pages.delete(page);
     }
+    App.authenticator.userName = null;
     this.servePage();
   }
 
   login(options){
     var self = this;
-    Authenticator.loginRequest(options.login,
-                               options.password,
-                               "/login",
-                               function(userName){
-                                 options.success(userName);
-                                 self.servePage();
-                               },
-                               options.error);
+    App.authenticator.loginRequest(
+      options.login,
+      options.password,
+      "/login",
+      function(userName){
+        options.success(userName);
+      self.servePage();
+      },
+      options.error
+    );
   }
 
   servePage() {
     this.urlParams = location.pathname.substring(1).split("/");
     var path = "/"+this.urlParams.shift();
-    alert(path);
     if (!this.routes.has(path)){
-      this.detachedHandler(null);
+      this.detachedHandler();
       this.showError({pageNotFound: true});
       return;
     }
     this.currentPage = this.routes.get(path);
+    document.getElementsByTagName("main-navigation")[0].setAttribute("active", this.currentPage);
     if (this.needAuthentication.has(this.currentPage)){
       if (sessionStorage.token){
         if (this.Pages.has(this.currentPage)){
@@ -73,7 +78,7 @@ class Router {
         }
       }
       else {
-        this.detachedHandler(null);
+        this.detachedHandler();
         this.showError({unauthorized: true});
       }
     }
@@ -89,7 +94,7 @@ class Router {
   showError(error){
     let $mainContent = document.getElementsByTagName('main')[0];
     let $title = document.getElementsByTagName('title')[0];
-    title.innerHTML = this.appTitle;
+    $title.innerHTML = this.appTitle;
     if (error.unauthorized){
       $mainContent.innerHTML = "This page is available only to logged in users.";
       $title.innerHTML += "Unauthorized access";
@@ -105,7 +110,7 @@ class Router {
   }
 
   showPage(){
-    let page = this.Pages.get(this.currentPage);
+    let page = App.router.Pages.get(this.currentPage);
     let urlParams = this.urlParams;
     let $mainContent = document.getElementsByTagName('main')[0];
     if (page.title) {
@@ -146,38 +151,45 @@ class Router {
   loadPage(needAuthentication){
     let neededResources = [];
     neededResources.push("/Frontend/pages/"+this.currentPage+".js");
+    if (this.templates.get(this.currentPage)){
+      neededResources.push("/Frontend/pages/templates/"+this.currentPage+".html");
+    }
     for (let component of this.resources.get(this.currentPage)){
-      if (!this.availableComponents.has(component)){
+      if (!this.availableResources.has(component)){
         neededResources.push("/Frontend/components/"+component+".js");
       }
     }
     var self = this;
     if (needAuthentication) {
-      ResourceLoader.loadRestrictedScript(neededResources,
-                                          function(){
-                                            for (let component of neededResources.shift()){
-                                              self.availableComponents.add(component);
-                                            }
-                                            self.showPage();
-                                          },
-                                          function(){
-                                            self.showError({unauthorized: true});
-                                          },
-                                          function(){
-                                            self.showError({timeout: true});
-                                          });
+      App.resourceLoader.loadRestrictedScript(
+        neededResources,
+        function(){
+          for (let component of neededResources.shift()){
+            self.availableResources.add(component);
+          }
+          self.showPage();
+        },
+        function(){
+          self.showError({unauthorized: true});
+        },
+        function(){
+          self.showError({timeout: true});
+        }
+      );
     }
     else {
-      ResourceLoader.loadScript(neededResources,
-                                function(){
-                                  for (let component of neededResources.shift()){
-                                    self.availableComponents.add(component);
-                                  }
-                                  self.showPage();
-                                },
-                                function(){
-                                  self.showError({timeout: true});
-                                });
+      App.resourceLoader.loadScript(
+        neededResources,
+        function(){
+          for (let component of neededResources.shift()){
+            self.availableResources.add(component);
+          }
+          self.showPage();
+        },
+        function(){
+          self.showError({timeout: true});
+        }
+      );
     }
   }
 }

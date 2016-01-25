@@ -47,24 +47,54 @@
     createdCallback() {
       this.createShadowRoot().innerHTML = template;
       this.$nav = this.shadowRoot.querySelector('nav');
-      let width = (100/App.router.navigationPaths.length) + "%";
+      if (App.authenticator.userName){
+        this.setAttribute("mode", "auth");
+      }
+      else {
+        this.setAttribute("mode", "free");
+      }
+    }
+    attributeChangedCallback(attrName, oldVal, newVal) {
+      if (attrName == "mode"){
+        this.makeNavigation(newVal);
+      }
+      if (attrName == "active"){
+        this.shadowRoot.querySelector("#"+oldVal).classList.remove("active");
+        this.shadowRoot.querySelector("#"+newVal).classList.add("active");
+      }
+    }
+    makeNavigation(mode){
+      this.$nav.innerHTML = "";
       var self = this;
       let currentPage = App.router.currentPage;
-      for (let path of App.router.navigationPaths){
-          var anchor = document.createElement("a");
-          if (path.substring(1) == currentPage){
-            anchor.classList.add("active");
+      let navigation = [];
+      if (mode == "free"){
+        for (let path of App.router.navigationPaths){
+          if (!App.router.needAuthentication.has(path.substring(1))){
+            navigation.push(path);
           }
-          anchor.innerHTML = path.substring(1);
-          anchor.href = path;
-          anchor.style.width = width;
-          anchor.onclick = function(event){
-            App.navigate(event);
-            let current = self.shadowRoot.querySelector(".active");
-            current.classList.remove("active");
-            event.target.classList.add("active");
-          }
-          this.$nav.appendChild(anchor);
+        }
+      }
+      else if (mode == "auth"){
+        for (let path of App.router.navigationPaths){
+          navigation.push(path);
+        }
+      }
+      let width = (100/navigation.length) + "%";
+      for (let path of navigation){
+        let anchor = path.substring(1);
+        let $anchorElement = document.createElement("a");
+        if (anchor == currentPage){
+          $anchorElement.classList.add("active");
+        }
+        $anchorElement.innerHTML = anchor;
+        $anchorElement.id = anchor;
+        $anchorElement.href = path;
+        $anchorElement.style.width = width;
+        $anchorElement.onclick = function(event){
+          App.navigate(event);
+        }
+        this.$nav.appendChild($anchorElement);
       }
     }
   }

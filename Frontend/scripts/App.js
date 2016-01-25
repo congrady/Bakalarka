@@ -1,13 +1,15 @@
 'use strict';
 
 var App = {
+  self: this,
   router: new Router(),
+  resourceLoader: new ResourceLoader(),
+  authenticator: new Authenticator(),
+  htmlSchemas: new Map(),
   start: function(){
-    if (!this.router){
-      App.router = new Router();
-      var self = this;
-      window.addEventListener('popstate', self.start);
-    }
+    this.router = new Router();
+    this.resourceLoader = new ResourceLoader();
+    this.authenticator = new Authenticator();
     this.router.servePage();
   },
   navigate: function(event){
@@ -26,3 +28,4 @@ var App = {
 }
 
 App.start();
+window.addEventListener('popstate', App.start);

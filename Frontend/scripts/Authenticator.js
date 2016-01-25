@@ -1,8 +1,10 @@
 'use strict';
 
-var Authenticator = {
-  userName: null,
-  loginRequest: function(login, password, url, loginSuccessful, loginError){
+class Authenticator {
+  constructor(){
+    this.userName = null;
+  }
+  loginRequest(login, password, url, loginSuccessful, loginError){
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");

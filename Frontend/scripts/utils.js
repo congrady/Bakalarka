@@ -1,22 +1,26 @@
 'use strict';
 
-function getRequest(options){
-  let request = new XMLHttpRequest();
-  request.open("GET", options.url, true);
-  request.send();
-  request.onreadystatechange = function() {
-    if (request.readyState == 4 && request.status == 200) {
-      if (options.successHandler){
-        options.successHandler(request.responseText);
+function xhr_get(params){
+  let xhr = new XMLHttpRequest();
+  xhr.open("GET", params.url, true);
+  xhr.onload = function() {
+    if (xhr.status == 200) {
+      if (params.success){
+        params.success();
       }
-      return request.responseText;
     }
-    else {
-      if (options.errorHandler){
-        options.errorHandler(request.status);
+    else if (xhr.status == 401){
+      if (params.onunauthorized){
+        params.unauthorized();
       }
+    }
+  };
+  if (params.onerror){
+    xhr.error = function(){
+      params.onerror();
     }
   }
+  xhr.send();
 }
 
 String.prototype.capitalizeFirstLetter = function() {
@@ -52,6 +56,19 @@ DocumentFragment.prototype.add = function(options){
   return element;
 }
 Element.prototype.add = DocumentFragment.prototype.add;
+
+DocumentFragment.prototype.importTemplate = function(path){
+  if (path){
+
+  }
+  else {
+    let res = document.createDocumentFragment();
+    res.innerHTML = App.htmlSchemas.get(App.router.currentPage+"Template");
+    this.appendChild(res);
+  }
+  return this;
+}
+Element.prototype.importTemplate = DocumentFragment.prototype.importTemplate;
 
 function createFragmentFromTemplate(template){
   var fragment = document.createDocumentFragment();

@@ -62,15 +62,16 @@
     login(event) {
       event.preventDefault();
       var self = this;
-      App.login({login: event.target.login.value,
-                 password: event.target.password.value,
-                 success: function(userName){
-                   self.loggedInCallback(userName);
-                 },
-                 error: function(){
-                   self.loginErrorCallback();
-                 }
-                });
+      App.login({
+        login: event.target.login.value,
+        password: event.target.password.value,
+        success: function(userName){
+         self.loggedInCallback(userName);
+        },
+        error: function(){
+         self.loginErrorCallback();
+        }
+      });
     }
     loggedInCallback(userName){
       this.root.innerHTML = `
@@ -83,6 +84,7 @@
       this.shadowRoot.querySelector("#logout").onclick = function(){
         self.logout();
       }
+      document.getElementsByTagName("main-navigation")[0].setAttribute("mode", "auth");
     }
     loginErrorCallback(){
       this.shadowRoot.getElementById("message").innerHTML = " Wrong username or password";
@@ -97,6 +99,7 @@
         this.login(event);
       };
       App.logout();
+      document.getElementsByTagName("main-navigation")[0].setAttribute("mode", "free");
     }
   }
   document.registerElement('main-login', MainLogin);
