@@ -6,7 +6,7 @@ function xhr_get(params){
   xhr.onload = function() {
     if (xhr.status == 200) {
       if (params.success){
-        params.success();
+        params.success(xhr.response);
       }
     }
     else if (xhr.status == 401){
@@ -48,6 +48,11 @@ DocumentFragment.prototype.add = function(options){
   if (options.id){
     element.id = options.id;
   }
+  if (options.attributes){
+    for (let attr in options.attributes){
+      element.setAttribute(attr, options.attributes[attr]);
+    }
+  }
   if (options.insertBefore){
     this.insertBefore(element, options.insertBefore);
     return element;
@@ -57,16 +62,18 @@ DocumentFragment.prototype.add = function(options){
 }
 Element.prototype.add = DocumentFragment.prototype.add;
 
-DocumentFragment.prototype.importTemplate = function(path){
-  if (path){
-
+DocumentFragment.prototype.importTemplate = function(templateName){
+  let temp = document.createElement('body');
+  if (templateName){
+    temp.innerHTML = App.htmlTemplates.get(templateName);
   }
   else {
-    let res = document.createDocumentFragment();
-    res.innerHTML = App.htmlSchemas.get(App.router.currentPage+"Template");
-    this.appendChild(res);
+    temp.innerHTML = App.htmlTemplates.get(App.router.currentPage);
   }
-  return this;
+  let element;
+  while(element = temp.firstElementChild){
+    this.appendChild(element);
+  }
 }
 Element.prototype.importTemplate = DocumentFragment.prototype.importTemplate;
 

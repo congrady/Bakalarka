@@ -27,8 +27,8 @@ class ResourceLoader {
       else if(resourcePath.endsWith(".html")){
         xhr_get({
             url: resourcePath,
-            onsuccess: function(responseText){
-              App.router.htmlSchemas.set(App.router.currentPage+"Template", responseText);
+            success: function(responseText){
+              App.htmlTemplates.set(App.router.currentPage, responseText);
               unresolvedResourcesCounter -= 1;
               if (unresolvedResourcesCounter == 0){
                 if (successCallback){
@@ -36,7 +36,7 @@ class ResourceLoader {
                 }
               }
             },
-            onerror: function(){
+            error: function(){
               if (timeoutCallback){
                 timeoutCallback();
               }
@@ -81,23 +81,22 @@ class ResourceLoader {
       }
       else if(resourcePath.endsWith(".html")){
         xhr_get({
-            url: resourcePath,
-            success: function(responseText){
-              App.router.htmlSchemas.set(App.router.currentPage+"Schema", responseText);
-              unresolvedResourcesCounter -= 1;
-              if (unresolvedResourcesCounter == 0){
-                if (successCallback){
-                  successCallback();
-                }
-              }
-            },
-            error: function(){
-              if (timeoutCallback){
-                timeoutCallback();
+          url: resourcePath,
+          success: function(responseText){
+            App.htmlTemplates.set(App.router.currentPage, responseText);
+            unresolvedResourcesCounter -= 1;
+            if (unresolvedResourcesCounter == 0){
+              if (successCallback){
+                successCallback();
               }
             }
+          },
+          error: function(){
+            if (timeoutCallback){
+              timeoutCallback();
+            }
           }
-        );
+        });
       }
     }
   }

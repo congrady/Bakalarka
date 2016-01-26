@@ -65,7 +65,6 @@
     }
     makeNavigation(mode){
       this.$nav.innerHTML = "";
-      var self = this;
       let currentPage = App.router.currentPage;
       let navigation = [];
       if (mode == "free"){

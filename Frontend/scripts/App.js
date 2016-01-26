@@ -5,16 +5,21 @@ var App = {
   router: new Router(),
   resourceLoader: new ResourceLoader(),
   authenticator: new Authenticator(),
-  htmlSchemas: new Map(),
+  htmlTemplates: new Map(),
   start: function(){
     this.router = new Router();
     this.resourceLoader = new ResourceLoader();
     this.authenticator = new Authenticator();
     this.router.servePage();
   },
-  navigate: function(event){
+  navigate: function(event, relative){
     event.preventDefault();
-    App.router.navigate(event.target.href.substring(21)); //todo
+    if (relative) {
+      App.router.navigate(event.target.href.substring(21), true);
+    }
+    else {
+      App.router.navigate(event.target.href.substring(21)); //todo
+    }
   },
   login: function(options){
     this.router.login(options);
