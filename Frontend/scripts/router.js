@@ -11,6 +11,7 @@ class Router {
     this.resourcePaths = new Map();
     this.availableResources = new Set();
     this.needAuthentication = new Set();
+    this.navigationNames = new Map();
     this.navigationPaths = [];
     this.appTitle = FrameworkConfig.title;
     for (let resource of FrameworkConfig.resources){
@@ -19,12 +20,13 @@ class Router {
     for (let route of FrameworkConfig.routes){
       if (route.navigation){
         this.navigationPaths.push(route.path);
+        this.navigationNames.set(route.path, route.navigation);
       }
       this.templates.set(route.page, route.template);
       this.routes.set(route.path, route.page);
       this.resourcesForCurrentPage.set(route.page, route.resources);
       if (route.auth){
-        this.needAuthentication.add(route.page);
+        this.needAuthentication.add(route.path);
       }
     }
   }
@@ -54,7 +56,7 @@ class Router {
     }
     this.currentPage = this.routes.get(path);
     document.getElementsByTagName("main-navigation")[0].setAttribute("active", this.currentPage);
-    if (this.needAuthentication.has(this.currentPage)){
+    if (this.needAuthentication.has(path)){
       if (sessionStorage.token){
         if (this.Pages.has(this.currentPage)){
           this.showPage();
@@ -95,6 +97,10 @@ class Router {
   }
 
   showPage(){
+    /*
+    for (let res of this.availableResources.entries()){
+      alert(res);
+    };*/
     let page = App.router.Pages.get(this.currentPage);
     let urlParams = this.urlParams;
     let $mainContent = document.getElementsByTagName('main')[0];
@@ -150,7 +156,9 @@ class Router {
       App.resourceLoader.loadRestrictedScript(
         neededResources,
         function(){
-          for (let resource of neededResources.shift()){
+          neededResources.shift();
+          for (let resource of neededResources){
+            alert(resource);
             self.availableResources.add(resource);
           }
           self.showPage();
@@ -167,7 +175,9 @@ class Router {
       App.resourceLoader.loadScript(
         neededResources,
         function(){
-          for (let resource of neededResources.shift()){
+          neededResources.shift()
+          for (let resource of neededResources){
+            alert(resource);
             self.availableResources.add(resource);
           }
           self.showPage();

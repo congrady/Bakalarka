@@ -16,10 +16,15 @@
     box-shadow: 0 0 4px #000000;
     background-color: #d9d9d9;
     margin: 1%;
+    position:relative;
   }
   #id_heading {
     font-size: 28px;
     font-size: bolder;
+  }
+  #cattegory {
+    position:absolute;
+    top: 20;
   }
   </style>
   <a>
@@ -38,29 +43,18 @@
       this.createShadowRoot().innerHTML = template;
       this.anchor = this.shadowRoot.querySelector('a');
       this.div = this.shadowRoot.querySelector('div');
-      var self = this;
-      this.anchor.onclick = function(event){
-        alert(event.target.href);
-        App.navigate(event, true);
-      }
     }
-    attributeChangedCallback(attrName, oldVal, newVal) {
-      if (attrName == "id"){
-        this.anchor.setAttribute("href", "/"+newVal);
-        this.div.querySelector("#id_heading").innerHTML = newVal;
+    attachedCallback(){
+      var self = this;
+      this.anchor.href = "/Test="+this.getAttribute("id");
+      this.anchor.onclick = function(event){
+        App.navigate(event);
       }
-      if (attrName == "cattegory"){
-        this.div.querySelector("#cattegory").innerHTML = newVal;
-      }
-      if (attrName == "date"){
-        this.div.querySelector("#date").innerHTML = newVal;
-      }
-      if (attrName == "added_by"){
-        this.div.querySelector("#added_by").innerHTML = newVal;
-      }
-      if (attrName == "subject"){
-        this.div.querySelector("#subject").innerHTML = newVal;
-      }
+      this.div.querySelector("#id_heading").innerHTML = this.getAttribute("id");
+      this.div.querySelector("#cattegory").innerHTML = this.getAttribute("cattegory");
+      this.div.querySelector("#date").innerHTML = this.getAttribute("date");
+      this.div.querySelector("#added_by").innerHTML = this.getAttribute("added_by");
+      this.div.querySelector("#subject").innerHTML = this.getAttribute("subject");
     }
   }
   document.registerElement('test-component', TestComponent);

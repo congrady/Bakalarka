@@ -6,9 +6,10 @@ FrameworkConfig = {
   ],
   routes: [
     {path: "/", page: 'Home', navigation: false, auth: false, resources: [], template: true},
-    {path: "/Home", page: 'Home', navigation: true, auth: false, resources: [], template: true},
-    {path: "/newTest", page: 'newTest', navigation: true, auth: true, resources: [], template: false},
-    {path: "/Tests", page: 'Tests', navigation: true, auth: true, resources: ["test-component"], template: false},
-    {path: "/Kontakt", page: 'Kontakt', navigation: true, auth: false, resources: [], template: true}
+    {path: "/Home", page: 'Home', navigation: "Home", auth: false, resources: [], template: true},
+    {path: "/NewTest", page: 'NewTest', navigation: "New test", auth: true, resources: [], template: false},
+    {path: "/Tests", page: 'Tests', navigation: "Tests", auth: true, resources: ["test-component"], template: false},
+    {path: "/Contact", page: 'Contact', navigation: "Contact", auth: false, resources: [], template: true},
+    {path: "/Test", page: "Test", navigation: false, auth: true, resources: [], template: false}
   ],
 };

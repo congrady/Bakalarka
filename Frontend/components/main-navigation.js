@@ -59,8 +59,14 @@
         this.makeNavigation(newVal);
       }
       if (attrName == "active"){
-        this.shadowRoot.querySelector("#"+oldVal).classList.remove("active");
-        this.shadowRoot.querySelector("#"+newVal).classList.add("active");
+        let oldActive = this.shadowRoot.querySelector("#"+oldVal);
+        if (oldActive){
+          oldActive.classList.remove("active");
+        }
+        let newActive = this.shadowRoot.querySelector("#"+newVal);
+        if (newActive){
+          newActive.classList.add("active");
+        }
       }
     }
     makeNavigation(mode){
@@ -69,7 +75,7 @@
       let navigation = [];
       if (mode == "free"){
         for (let path of App.router.navigationPaths){
-          if (!App.router.needAuthentication.has(path.substring(1))){
+          if (!App.router.needAuthentication.has(path)){
             navigation.push(path);
           }
         }
@@ -81,13 +87,12 @@
       }
       let width = (100/navigation.length) + "%";
       for (let path of navigation){
-        let anchor = path.substring(1);
         let $anchorElement = document.createElement("a");
-        if (anchor == currentPage){
+        if (App.router.routes.get(path) == currentPage){
           $anchorElement.classList.add("active");
         }
-        $anchorElement.innerHTML = anchor;
-        $anchorElement.id = anchor;
+        $anchorElement.innerHTML = App.router.navigationNames.get(path);
+        $anchorElement.id = path.substring(1);
         $anchorElement.href = path;
         $anchorElement.style.width = width;
         $anchorElement.onclick = function(event){

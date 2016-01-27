@@ -1,24 +1,32 @@
 'use strict';
 
 var App = {
-  self: this,
-  router: new Router(),
-  resourceLoader: new ResourceLoader(),
-  authenticator: new Authenticator(),
   htmlTemplates: new Map(),
-  start: function(){
-    this.router = new Router();
-    this.resourceLoader = new ResourceLoader();
-    this.authenticator = new Authenticator();
-    this.router.servePage();
+  init: function(){
+    if (!this.router){
+      this.router = new Router();
+      this.resourceLoader = new ResourceLoader();
+      this.authenticator = new Authenticator();
+      this.router.servePage();
+    }
   },
   navigate: function(event, relative){
     event.preventDefault();
-    if (relative) {
-      App.router.navigate(event.target.href.substring(21), true);
+    let href;
+    if (event.target.href){
+      href = event.target.href.substring(21);
+    }
+    else if (event.target.parentElement.href) {
+      href = event.target.parentElement.href.substring(21);
     }
     else {
-      App.router.navigate(event.target.href.substring(21)); //todo
+      href = event.target.parentElement.parentElement.href.substring(21);
+    }
+    if (relative) {
+      App.router.navigate(href, true);
+    }
+    else {
+      App.router.navigate(href);
     }
   },
   login: function(options){
@@ -32,5 +40,8 @@ var App = {
   }
 }
 
-App.start();
-window.addEventListener('popstate', App.start);
+App.init();
+window.addEventListener('popstate', App.init);
+/*window.addEventListener('unload', function(){
+  sessionStorage.removeItem('token')
+});*/

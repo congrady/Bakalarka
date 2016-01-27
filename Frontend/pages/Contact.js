@@ -1,7 +1,7 @@
 'use strict';
 
 App.newPage({
-  title: "Kontakt",
+  title: "Contact",
   init: function(urlParams) {
     let root = new DocumentFragment();
     root.add({
