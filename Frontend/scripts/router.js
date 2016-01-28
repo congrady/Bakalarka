@@ -57,7 +57,7 @@ class Router {
     this.currentPage = this.routes.get(path);
     document.getElementsByTagName("main-navigation")[0].setAttribute("active", this.currentPage);
     if (this.needAuthentication.has(path)){
-      if (sessionStorage.token){
+      if (App.userName){
         if (this.Pages.has(this.currentPage)){
           this.showPage();
         } else{
@@ -97,10 +97,6 @@ class Router {
   }
 
   showPage(){
-    /*
-    for (let res of this.availableResources.entries()){
-      alert(res);
-    };*/
     let page = App.router.Pages.get(this.currentPage);
     let urlParams = this.urlParams;
     let $mainContent = document.getElementsByTagName('main')[0];
@@ -144,7 +140,12 @@ class Router {
     neededResources.push("/Frontend/pages/"+this.currentPage+".js");
     for (let resourceName of this.resourcesForCurrentPage.get(this.currentPage)){
       let resourcePath = this.resourcePaths.get(resourceName);
+      alert(`${resourcePath} ${sessionStorage.getItem(resourcePath)}`);
       if (!this.availableResources.has(resourcePath)) {
+        if (resourcePath.includes("components/") && sessionStorage.getItem(resourcePath)){
+          //alert(sessionStorage.getItem(resourcePath));
+          continue; //web component is already registered, no need to load again
+        }
         neededResources.push(resourcePath);
       }
     }
@@ -156,10 +157,12 @@ class Router {
       App.resourceLoader.loadRestrictedScript(
         neededResources,
         function(){
-          neededResources.shift();
-          for (let resource of neededResources){
-            alert(resource);
-            self.availableResources.add(resource);
+          neededResources.shift()
+          for (let resourcePath of neededResources){
+            self.availableResources.add(resourcePath);
+            if (resourcePath.includes("components/")){
+              sessionStorage.setItem(resourcePath, true);
+            }
           }
           self.showPage();
         },
@@ -176,9 +179,11 @@ class Router {
         neededResources,
         function(){
           neededResources.shift()
-          for (let resource of neededResources){
-            alert(resource);
-            self.availableResources.add(resource);
+          for (let resourcePath of neededResources){
+            self.availableResources.add(resourcePath);
+            if (resourcePath.includes("components/")){
+              sessionStorage.setItem(resourcePath, true);
+            }
           }
           self.showPage();
         },
@@ -188,28 +193,4 @@ class Router {
       );
     }
   }
-
-  logout(){
-    sessionStorage.removeItem('token');
-    for (let page of this.needAuthentication){
-      this.Pages.delete(page);
-    }
-    App.authenticator.userName = null;
-    this.servePage();
-  }
-
-  login(options){
-    var self = this;
-    App.authenticator.loginRequest(
-      options.login,
-      options.password,
-      "/login",
-      function(userName){
-        options.success(userName);
-      self.servePage();
-      },
-      options.error
-    );
-  }
-
 }

@@ -24,7 +24,23 @@
   }
   #cattegory {
     position:absolute;
-    top: 20;
+    top: 5;
+    left: 5
+  }
+  #date {
+    position:absolute;
+    top: 5;
+    right: 5
+  }
+  #added_by {
+    position:absolute;
+    bottom: 5;
+    left: 5
+  }
+  #subject {
+    position:absolute;
+    bottom: 5;
+    right: 5
   }
   </style>
   <a>

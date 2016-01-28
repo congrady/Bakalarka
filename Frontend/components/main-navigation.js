@@ -47,7 +47,7 @@
     createdCallback() {
       this.createShadowRoot().innerHTML = template;
       this.$nav = this.shadowRoot.querySelector('nav');
-      if (App.authenticator.userName){
+      if (App.userName){
         this.setAttribute("mode", "auth");
       }
       else {

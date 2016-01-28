@@ -7,8 +7,8 @@ var App = {
       this.router = new Router();
       this.resourceLoader = new ResourceLoader();
       this.authenticator = new Authenticator();
-      this.router.servePage();
     }
+    this.router.servePage();
   },
   navigate: function(event, relative){
     event.preventDefault();
@@ -30,10 +30,33 @@ var App = {
     }
   },
   login: function(options){
-    this.router.login(options);
+    var self = this;
+    App.authenticator.loginRequest(
+      options.login,
+      options.password,
+      "/login",
+      function(response){
+        response = response.split(",");
+        let userName = response[0];
+        let token = response[1];
+        self.userName = userName
+        self.token = token;
+        sessionStorage.setItem('userName', userName);
+        sessionStorage.setItem('token', token);
+        options.success();
+        self.router.servePage();
+        document.getElementsByTagName("main-navigation")[0].setAttribute("mode", "auth");
+      },
+      options.error
+    );
   },
   logout: function(){
-    this.router.logout();
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('userName');
+    App.userName = null;
+    App.token = null;
+    document.getElementsByTagName("main-navigation")[0].setAttribute("mode", "free");
+    this.router.servePage();
   },
   newPage: function(page){
     this.router.Pages.set(this.router.currentPage, page);

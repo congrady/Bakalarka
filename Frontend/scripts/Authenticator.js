@@ -2,7 +2,8 @@
 
 class Authenticator {
   constructor(){
-    this.userName = null;
+    App.userName = sessionStorage.getItem("userName");
+    App.token = sessionStorage.getItem("token");
   }
   loginRequest(login, password, url, loginSuccessful, loginError){
     var xhr = new XMLHttpRequest();
@@ -12,10 +13,7 @@ class Authenticator {
     var self = this;
     xhr.onload = function() {
       if (xhr.status == 200){
-        let response = xhr.responseText.split(",");
-        self.userName = response[0];
-        sessionStorage.setItem('token', response[1]);
-        loginSuccessful(self.userName);
+        loginSuccessful(xhr.response);
       }
       else {
         loginError();
