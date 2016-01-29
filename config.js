@@ -1,15 +1,16 @@
 FrameworkConfig = {
   title: "UX | ",
   resources: [
-    //{name: "jQuery", path: "https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"},
-    {name: "test-component", path: "/Frontend/components/test-component.js"}
+    {name: "jQuery", path: "https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"},
+    {name: "test-component", path: "/Frontend/components/test-component.js"},
+    {name: "Home", path: "/Frontend/templates/Home.html"},
+    {name: "Contact", path: "/Frontend/templates/Contact.html"}
   ],
   routes: [
-    {path: "/", page: 'Home', navigation: false, auth: false, resources: [], template: true},
-    {path: "/Home", page: 'Home', navigation: "Home", auth: false, resources: [], template: true},
-    {path: "/NewTest", page: 'NewTest', navigation: "New test", auth: true, resources: [], template: false},
-    {path: "/Tests", page: 'Tests', navigation: "Tests", auth: true, resources: ["test-component"], template: false},
-    {path: "/Contact", page: 'Contact', navigation: "Contact", auth: false, resources: [], template: true},
-    {path: "/Test", page: "Test", navigation: false, auth: true, resources: [], template: false}
+    {page: 'Home', path: "/Home", navigation: "Home", resources: ["Home"]},
+    {page: 'NewTest', path: "/NewTest", navigation: "New test", auth: true},
+    {page: 'Tests', path: "/Tests", navigation: "Tests", auth: true, resources: ["test-component"]},
+    {page: 'Contact', path: "/Contact", navigation: "Contact", resources: ["Contact"]},
+    {page: 'Test', path: "/Test", auth: true}
   ],
 };

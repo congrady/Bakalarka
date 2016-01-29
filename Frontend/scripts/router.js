@@ -5,8 +5,7 @@ class Router {
     this.siteName = window.location.hostname + ":" + window.location.port;
     this.currentURL = this.siteName + window.location.pathname;
     this.routes = new Map();
-    this.resourcesForCurrentPage = new Map();
-    this.templates = new Map();
+    this.resourcesForPage = new Map();
     this.Pages = new Map(); //key: name of the page, value: page object
     this.resourcePaths = new Map();
     this.availableResources = new Set();
@@ -18,13 +17,18 @@ class Router {
       this.resourcePaths.set(resource.name, resource.path);
     }
     for (let route of FrameworkConfig.routes){
+      this.routes.set(route.path, route.page);
       if (route.navigation){
         this.navigationPaths.push(route.path);
         this.navigationNames.set(route.path, route.navigation);
       }
-      this.templates.set(route.page, route.template);
-      this.routes.set(route.path, route.page);
-      this.resourcesForCurrentPage.set(route.page, route.resources);
+      if (route.resources){
+        let resourceMap = new Map();
+        for (let resource of route.resources){
+          resourceMap.set(resource, this.resourcePaths.get(resource));
+        }
+        this.resourcesForPage.set(route.page, resourceMap);
+      }
       if (route.auth){
         this.needAuthentication.add(route.path);
       }
@@ -136,38 +140,45 @@ class Router {
   }
 
   loadPage(needAuthentication){
+    /*
     let neededResources = [];
     neededResources.push("/Frontend/pages/"+this.currentPage+".js");
-    for (let resourceName of this.resourcesForCurrentPage.get(this.currentPage)){
-      let resourcePath = this.resourcePaths.get(resourceName);
-      alert(`${resourcePath} ${sessionStorage.getItem(resourcePath)}`);
-      if (!this.availableResources.has(resourcePath)) {
-        if (resourcePath.includes("components/") && sessionStorage.getItem(resourcePath)){
-          //alert(sessionStorage.getItem(resourcePath));
-          continue; //web component is already registered, no need to load again
+    let resourcesForCurrentPage
+    if (resourcesForCurrentPage = this.resourcesForPage.get(this.currentPage)){
+      for (let resourceName of resourcesForCurrentPage){
+        let resourcePath = this.resourcePaths.get(resourceName);
+        //alert(`${resourcePath} ${sessionStorage.getItem(resourcePath)}`);
+        if (!this.availableResources.has(resourcePath)) {
+          if (resourcePath.includes("components/") && sessionStorage.getItem(resourcePath)){
+            //alert(sessionStorage.getItem(resourcePath));
+            continue; //web component is already registered, no need to load again
+          }
+          neededResources.push(resourcePath);
         }
-        neededResources.push(resourcePath);
+      }
+    }*/
+    let neededResources = new Map();
+    if (this.resourcesForPage.has(this.currentPage)){
+      for (let mapItem of this.resourcesForPage.get(this.currentPage)){
+        if (!this.availableResources.has(mapItem[0])){
+          neededResources.set(mapItem[0], mapItem[1]);
+        }
       }
     }
-    if (this.templates.get(this.currentPage)){
-      neededResources.push("/Frontend/pages/templates/"+this.currentPage+".html");
-    }
+    neededResources.set("#", "/Frontend/pages/"+this.currentPage+".js")
     var self = this;
-    if (needAuthentication) {
-      App.resourceLoader.loadRestrictedScript(
+    if (!needAuthentication) {
+      App.resourceLoader.loadScript(
         neededResources,
         function(){
-          neededResources.shift()
-          for (let resourcePath of neededResources){
-            self.availableResources.add(resourcePath);
-            if (resourcePath.includes("components/")){
-              sessionStorage.setItem(resourcePath, true);
+          neededResources.delete("#");
+          for (let resource of neededResources){
+            self.availableResources.add(resource[0]);
+            if (resource[1].includes("components/")){
+              sessionStorage.setItem(resource, true);
             }
           }
           self.showPage();
-        },
-        function(){
-          self.showError({unauthorized: true});
         },
         function(){
           self.showError({timeout: true});
@@ -175,17 +186,20 @@ class Router {
       );
     }
     else {
-      App.resourceLoader.loadScript(
+      App.resourceLoader.loadRestrictedScript(
         neededResources,
         function(){
-          neededResources.shift()
-          for (let resourcePath of neededResources){
-            self.availableResources.add(resourcePath);
-            if (resourcePath.includes("components/")){
-              sessionStorage.setItem(resourcePath, true);
+          neededResources.delete("#");
+          for (let resource of neededResources){
+            self.availableResources.add(resource[0]);
+            if (resource[1].includes("components/")){
+              sessionStorage.setItem(resource, true);
             }
           }
           self.showPage();
+        },
+        function(){
+          self.showError({unauthorized: true});
         },
         function(){
           self.showError({timeout: true});

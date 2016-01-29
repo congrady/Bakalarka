@@ -2,12 +2,12 @@
 
 class ResourceLoader {
   loadScript(neededResources, successCallback, timeoutCallback){
-    let unresolvedResourcesCounter = neededResources.length;
+    let unresolvedResourcesCounter = neededResources.size;
     let $head = document.getElementsByTagName('head')[0];
-    for (let resourcePath of neededResources) {
-      if (resourcePath.endsWith('.js')){
+    for (let resource of neededResources) {
+      if (resource[1].endsWith('.js')){
         let $script = document.createElement('script');
-        $script.src = resourcePath;
+        $script.src = resource[1];
         $script.async = true;
         $script.onload = function(){
           unresolvedResourcesCounter -= 1;
@@ -24,35 +24,36 @@ class ResourceLoader {
         };
         $head.appendChild($script);
       }
-      else if(resourcePath.endsWith(".html")){
+      else if(resource[1].endsWith(".html")){
         xhr_get({
-            url: resourcePath,
-            success: function(responseText){
-              App.htmlTemplates.set(App.router.currentPage, responseText);
-              unresolvedResourcesCounter -= 1;
-              if (unresolvedResourcesCounter == 0){
-                if (successCallback){
-                  successCallback();
-                }
-              }
-            },
-            error: function(){
-              if (timeoutCallback){
-                timeoutCallback();
+          url: resource[1],
+          success: function(responseText){
+            App.htmlTemplates.set(resource[0], responseText);
+            unresolvedResourcesCounter -= 1;
+            if (unresolvedResourcesCounter == 0){
+              if (successCallback){
+                successCallback();
               }
             }
+          },
+          error: function(){
+            if (timeoutCallback){
+              timeoutCallback();
+            }
+          }
           }
         );
       }
     }
   }
   loadRestrictedScript(neededResources, successCallback, unauthorizedCallback, timeoutCallback){
-    let unresolvedResourcesCounter = neededResources.length;
+    let unresolvedResourcesCounter = neededResources.size;
     let $head = document.getElementsByTagName('head')[0];
-    for (let resourcePath of neededResources) {
-      if (resourcePath.endsWith('.js')){
+    for (let resource of neededResources) {
+      alert(resource[1]);
+      if (resource[1].endsWith('.js')){
         let xhr = new XMLHttpRequest();
-        xhr.open("GET", resourcePath, true);
+        xhr.open("GET", resource[1], true);
         xhr.setRequestHeader('Authorization', 'Bearer ' + sessionStorage.token);
         xhr.onload = function() {
           if (unresolvedResourcesCounter == -1){
@@ -79,11 +80,11 @@ class ResourceLoader {
         };
         xhr.send();
       }
-      else if(resourcePath.endsWith(".html")){
+      else if(resource[1].endsWith(".html")){
         xhr_get({
           url: resourcePath,
           success: function(responseText){
-            App.htmlTemplates.set(App.router.currentPage, responseText);
+            App.htmlTemplates.set(resource[0], responseText);
             unresolvedResourcesCounter -= 1;
             if (unresolvedResourcesCounter == 0){
               if (successCallback){
