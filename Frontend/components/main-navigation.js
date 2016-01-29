@@ -72,26 +72,28 @@
     makeNavigation(mode){
       this.$nav.innerHTML = "";
       let currentPage = App.router.currentPage;
-      let navigation = [];
+      let navigation = new Map();
       if (mode == "free"){
-        for (let path of App.router.navigationPaths){
-          if (!App.router.needAuthentication.has(path)){
-            navigation.push(path);
+        for (let item of App.router.navigation){
+          if (!App.router.needAuthentication.has(item[0])){
+            navigation.set(item[0], item[1]);
           }
         }
       }
       else if (mode == "auth"){
-        for (let path of App.router.navigationPaths){
-          navigation.push(path);
+        for (let item of App.router.navigation){
+          navigation.set(item[0], item[1]);
         }
       }
-      let width = (100/navigation.length) + "%";
-      for (let path of navigation){
+      let width = (100/navigation.size) + "%";
+      for (let item of navigation){
+        let path = item[0];
+        let name = item[1];
         let $anchorElement = document.createElement("a");
         if (App.router.routes.get(path) == currentPage){
           $anchorElement.classList.add("active");
         }
-        $anchorElement.innerHTML = App.router.navigationNames.get(path);
+        $anchorElement.innerHTML = name;
         $anchorElement.id = path.substring(1);
         $anchorElement.href = path;
         $anchorElement.style.width = width;

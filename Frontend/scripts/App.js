@@ -66,5 +66,5 @@ var App = {
 App.init();
 window.addEventListener('popstate', App.init);
 /*window.addEventListener('unload', function(){
-  sessionStorage.removeItem('token')
+  //alert("unload");
 });*/

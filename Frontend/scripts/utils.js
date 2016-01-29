@@ -45,9 +45,6 @@ DocumentFragment.prototype.add = function(options){
   if (options.innerHTML){
     element.innerHTML = options.innerHTML;
   }
-  if (options.id){
-    element.id = options.id;
-  }
   if (options.attributes){
     for (let attr in options.attributes){
       element.setAttribute(attr, options.attributes[attr]);
@@ -86,4 +83,8 @@ function createFragmentFromTemplate(template){
     fragment.appendChild(element);
   }
   return fragment;
+}
+
+function isRegistered(name) {
+  return document.createElement(name).constructor !== HTMLElement;
 }

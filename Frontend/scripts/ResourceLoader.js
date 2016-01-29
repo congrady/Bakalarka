@@ -50,7 +50,6 @@ class ResourceLoader {
     let unresolvedResourcesCounter = neededResources.size;
     let $head = document.getElementsByTagName('head')[0];
     for (let resource of neededResources) {
-      alert(resource[1]);
       if (resource[1].endsWith('.js')){
         let xhr = new XMLHttpRequest();
         xhr.open("GET", resource[1], true);

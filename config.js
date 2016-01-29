@@ -1,4 +1,4 @@
-FrameworkConfig = {
+AppConfig = {
   title: "UX | ",
   resources: [
     {name: "jQuery", path: "https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"},
@@ -7,7 +7,7 @@ FrameworkConfig = {
     {name: "Contact", path: "/Frontend/templates/Contact.html"}
   ],
   routes: [
-    {page: 'Home', path: "/Home", navigation: "Home", resources: ["Home"]},
+    {page: 'Home', path: ["/Home","/"], navigation: "Home", resources: ["Home"]},
     {page: 'NewTest', path: "/NewTest", navigation: "New test", auth: true},
     {page: 'Tests', path: "/Tests", navigation: "Tests", auth: true, resources: ["test-component"]},
     {page: 'Contact', path: "/Contact", navigation: "Contact", resources: ["Contact"]},

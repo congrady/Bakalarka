@@ -20,7 +20,7 @@ App.newPage({
         div.add({elementType: "p", innerHTML: `Parameter: ${urlParam}`});
       }
     }
-    root.importTemplate();
+    root.importTemplate("Home");
     return root;
   }
 })

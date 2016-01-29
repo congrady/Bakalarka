@@ -10,22 +10,32 @@ class Router {
     this.resourcePaths = new Map();
     this.availableResources = new Set();
     this.needAuthentication = new Set();
-    this.navigationNames = new Map();
-    this.navigationPaths = [];
-    this.appTitle = FrameworkConfig.title;
-    for (let resource of FrameworkConfig.resources){
+    this.navigation = new Map();
+    this.appTitle = AppConfig.title ? AppConfig.title : '';
+    for (let resource of AppConfig.resources){
       this.resourcePaths.set(resource.name, resource.path);
     }
-    for (let route of FrameworkConfig.routes){
-      this.routes.set(route.path, route.page);
+    for (let route of AppConfig.routes){
+      if (route.path.constructor === Array){
+        for (let path of route.path){
+          this.routes.set(path, route.page);
+        }
+      }
+      else {
+        this.routes.set(route.path, route.page);
+      }
       if (route.navigation){
-        this.navigationPaths.push(route.path);
-        this.navigationNames.set(route.path, route.navigation);
+        if (route.path.constructor === Array) {
+          this.navigation.set(route.path[0], route.navigation);
+        }
+        else {
+          this.navigation.set(route.path, route.navigation);
+        }
       }
       if (route.resources){
         let resourceMap = new Map();
-        for (let resource of route.resources){
-          resourceMap.set(resource, this.resourcePaths.get(resource));
+        for (let resourceName of route.resources){
+          resourceMap.set(resourceName, this.resourcePaths.get(resourceName));
         }
         this.resourcesForPage.set(route.page, resourceMap);
       }
@@ -101,7 +111,7 @@ class Router {
   }
 
   showPage(){
-    let page = App.router.Pages.get(this.currentPage);
+    let page = this.Pages.get(this.currentPage);
     let urlParams = this.urlParams;
     let $mainContent = document.getElementsByTagName('main')[0];
     if (page.title) {
@@ -140,28 +150,18 @@ class Router {
   }
 
   loadPage(needAuthentication){
-    /*
-    let neededResources = [];
-    neededResources.push("/Frontend/pages/"+this.currentPage+".js");
-    let resourcesForCurrentPage
-    if (resourcesForCurrentPage = this.resourcesForPage.get(this.currentPage)){
-      for (let resourceName of resourcesForCurrentPage){
-        let resourcePath = this.resourcePaths.get(resourceName);
-        //alert(`${resourcePath} ${sessionStorage.getItem(resourcePath)}`);
-        if (!this.availableResources.has(resourcePath)) {
-          if (resourcePath.includes("components/") && sessionStorage.getItem(resourcePath)){
-            //alert(sessionStorage.getItem(resourcePath));
-            continue; //web component is already registered, no need to load again
-          }
-          neededResources.push(resourcePath);
-        }
-      }
-    }*/
     let neededResources = new Map();
     if (this.resourcesForPage.has(this.currentPage)){
       for (let mapItem of this.resourcesForPage.get(this.currentPage)){
         if (!this.availableResources.has(mapItem[0])){
-          neededResources.set(mapItem[0], mapItem[1]);
+          if (!mapItem[1].includes("components")){
+            neededResources.set(mapItem[0], mapItem[1]);
+          }
+          else {
+            if (!isRegistered(mapItem[1].substring(mapItem[1].lastIndexOf("/")+1, mapItem[1].lastIndexOf(".")))){
+              neededResources.set(mapItem[0], mapItem[1]);
+            }
+          }
         }
       }
     }
@@ -173,15 +173,12 @@ class Router {
         function(){
           neededResources.delete("#");
           for (let resource of neededResources){
-            self.availableResources.add(resource[0]);
-            if (resource[1].includes("components/")){
-              sessionStorage.setItem(resource, true);
-            }
+            App.router.availableResources.add(resource[0]);
           }
-          self.showPage();
+          App.router.showPage();
         },
         function(){
-          self.showError({timeout: true});
+          App.router.showError({timeout: true});
         }
       );
     }
@@ -191,18 +188,15 @@ class Router {
         function(){
           neededResources.delete("#");
           for (let resource of neededResources){
-            self.availableResources.add(resource[0]);
-            if (resource[1].includes("components/")){
-              sessionStorage.setItem(resource, true);
-            }
+            App.router.availableResources.add(resource[0]);
           }
-          self.showPage();
+          App.router.showPage();
         },
         function(){
-          self.showError({unauthorized: true});
+          App.router.showError({unauthorized: true});
         },
         function(){
-          self.showError({timeout: true});
+          App.router.showError({timeout: true});
         }
       );
     }

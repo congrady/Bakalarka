@@ -9,7 +9,7 @@ App.newPage({
      id: "page-title",
      innerHTML: this.title
     });
-    root.importTemplate();
+    root.importTemplate("Contact");
     return root;
   }
 })
