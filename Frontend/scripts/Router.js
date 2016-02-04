@@ -3,6 +3,7 @@
 class Router {
   constructor() {
     this.siteName = window.location.hostname + ":" + window.location.port;
+    this.defaultUrlLength = this.siteName.length + window.location.protocol.length + 2;
     this.currentURL = this.siteName + window.location.pathname;
     this.routes = new Map();
     this.resourcesForPage = new Map();
@@ -65,7 +66,7 @@ class Router {
     }
     if (!this.routes.has(path)){
       this.detachedHandler();
-      this.showError({pageNotFound: true});
+      this.showError("pageNotFound");
       return;
     }
     this.currentPage = this.routes.get(path);
@@ -80,7 +81,7 @@ class Router {
       }
       else {
         this.detachedHandler();
-        this.showError({unauthorized: true});
+        this.showError("unauthorized");
       }
     }
     else {
@@ -95,16 +96,16 @@ class Router {
   showError(error){
     let $mainContent = document.getElementsByTagName('main')[0];
     let $title = document.getElementsByTagName('title')[0];
-    $title.innerHTML = this.appTitle;
-    if (error.unauthorized){
+    $title.innerHTML = this.appTitle + "Error";
+    if (error === "unauthorized"){
       $mainContent.innerHTML = "<p>This page is available only to logged in users.</p>";
       $title.innerHTML += "Unauthorized access";
     }
-    else if (error.timeout){
+    else if (error === "timeout"){
       $mainContent.innerHTML = "<p>We can't load this page. Server timeout.</p>";
       $title.innerHTML += "Server timeout";
     }
-    else if (error.pageNotFound){
+    else if (error === "pageNotFound"){
       $mainContent.innerHTML = "<p>Page does not exist.</p>";
       $title.innerHTML += "Page not found";
     }
@@ -178,7 +179,7 @@ class Router {
           App.router.showPage();
         },
         function(){
-          App.router.showError({timeout: true});
+          App.router.showError("timeout");
         }
       );
     }
@@ -193,10 +194,10 @@ class Router {
           App.router.showPage();
         },
         function(){
-          App.router.showError({unauthorized: true});
+          App.router.showError("unauthorized");
         },
         function(){
-          App.router.showError({timeout: true});
+          App.router.showError("timeout");
         }
       );
     }

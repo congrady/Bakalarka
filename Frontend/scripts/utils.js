@@ -36,7 +36,7 @@ DocumentFragment.prototype.select = function(queryString){
   }
   return this.querySelector(queryString);
 }
-
+Element.prototype.select = DocumentFragment.prototype.select;
 DocumentFragment.prototype.selectAll = function(queryString){
   return this.querySelectorAll(queryString);
 }

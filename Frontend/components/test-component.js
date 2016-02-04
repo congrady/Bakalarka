@@ -4,10 +4,11 @@
   let template = `
   <style>
   p {
-    font-size: 18px;
+    font-size: 16px;
     padding-left: 14px;
     padding-right: 14px;
     font-size: bold;
+    line-height: 80%;
   }
   a {
     text-decoration: none;
@@ -16,31 +17,13 @@
     box-shadow: 0 0 4px #000000;
     background-color: #d9d9d9;
     margin: 1%;
-    position:relative;
+    position: relative;
+    padding-bottom: 1px;
   }
   #id_heading {
-    font-size: 28px;
+    padding-top: 13px;
+    font-size: 24px;
     font-size: bolder;
-  }
-  #cattegory {
-    position:absolute;
-    top: 5;
-    left: 5
-  }
-  #date {
-    position:absolute;
-    top: 5;
-    right: 5
-  }
-  #added_by {
-    position:absolute;
-    bottom: 5;
-    left: 5
-  }
-  #subject {
-    position:absolute;
-    bottom: 5;
-    right: 5
   }
   </style>
   <a>
@@ -66,11 +49,11 @@
       this.anchor.onclick = function(event){
         App.navigate(event);
       }
-      this.div.querySelector("#id_heading").innerHTML = this.getAttribute("id");
-      this.div.querySelector("#cattegory").innerHTML = this.getAttribute("cattegory");
-      this.div.querySelector("#date").innerHTML = this.getAttribute("date");
-      this.div.querySelector("#added_by").innerHTML = this.getAttribute("added_by");
-      this.div.querySelector("#subject").innerHTML = this.getAttribute("subject");
+      this.div.querySelector("#id_heading").innerHTML = "Test ID: <b>" + this.getAttribute("id")+"</b>";
+      this.div.querySelector("#cattegory").innerHTML = "Test cattegory: <b>" + this.getAttribute("cattegory")+"</b>";
+      this.div.querySelector("#date").innerHTML = "Added: <b>" + this.getAttribute("date")+"</b>";
+      this.div.querySelector("#added_by").innerHTML = "Added by: <b>" + this.getAttribute("added_by")+"</b>";
+      this.div.querySelector("#subject").innerHTML = "Name of tested subject: <b>" + this.getAttribute("subject")+"</b>";
     }
   }
   document.registerElement('test-component', TestComponent);

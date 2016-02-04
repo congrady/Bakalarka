@@ -3,24 +3,28 @@
 var App = {
   htmlTemplates: new Map(),
   init: function(){
-    if (!this.router){
-      this.router = new Router();
-      this.resourceLoader = new ResourceLoader();
-      this.authenticator = new Authenticator();
+    if (!App.router){
+      App.router = new Router();
+      App.resourceLoader = new ResourceLoader();
+      App.authenticator = new Authenticator();
     }
-    this.router.servePage();
+    App.router.servePage();
   },
   navigate: function(event, relative){
     event.preventDefault();
+    function getHref(element){
+      if (element.href){
+        return element.href.substring(App.router.defaultUrlLength);
+      }
+      if (element.parentElement) {
+        return getHref(element.parentElement);
+      }
+      return "404";
+    }
     let href;
-    if (event.target.href){
-      href = event.target.href.substring(21);
-    }
-    else if (event.target.parentElement.href) {
-      href = event.target.parentElement.href.substring(21);
-    }
-    else {
-      href = event.target.parentElement.parentElement.href.substring(21);
+    href = getHref(event.target);
+    if (href === "404"){
+      App.router.showError("pageNotFound");
     }
     if (relative) {
       App.router.navigate(href, true);
@@ -30,7 +34,7 @@ var App = {
     }
   },
   login: function(options){
-    var self = this;
+    var self = App;
     App.authenticator.loginRequest(
       options.login,
       options.password,
@@ -56,10 +60,10 @@ var App = {
     App.userName = null;
     App.token = null;
     document.getElementsByTagName("main-navigation")[0].setAttribute("mode", "free");
-    this.router.servePage();
+    App.router.servePage();
   },
   newPage: function(page){
-    this.router.Pages.set(this.router.currentPage, page);
+    App.router.Pages.set(App.router.currentPage, page);
   }
 }
 

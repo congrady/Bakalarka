@@ -81,7 +81,7 @@ class ResourceLoader {
       }
       else if(resource[1].endsWith(".html")){
         xhr_get({
-          url: resourcePath,
+          url: resource[1],
           success: function(responseText){
             App.htmlTemplates.set(resource[0], responseText);
             unresolvedResourcesCounter -= 1;
