@@ -1,8 +1,8 @@
 <form>
   <fieldset>
     <legend><b>Test details</b></legend>
-    <label>Cattegory: </label>
-    <select id = "cattegory">
+    <label>Category: </label>
+    <select id="category">
       <option value = "1">Cattegory 1</option>
       <option value = "2">Cattegory 2</option>
       <option value = "3">Cattegory 3</option>
@@ -10,8 +10,10 @@
     </select>
     <br>
     <label>File: </label>
-    <input type="file" name="lname">
+    <input type="file" id="fileInput">
     <br>
-    <input type="submit">
+    <progress min="0" max="100" value="0">0% complete</progress>
+    <br>
+    <input type="submit" id="submit" disabled="true">
   </fieldset>
 </form>

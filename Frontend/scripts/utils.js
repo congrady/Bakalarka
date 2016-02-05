@@ -40,6 +40,8 @@ Element.prototype.select = DocumentFragment.prototype.select;
 DocumentFragment.prototype.selectAll = function(queryString){
   return this.querySelectorAll(queryString);
 }
+Element.prototype.selectAll = DocumentFragment.prototype.selectAll;
+
 DocumentFragment.prototype.add = function(options){
   let element = document.createElement(options.elementType);
   if (options.innerHTML){

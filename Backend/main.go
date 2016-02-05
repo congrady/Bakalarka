@@ -2,10 +2,14 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"mime"
 	"net/http"
+	"os"
 	"path/filepath"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -53,50 +57,31 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func saveNewTest(w http.ResponseWriter, r *http.Request) {
+	infile, header, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, "Error parsing uploaded file: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	outfile, err := os.Create("./data/" + header.Filename)
+	if err != nil {
+		http.Error(w, "Error saving file: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	_, err = io.Copy(outfile, infile)
+	if err != nil {
+		http.Error(w, "Error saving file: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	fmt.Fprintln(w, "New test successfuly saved.")
+}
+
 func main() {
 	makeResourceHandlers()
 
+	http.HandleFunc("/saveNewTest", saveNewTest)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/", index)
 	http.ListenAndServe(":8080", nil)
 }
-
-/*
-var availableHandlers []string
-handlers, _ := ioutil.ReadDir("../Frontend/pages")
-for _, handler := range handlers {
-	availableHandlers := handler.Name()
-}
-
-func index(availableHandlers *[]string) http.HandlerFunc {
-	urlPath = r.URL.Path
-	for (i := 0; i < len(*availableHandlers)); i++ {
-		if (*availableHandlers == urlPath) {
-			return func(w http.ResponseWriter, r *http.Request) {
-				w.Header().Set("Content-Type", "text/html")
-				http.ServeFile(w, r, "../index.html")
-			}
-		}
-		return func(w http.ResponseWriter, r *http.Request) {
-			http.ServeFile(w, r, "../sdgksdflkgjfdlkgndfjklgn")
-		}
-	}
-}
-
-func getPageNames(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/javascript")
-	var res = ""
-	contents, _ := ioutil.ReadDir("../Frontend/pages")
-	for _, content := range contents {
-		if !content.IsDir() {
-			res += content.Name() + ","
-		}
-	}
-	fmt.Fprint(w, res[:len(res)-1])
-}
-
-func getHTML(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	var res = "<p>Ahoj</p>"
-	fmt.Fprint(w, res)
-}*/
