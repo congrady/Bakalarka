@@ -2,11 +2,9 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
 	"mime"
 	"net/http"
-	"os"
 	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -57,13 +55,32 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func saveNewTest(w http.ResponseWriter, r *http.Request) {
+/*
+func addNewSegment(w http.ResponseWriter, r *http.Request) {
+	r.ParseMultipartForm(0)
+
+	db, err := sql.Open("sqlite3", "data/UXPtests.db")
+	stmt, err := db.Prepare("INSERT INTO `segments`(test_id, added_by, uploaded) VALUES (?,?,?)")
+	stmt.Exec("astaxie", "研发部门", "2012-12-09")
+
+	rows, err := db.Query("SELECT * FROM segments WHERE id = 1")
+	for rows.Next() {
+		var id int
+		var testID int
+		var addedBy string
+		var uploaded string
+		err = rows.Scan(&id, &testID, &addedBy, &uploaded)
+		fmt.Println(id)
+		fmt.Println(testID)
+		fmt.Println(addedBy)
+		fmt.Println(uploaded)
+	}
 	infile, header, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, "Error parsing uploaded file: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-	outfile, err := os.Create("./data/" + header.Filename)
+	outfile, err := os.Create("data/" + header.Filename)
 	if err != nil {
 		http.Error(w, "Error saving file: "+err.Error(), http.StatusBadRequest)
 		return
@@ -75,7 +92,7 @@ func saveNewTest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, "New test successfuly saved.")
-}
+}*/
 
 func main() {
 	makeResourceHandlers()

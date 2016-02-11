@@ -13,9 +13,10 @@ App.newPage({
       let xhr = new XMLHttpRequest();
       xhr.open('POST', '/saveNewTest', true);
       xhr.onload = function(event) {
-        alert(xhr.response);
+        if (xhr.status == 409){
+          form.querySelector("#message").innerHTML = "Test with this name already exists."
+        }
       };
-
       let progressBar = form.querySelector('progress');
       xhr.upload.onprogress = function(event) {
         if (event.lengthComputable) {
@@ -29,9 +30,9 @@ App.newPage({
       event.preventDefault();
       let formData = new FormData();
       let file = this.querySelector('input[type="file"]').files[0];
-      let category = select.options[select.selectedIndex].value;
+      let name = this.querySelector('input[type="text"]').value;
       formData.append("file", file);
-      formData.append("category", category);
+      formData.append("name", name);
       upload(formData);
     }
     let fileInput = form.querySelector('#fileInput');
