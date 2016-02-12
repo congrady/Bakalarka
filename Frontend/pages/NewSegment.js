@@ -6,17 +6,22 @@ App.newPage({
     let root = new DocumentFragment();
     root.add({elementType: "h3", id: "page-title", innerHTML: this.title});
     root.importTemplate();
+    let testName;
+    if (urlParams){
+      testName = urlParams[0];
+    }
+
     let form = root.select("form");
 
     function upload(data) {
       let xhr = new XMLHttpRequest();
-      xhr.open('POST', '/saveNewTest', true);
+      xhr.open('POST', '/addNewSegment', true);
       xhr.onload = function(event) {
         if (xhr.status == 409){
-          form.querySelector("#message").innerHTML = "Test with this name already exists."
+          form.querySelector("#message").innerHTML = "Segment with this name already exists.";
         }
         else {
-          form.querySelector("#message").innerHTML = "Test successfuly saved."
+          form.querySelector("#message").innerHTML = "Segment successfuly saved.";
         }
       };
       let progressBar = form.querySelector('progress');
@@ -32,7 +37,7 @@ App.newPage({
       event.preventDefault();
       let formData = new FormData();
       let file = this.querySelector('input[type="file"]').files[0];
-      let testName = this.querySelector('input[type="text"]').value;
+      //let testName = this.querySelector('input[type="text"]').value;
       formData.append("file", file);
       formData.append("testName", testName);
       formData.append("userName", App.userName);

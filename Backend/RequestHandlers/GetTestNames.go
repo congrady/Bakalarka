@@ -1,0 +1,29 @@
+package requestHandlers
+
+import (
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+// GetTestNames sends test names saved in DB
+func GetTestNames(w http.ResponseWriter, r *http.Request) {
+	r.ParseMultipartForm(0)
+
+	db, _ := sql.Open("sqlite3", "data/UXPtests.db")
+
+	var testNames []string
+	rows, _ := db.Query("SELECT DISTINCT test_name FROM tests")
+	for rows.Next() {
+		var testName string
+		rows.Scan(&testName)
+		fmt.Println(testName)
+		testNames = append(testNames, testName)
+	}
+
+	testNamesJSON, _ := json.Marshal(testNames)
+	w.Write(testNamesJSON)
+
+	fmt.Fprintln(w, "New test successfuly saved.")
+}

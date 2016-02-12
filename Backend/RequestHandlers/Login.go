@@ -1,11 +1,14 @@
-package Login
+package requestHandlers
 
 import (
 	"fmt"
 	"net/http"
 )
 
-func login(w http.ResponseWriter, r *http.Request) {
+// Login checks if the specified userName and password are valid
+// If they are, sends JWT (token)
+// Otherwise sends Error 403
+func Login(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	login := r.PostFormValue("login")
 	password := r.PostFormValue("password")
