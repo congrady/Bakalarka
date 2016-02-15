@@ -8,11 +8,11 @@ App.newPage({
     root.add({
       elementType: "test-component",
       attributes: {
-        cattegory: "cattegory",
-        date: "26.1.2016",
-        added_by: "Matus Congrady",
-        subject: "Janko Hrasko",
-        id: "80231035221"
+        name: "IB vytvorenie uctu",
+        numSegments: "3",
+        uploaded: "26.1.2016",
+        uploadedBy: "Matus Congrady",
+        lastModified: "23.2.2016"
       }
     })
     return root;

@@ -20,6 +20,7 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error parsing uploaded file: "+err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	testName := strings.ToLower(r.FormValue("testName"))
 	addedBy := r.FormValue("userName")
 	uploaded := time.Now().Format("02.01.2006 15:04:05")
@@ -40,7 +41,7 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 
 	outfile, err := os.Create(filePath)
 	if err != nil {
-		http.Error(w, "Error saving file: "+err.Error(), http.StatusBadRequest)
+		http.Error(w, "Error saving file: "+err.Error(), 402)
 		return
 	}
 	_, err = io.Copy(outfile, infile)

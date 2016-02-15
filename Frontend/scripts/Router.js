@@ -113,7 +113,7 @@ class Router {
 
   showPage(){
     let page = this.Pages.get(this.currentPage);
-    let urlParams = this.urlParams;
+    let urlParams = this.urlParams != "" ? this.urlParams : null;
     let $mainContent = document.getElementsByTagName('main')[0];
     if (page.title) {
       document.getElementsByTagName('title')[0].innerHTML = this.appTitle + page.title;

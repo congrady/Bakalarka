@@ -90,3 +90,15 @@ function createFragmentFromTemplate(template){
 function isRegistered(name) {
   return document.createElement(name).constructor !== HTMLElement;
 }
+
+String.prototype.replaceAll = function(search, replacement) {
+    return this.split(search).join(replacement);
+};
+
+function encodeURIWithSlashes(str){
+  return str.replaceAll(" ", "-")
+}
+
+function decodeURIWithSlashes(str){
+  return str.replaceAll("-", " ")
+}

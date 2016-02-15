@@ -20,7 +20,7 @@
     position: relative;
     padding-bottom: 1px;
   }
-  #id_heading {
+  #name {
     padding-top: 13px;
     font-size: 24px;
     font-size: bolder;
@@ -28,11 +28,11 @@
   </style>
   <a>
     <div>
-      <p id="id_heading"></p>
-      <p id="cattegory"></p>
-      <p id="date"></p>
-      <p id="added_by"></p>
-      <p id="subject"></p>
+      <p id="name"></p>
+      <p id="numSegments"></p>
+      <p id="uploaded"></p>
+      <p id="uploadedBy"></p>
+      <p id="lastModified"></p>
     </div>
   </a>
   `;
@@ -45,15 +45,15 @@
     }
     attachedCallback(){
       var self = this;
-      this.anchor.href = "/Test="+this.getAttribute("id");
+      this.anchor.href = "/Test="+encodeURIWithSlashes(this.getAttribute("name"));
       this.anchor.onclick = function(event){
         App.navigate(event);
       }
-      this.div.querySelector("#id_heading").innerHTML = "Test ID: <b>" + this.getAttribute("id")+"</b>";
-      this.div.querySelector("#cattegory").innerHTML = "Test cattegory: <b>" + this.getAttribute("cattegory")+"</b>";
-      this.div.querySelector("#date").innerHTML = "Added: <b>" + this.getAttribute("date")+"</b>";
-      this.div.querySelector("#added_by").innerHTML = "Added by: <b>" + this.getAttribute("added_by")+"</b>";
-      this.div.querySelector("#subject").innerHTML = "Name of tested subject: <b>" + this.getAttribute("subject")+"</b>";
+      this.div.querySelector("#name").innerHTML = "<b>" + this.getAttribute("name")+"</b>";
+      this.div.querySelector("#numSegments").innerHTML = "Amount of segments: <b>" + this.getAttribute("numSegments")+"</b>";
+      this.div.querySelector("#uploaded").innerHTML = "Uploaded: <b>" + this.getAttribute("uploaded")+"</b>";
+      this.div.querySelector("#uploadedBy").innerHTML = "Uploaded by: <b>" + this.getAttribute("uploadedBy")+"</b>";
+      this.div.querySelector("#lastModified").innerHTML = "Last modified: <b>" + this.getAttribute("lastModified")+"</b>";
     }
   }
   document.registerElement('test-component', TestComponent);
