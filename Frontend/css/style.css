@@ -22,7 +22,7 @@ fieldset{
 main{
   margin-top: 0.5%;
   background-color: #fff;
-  padding: 0.5%;
+  padding: 1%;
   box-shadow: 0 0 5px #000000;
   position: relative;
 }
@@ -58,13 +58,54 @@ footer h3 {
 }
 h3 {
   font-size: 22px;
-  padding-left: 14px;
+  padding-left: 10px;
 }
 p {
   font-size: 18px;
+  padding-left: 12px;
+  padding-right: 12px;
+  font-size: bold;
+}
+form {
+  font-size: 18px;
   padding-left: 14px;
   padding-right: 14px;
-  font-size: bold;
+  line-height: 30px;
+}
+input[type="file"], input[type="text"], input[type="submit"]{
+  font-size: 16px;
+  padding: 5px;
+  margin: 0.5em;
+}
+label {
+  padding-left: 10px;
+}
+button {
+  box-shadow: 0 0 4px #000000;
+  width: 200px;
+  padding: 10px;
+}
+select {
+  margin: 0.5em;
+  content: ' ▾';
+  width: 230px;
+  padding: 5px 5px 5px 5px;
+  font-size: 16px;
+  height: 34px;
+  background-color: #e6e6e6;
+}
+progress[value] {
+  margin: 0.5em;
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 300px;
+  height: 30px;
+}
+progress[value]::-webkit-progress-bar {
+  background-color: #eee;
+  border-radius: 2px;
+  box-shadow: 0 1.5px 5px rgba(0, 0, 0, 0.25) inset;
 }
 .shadow {
   text-shadow:

@@ -8,8 +8,6 @@ import (
 
 // GetTestNames sends test names saved in DB
 func GetTestNames(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(0)
-
 	db, _ := sql.Open("sqlite3", "data/UXPtests.db")
 
 	var testNames []string

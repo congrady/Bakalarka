@@ -13,13 +13,13 @@ App.newPage({
       let xhr = new XMLHttpRequest();
       xhr.open('POST', '/saveNewTest', true);
       xhr.onload = function(event) {
-        if (xhr.status == 409){
-          message.innerHTML = "Test with this name already exists."
-          message.style.color = "red";
-        }
-        else {
+        if (xhr.status == 200){
           message.innerHTML = "Test successfuly saved."
           message.style.color = "green";
+        }
+        else {
+          message.innerHTML = "Test with this name already exists."
+          message.style.color = "red";
         }
       };
       let progressBar = form.querySelector('progress');

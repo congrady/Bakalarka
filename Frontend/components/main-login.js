@@ -22,6 +22,7 @@
     width: 220px;
   }
   input[type="submit"], button{
+    box-shadow: 0 0 3px #000000;
     padding: 0.4em;
     font-weight: bold;
     font-size: 15px;

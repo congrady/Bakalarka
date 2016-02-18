@@ -53,7 +53,13 @@ class Router {
     else {
       this.currentURL = this.siteName + newPath;
     }
-    window.history.pushState(null, null, "http://" + this.currentURL);
+    if (sessionStorage.getItem("lastURL") == this.currentURL){
+      window.history.replaceState(null, null, "http://" + this.currentURL);
+    }
+    else {
+      window.history.pushState(null, null, "http://" + this.currentURL);
+      sessionStorage.setItem("lastURL", this.currentURL);
+    }
     this.servePage();
   }
 

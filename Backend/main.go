@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/congrady/Bakalarka/Backend/requestHandlers"
-	//_ "github.com/jfbus/mp4"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -12,6 +11,7 @@ func main() {
 	requestHandlers.MakeResourceHandlers()
 
 	http.HandleFunc("/getTestNames", requestHandlers.GetTestNames)
+	http.HandleFunc("/getTestsInfo", requestHandlers.GetTestsInfo)
 	http.HandleFunc("/addNewSegment", requestHandlers.AddNewSegment)
 	http.HandleFunc("/saveNewTest", requestHandlers.SaveNewTest)
 	http.HandleFunc("/login", requestHandlers.Login)

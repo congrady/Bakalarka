@@ -22,8 +22,8 @@ func SaveNewTest(w http.ResponseWriter, r *http.Request) {
 
 	db, _ := sql.Open("sqlite3", "data/UXPtests.db")
 
-	stmt, _ := db.Prepare("INSERT INTO `tests` (name, added_by, uploaded) VALUES (?,?,?)")
-	_, err := stmt.Exec(name, addedBy, uploaded)
+	stmt, _ := db.Prepare("INSERT INTO `tests` (name, added_by, uploaded, uploaded_string, last_modified, last_modified_string) VALUES (?,?,?,?,?,?)")
+	_, err := stmt.Exec(name, addedBy, uploaded, uploaded, uploaded, uploaded)
 	if err != nil {
 		http.Error(w, "Error inserting into database: "+err.Error(), 409)
 		return
@@ -47,13 +47,17 @@ func SaveNewTest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, _ := db.Query("SELECT * FROM tests")
-	for rows.Next() {
-		var name string
-		var addedBy string
-		var uploaded string
-		err = rows.Scan(&name, &addedBy, &uploaded)
-	}
+	/*
+
+		SELECT t.name, t.added_by, t.uploaded_string, count(*) as "AMOUNT"
+		FROM tests t
+		JOIN segments s ON t.name = s.test_name
+		GROUP BY t.name
+		HAVING t.uploaded = (SELECT MAX(segments.uploaded)
+											FROM segments
+											WHERE t.name = s.test_name);
+
+	*/
 
 	width := 640
 	height := 360
@@ -76,7 +80,6 @@ func SaveNewTest(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error saving file: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-	// Do something with buffer, which contains a JPEG image
 
 	fmt.Fprintln(w, "New test successfuly saved.")
 }

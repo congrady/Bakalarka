@@ -28,11 +28,13 @@ App.newPage({
       let xhr = new XMLHttpRequest();
       xhr.open('POST', '/addNewSegment', true);
       xhr.onload = function(event) {
-        if (xhr.status == 409){
-          form.querySelector("#message").innerHTML = "Segment with this name already exists.";
+        if (xhr.status == 200){
+          message.innerHTML = "Test successfuly saved."
+          message.style.color = "green";
         }
         else {
-          form.querySelector("#message").innerHTML = "Segment successfuly saved.";
+          message.innerHTML = "Test with this name already exists."
+          message.style.color = "red";
         }
       };
       let progressBar = form.querySelector('progress');
@@ -46,8 +48,13 @@ App.newPage({
 
     form.onsubmit = function(event){
       event.preventDefault();
+      let file = this.querySelector('input[type="file"]').files[0];
+      if (!file.name.endsWith(".csv")){
+        message.innerHTML = "Incorrect file type. Please select .csv file";
+        message.style.color = "red";
+        return
+      }
       let formData = new FormData();
-      let file = form.querySelector('input[type="file"]').files[0];
       let selectElement = form.querySelector('#testSelect');
       let testName = selectElement.options[selectElement.selectedIndex].value;
       formData.append("file", file);

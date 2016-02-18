@@ -3,18 +3,18 @@
 App.newPage({
   title: "Home",
   beforeAttachedCallback: function(){
-    alert("beforeAttachedCallback");
+    //alert("beforeAttachedCallback");
   },
   afterAttachedCallback: function(){
-    alert("afterAttachedCallback");
+    //alert("afterAttachedCallback");
   },
   detachedCallback: function(){
-    alert("detachedCallback");
+    //alert("detachedCallback");
   },
   init: function(urlParams) {
     let root = new DocumentFragment();
     root.add({elementType: "h3", id: "page-title", innerHTML: this.title});
-    if (urlParams.length != 0){
+    if (urlParams){
       let div = root.add({elementType: "div"});
       for (let urlParam of urlParams){
         div.add({elementType: "p", innerHTML: `Parameter: ${urlParam}`});
