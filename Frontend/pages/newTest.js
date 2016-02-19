@@ -4,7 +4,7 @@ App.newPage({
   title: "New Test",
   init: function(urlParams) {
     let root = new DocumentFragment();
-    root.add({elementType: "h3", id: "page-title", innerHTML: this.title});
+    root.add("h3", {id: "page-title", innerHTML: this.title});
     root.importTemplate();
     let form = root.select("form");
     let message = form.querySelector("#message");
@@ -34,23 +34,11 @@ App.newPage({
     form.onsubmit = function(event){
       event.preventDefault();
       let formData = new FormData();
-      let file = this.querySelector('input[type="file"]').files[0];
-      if (!file.name.endsWith(".mp4")){
-        message.innerHTML = "Incorrect file type. Please select .mp4 video file";
-        message.style.color = "red";
-        return
-      }
       let name = this.querySelector('input[type="text"]').value;
-      formData.append("file", file);
-      formData.append("name", name);
+      formData.append("name", name.trim());
       formData.append("userName", App.userName);
       upload(formData);
     }
-    let fileInput = form.querySelector('#fileInput');
-    let submit = form.querySelector("#submit");
-    fileInput.onchange = function(){
-      submit.disabled = false;
-    };
 
     return root;
   }

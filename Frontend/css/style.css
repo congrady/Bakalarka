@@ -2,6 +2,9 @@ main-login {
   float: right;
   width: 18%;
 }
+test-component: hover {
+  background-color: black;
+}
 #main-heading {
   float: left;
   padding-left: 1.5%;
@@ -79,6 +82,7 @@ input[type="file"], input[type="text"], input[type="submit"]{
 }
 label {
   padding-left: 10px;
+  font-weight: bold;
 }
 button {
   box-shadow: 0 0 4px #000000;

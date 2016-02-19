@@ -42,19 +42,15 @@ DocumentFragment.prototype.selectAll = function(queryString){
 }
 Element.prototype.selectAll = DocumentFragment.prototype.selectAll;
 
-DocumentFragment.prototype.add = function(options){
-  let element = document.createElement(options.elementType);
-  if (options.innerHTML){
-    element.innerHTML = options.innerHTML;
-  }
-  if (options.attributes){
-    for (let attr in options.attributes){
-      element.setAttribute(attr, options.attributes[attr]);
+DocumentFragment.prototype.add = function(elementType, attrs){
+  let element = document.createElement(elementType);
+  for (let attr in attrs){
+    if (attr == "innerHTML"){
+      element.innerHTML = attrs["innerHTML"];
     }
-  }
-  if (options.insertBefore){
-    this.insertBefore(element, options.insertBefore);
-    return element;
+    else {
+      element.setAttribute(attr, attrs[attr]);
+    }
   }
   this.appendChild(element);
   return element;

@@ -4,14 +4,20 @@
   let template = `
   <style>
   p {
-    font-size: 16px;
+    font-size: 15px;
     padding-left: 14px;
     padding-right: 14px;
     font-size: bold;
-    line-height: 80%;
+    line-height: 70%;
   }
   a {
     text-decoration: none;
+  }
+  a: hover{
+    color: yellow;
+  }
+  div: hover{
+    background-color: black;
   }
   div {
     box-shadow: 0 0 4px #000000;
@@ -22,19 +28,19 @@
   }
   #name {
     padding-top: 13px;
-    font-size: 24px;
+    font-size: 19px;
     font-size: bolder;
   }
   </style>
-  <a>
     <div>
+    <a>
       <p id="name"></p>
-      <p id="numSegments"></p>
+      <p id="addedBy"></p>
       <p id="uploaded"></p>
-      <p id="uploadedBy"></p>
       <p id="lastModified"></p>
+      <p id="numSegments"></p>
+      </a>
     </div>
-  </a>
   `;
 
   class TestComponent extends HTMLElement {
@@ -50,10 +56,10 @@
         App.navigate(event);
       }
       this.div.querySelector("#name").innerHTML = "<b>" + this.getAttribute("name")+"</b>";
-      this.div.querySelector("#numSegments").innerHTML = "Amount of segments: <b>" + this.getAttribute("numSegments")+"</b>";
+      this.div.querySelector("#addedBy").innerHTML = "Added by: <b>" + this.getAttribute("addedBy")+"</b>";
       this.div.querySelector("#uploaded").innerHTML = "Uploaded: <b>" + this.getAttribute("uploaded")+"</b>";
-      this.div.querySelector("#uploadedBy").innerHTML = "Uploaded by: <b>" + this.getAttribute("uploadedBy")+"</b>";
       this.div.querySelector("#lastModified").innerHTML = "Last modified: <b>" + this.getAttribute("lastModified")+"</b>";
+      this.div.querySelector("#numSegments").innerHTML = "Amount of segments: <b>" + this.getAttribute("numSegments")+"</b>";
     }
   }
   document.registerElement('test-component', TestComponent);

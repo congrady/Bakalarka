@@ -4,7 +4,7 @@ App.newPage({
   title: "New Segment",
   init: function(urlParams) {
     let root = new DocumentFragment();
-    root.add({elementType: "h3", id: "page-title", innerHTML: this.title});
+    root.add("h3", {id: "page-title", innerHTML: this.title});
     root.importTemplate();
     let form = root.select("form");
     let testName;
@@ -14,8 +14,11 @@ App.newPage({
     else{
       xhr_get({
         url: "/getTestNames",
-        success: function(json){
-          let testNames = JSON.parse(json);
+        success: function(response){
+          if (response == "null"){
+            return;
+          }
+          let testNames = JSON.parse(response);
           let test = form.querySelector("#testSelect");
           for (let testName of testNames){
             test.innerHTML += `<option value = "${testName}">${testName}</option>`;
@@ -48,24 +51,44 @@ App.newPage({
 
     form.onsubmit = function(event){
       event.preventDefault();
-      let file = this.querySelector('input[type="file"]').files[0];
-      if (!file.name.endsWith(".csv")){
-        message.innerHTML = "Incorrect file type. Please select .csv file";
+      let video = this.querySelector('#video').files[0];
+      if (!video.name.endsWith(".mp4")){
+        message.innerHTML = "Incorrect file type. Please select .mp4 and .csv file";
+        message.style.color = "red";
+        return
+      }
+      let et = this.querySelector('#et').files[0];
+      if (!et.name.endsWith(".csv")){
+        message.innerHTML = "Incorrect file type. Please select .mp4 and .csv file";
         message.style.color = "red";
         return
       }
       let formData = new FormData();
       let selectElement = form.querySelector('#testSelect');
       let testName = selectElement.options[selectElement.selectedIndex].value;
-      formData.append("file", file);
+      formData.append("video", video);
+      formData.append("et", et);
       formData.append("testName", testName);
       formData.append("userName", App.userName);
       upload(formData);
     }
-    let fileInput = form.querySelector('#fileInput');
+
+    let video = form.querySelector('#video');
+    let et = form.querySelector('#et');
     let submit = form.querySelector("#submit");
-    fileInput.onchange = function(){
-      submit.disabled = false;
+    let videoSelected = false;
+    let etSelected = false;
+    video.onchange = function(){
+      videoSelected = true;
+      if (videoSelected && etSelected){
+        submit.disabled = false;
+      }
+    };
+    et.onchange = function(){
+      etSelected = true;
+      if (videoSelected && etSelected){
+        submit.disabled = false;
+      }
     };
 
     return root;
