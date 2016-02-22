@@ -64,6 +64,7 @@ class Router {
   }
 
   servePage() {
+    this.pageData = [];
     this.urlParams = location.pathname.substring(1).split("/");
     let urlPath = ("/"+this.urlParams.shift()).split("=");
     let path = urlPath[0];
@@ -118,6 +119,13 @@ class Router {
   }
 
   showPage(){
+    let data;
+    if (App.router.pageData){
+      data = new Object();
+      for (let dataName of App.router.pageData){
+        data[dataName] = App.data[dataName];
+      }
+    }
     let page = this.Pages.get(this.currentPage);
     let urlParams = this.urlParams != "" ? this.urlParams : null;
     let $mainContent = document.getElementsByTagName('main')[0];
@@ -136,7 +144,12 @@ class Router {
       $style.innerHTML = page.css;
       $mainContent.appendChild($style);
     }
-    $mainContent.appendChild(page.init(urlParams));
+    if (data !== undefined){
+      $mainContent.appendChild(page.init(urlParams, data));
+    }
+    else {
+      $mainContent.appendChild(page.init(urlParams, null));
+    }
     if (page.afterAttachedCallback) {
       page.afterAttachedCallback(urlParams);
     }
@@ -162,7 +175,17 @@ class Router {
       for (let mapItem of this.resourcesForPage.get(this.currentPage)){
         if (!this.availableResources.has(mapItem[0])){
           if (!mapItem[1].includes("components")){
-            neededResources.set(mapItem[0], mapItem[1]);
+            if (mapItem[1].endsWith(".html") || mapItem[1].endsWith(".js")){
+              neededResources.set(mapItem[0], mapItem[1]);
+            }
+            else {
+              if (mapItem[1].endsWith("{params}")){
+                App.router.pageData.push(mapItem[0]);
+                let str = location.pathname.substring(1);
+                let pos = str.indexOf("/")+1;
+                neededResources.set(mapItem[0], mapItem[1].replace("{params}", str.substring(pos)));
+              }
+            }
           }
           else {
             if (!isRegistered(mapItem[1].substring(mapItem[1].lastIndexOf("/")+1, mapItem[1].lastIndexOf(".")))){

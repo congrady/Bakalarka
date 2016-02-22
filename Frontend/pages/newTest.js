@@ -2,7 +2,7 @@
 
 App.newPage({
   title: "New Test",
-  init: function(urlParams) {
+  init: function(urlParams, data) {
     let root = new DocumentFragment();
     root.add("h3", {id: "page-title", innerHTML: this.title});
     root.importTemplate();
@@ -11,7 +11,7 @@ App.newPage({
 
     function upload(data) {
       let xhr = new XMLHttpRequest();
-      xhr.open('POST', '/saveNewTest', true);
+      xhr.open('POST', '/SaveNewTest', true);
       xhr.onload = function(event) {
         if (xhr.status == 200){
           message.innerHTML = "Test successfuly saved."

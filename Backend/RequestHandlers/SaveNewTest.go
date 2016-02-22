@@ -28,39 +28,5 @@ func SaveNewTest(w http.ResponseWriter, r *http.Request) {
 
 	os.Mkdir("data/tests/"+name, 0777)
 
-	/*
-
-		SELECT t.name, t.added_by, t.uploaded_string, count(*) as "AMOUNT"
-		FROM tests t
-		JOIN segments s ON t.name = s.test_name
-		GROUP BY t.name
-		HAVING t.uploaded = (SELECT MAX(segments.uploaded)
-											FROM segments
-											WHERE t.name = s.test_name);
-
-	*/
-	/*
-		width := 640
-		height := 360
-		cmd := exec.Command("ffmpeg", "-i", videoFileName, "-vframes", "1", "-s", fmt.Sprintf("%dx%d", width, height), "-f", "singlejpeg", "-")
-		var buffer bytes.Buffer
-		cmd.Stdout = &buffer
-		if cmd.Run() != nil {
-			panic("could not generate frame")
-		}
-
-		imageFileName := "data/tests/" + name + "/frame.jpeg"
-		outfile, err = os.Create(imageFileName)
-		if err != nil {
-			http.Error(w, "Error creating file: "+err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		_, err = buffer.WriteTo(outfile)
-		if err != nil {
-			http.Error(w, "Error saving file: "+err.Error(), http.StatusBadRequest)
-			return
-		}*/
-
 	fmt.Fprintln(w, "New test successfuly saved.")
 }

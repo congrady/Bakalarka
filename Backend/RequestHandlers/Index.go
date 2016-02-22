@@ -1,10 +1,14 @@
 package requestHandlers
 
-import "net/http"
+import (
+	"mime"
+	"net/http"
+	"path/filepath"
+)
 
 // Index responds with index.html (for every request except
-// for more explicitly specified requests)
+// for more specific requests)
 func Index(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Content-Type", mime.TypeByExtension(filepath.Ext(r.URL.Path)))
 	http.ServeFile(w, r, "../index.html")
 }

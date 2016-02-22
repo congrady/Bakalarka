@@ -1,4 +1,4 @@
-Deprecated version, using webworker to load script resources
+//Deprecated version, using webworker to load script resources
 
 servePage() {
   var routeParams = location.pathname.substring(1).split("/");
@@ -47,3 +47,15 @@ function loadScriptsByWorker(){
 }
 
 //getRequest({url: "/html", successHandler: function(text){alert(text);}, errorHandler: null});
+
+/*
+
+  SELECT t.name, t.added_by, t.uploaded_string, count(*) as "AMOUNT"
+  FROM tests t
+  JOIN segments s ON t.name = s.test_name
+  GROUP BY t.name
+  HAVING t.uploaded = (SELECT MAX(segments.uploaded)
+                    FROM segments
+                    WHERE t.name = s.test_name);
+
+*/

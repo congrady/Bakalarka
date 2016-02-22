@@ -2,6 +2,7 @@
 
 var App = {
   htmlTemplates: new Map(),
+  data: new Object(),
   init: function(){
     if (!App.router){
       App.router = new Router();
@@ -38,7 +39,7 @@ var App = {
     App.authenticator.loginRequest(
       options.login,
       options.password,
-      "/login",
+      AppConfig.loginPath,
       function(response){
         response = response.split(",");
         let userName = response[0];

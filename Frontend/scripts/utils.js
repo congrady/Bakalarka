@@ -10,14 +10,17 @@ function xhr_get(params){
       }
     }
     else if (xhr.status == 401){
-      if (params.onunauthorized){
+      if (params.unauthorized){
         params.unauthorized();
       }
     }
   };
-  if (params.onerror){
-    xhr.error = function(){
-      params.onerror();
+  if (params.jwt){
+    xhr.setRequestHeader('Authorization', 'Bearer ' + params.jwt);
+  }
+  if (params.timeout){
+    xhr.onerror = function(){
+      params.timeout();
     }
   }
   xhr.send();

@@ -1,9 +1,12 @@
 package requestHandlers
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
 	"net/http"
+	"os"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -48,6 +51,28 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 	err = utils.SaveFile(filePath+".csv", et)
 	if err != nil {
 		http.Error(w, "Error saving files: "+err.Error(), 409)
+		return
+	}
+
+	width := 640
+	height := 360
+	cmd := exec.Command("ffmpeg", "-i", filePath+".mp4", "-vframes", "1", "-s", fmt.Sprintf("%dx%d", width, height), "-f", "singlejpeg", "-")
+	var buffer bytes.Buffer
+	cmd.Stdout = &buffer
+	if cmd.Run() != nil {
+		panic("could not generate frame")
+	}
+
+	imageFileName := "data/tests/" + testName + "/frame.jpeg"
+	outfile, err := os.Create(imageFileName)
+	if err != nil {
+		http.Error(w, "Error creating file: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, err = buffer.WriteTo(outfile)
+	if err != nil {
+		http.Error(w, "Error saving file: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 

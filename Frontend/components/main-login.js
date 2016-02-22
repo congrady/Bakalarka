@@ -65,15 +65,6 @@
         this.setAttribute("mode", "notLoggedIn");
       }
     };
-    /*
-    attachedCallback(){
-      if (App.username) {
-        this.setAttribute("mode", "loggedIn");
-      }
-      else {
-        this.setAttribute("mode", "notLoggedIn");
-      }
-    }*/
     loggedInTemplate(userName){
       return
       `<br>

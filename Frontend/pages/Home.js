@@ -11,7 +11,7 @@ App.newPage({
   detachedCallback: function(){
     //alert("detachedCallback");
   },
-  init: function(urlParams) {
+  init: function(urlParams, data) {
     let root = new DocumentFragment();
     root.add("h3", {id: "page-title", innerHTML: this.title});
     if (urlParams){

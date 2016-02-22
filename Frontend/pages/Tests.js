@@ -2,12 +2,12 @@
 
 App.newPage({
   title: "Tests",
-  init: function(urlParams) {
+  init: function(urlParams, data) {
     let root = new DocumentFragment();
     root.add("h3", {id: "page-title", innerHTML: this.title});
     root.add("p", {id: "p1"});
     xhr_get({
-      url: "/getTestsInfo",
+      url: "/GetTestsInfo",
       success: function(response){
         if (response == null || response == "null"){
           return
