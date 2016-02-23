@@ -51,7 +51,7 @@
     }
     attachedCallback(){
       var self = this;
-      this.anchor.href = "/Test="+encodeURIWithSlashes(this.getAttribute("name"));
+      this.anchor.href = "/Test/"+encodeURIWithUnderscores(this.getAttribute("name"));
       this.anchor.onclick = function(event){
         App.navigate(event);
       }

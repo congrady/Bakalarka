@@ -12,11 +12,14 @@ class Router {
     this.availableResources = new Set();
     this.needAuthentication = new Set();
     this.navigation = new Map();
+    this.resourceParams = new Object();
+    this.pageData = new Map();
     this.appTitle = AppConfig.title ? AppConfig.title : '';
     for (let resource of AppConfig.resources){
       this.resourcePaths.set(resource.name, resource.path);
     }
     for (let route of AppConfig.routes){
+      this.pageData.set(route.page, []);
       if (route.path.constructor === Array){
         for (let path of route.path){
           this.routes.set(path, route.page);
@@ -64,7 +67,6 @@ class Router {
   }
 
   servePage() {
-    this.pageData = [];
     this.urlParams = location.pathname.substring(1).split("/");
     let urlPath = ("/"+this.urlParams.shift()).split("=");
     let path = urlPath[0];
@@ -120,9 +122,10 @@ class Router {
 
   showPage(){
     let data;
-    if (App.router.pageData){
+    let currentPageData = App.router.pageData.get(this.currentPage);
+    if (currentPageData){
       data = new Object();
-      for (let dataName of App.router.pageData){
+      for (let dataName of currentPageData){
         data[dataName] = App.data[dataName];
       }
     }
@@ -179,11 +182,19 @@ class Router {
               neededResources.set(mapItem[0], mapItem[1]);
             }
             else {
-              if (mapItem[1].endsWith("{params}")){
-                App.router.pageData.push(mapItem[0]);
-                let str = location.pathname.substring(1);
-                let pos = str.indexOf("/")+1;
-                neededResources.set(mapItem[0], mapItem[1].replace("{params}", str.substring(pos)));
+              if (mapItem[1].endsWith("}")){
+                let pos = mapItem[1].indexOf("{");
+                let paramNames = mapItem[1].slice(pos+1,-1).split(",");
+                let realParams = location.pathname.substring(1).split("/");
+                realParams.shift();
+                let queryString = "";
+                let len = realParams.length;
+                for (let i = 0; i < len; i++){
+                  queryString += "&" + paramNames[i] + "=" + realParams[i];
+                }
+                let URL = mapItem[1].slice(0, pos) + queryString;
+                neededResources.set(mapItem[0], encodeURIForServer(URL));
+                alert(encodeURIForServer(URL));
               }
             }
           }
@@ -204,13 +215,15 @@ class Router {
           neededResources.delete("#");
           for (let resource of neededResources){
             App.router.availableResources.add(resource[0]);
+            if (resource[1].endsWith("}")){
+              App.router.pageData.get(App.router.currentPage).push(resource[0]);
+            }
           }
           App.router.showPage();
         },
         function(){
           App.router.showError("timeout");
-        }
-      );
+      });
     }
     else {
       App.resourceLoader.loadRestrictedScript(
@@ -219,6 +232,10 @@ class Router {
           neededResources.delete("#");
           for (let resource of neededResources){
             App.router.availableResources.add(resource[0]);
+            if (resource[1].startsWith("/GET") || resource[1].startsWith("/POST") || resource[1].startsWith("/PUT") || resource[1].startsWith("/DELETE")
+                || resource[1].startsWith("/EXP")){
+              App.router.pageData.get(App.router.currentPage).push(resource[0]);
+            }
           }
           App.router.showPage();
         },

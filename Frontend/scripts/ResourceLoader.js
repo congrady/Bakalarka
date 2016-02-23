@@ -99,6 +99,7 @@ class ResourceLoader {
           url: resource[1],
           jwt: sessionStorage.token,
           success: function(response){
+            alert(response);
             if (unresolvedResourcesCounter == -1){
               return
             }
@@ -123,7 +124,6 @@ class ResourceLoader {
           url: resource[1],
           jwt: sessionStorage.token,
           success: function(response){
-            alert(resource[0] + ": " + resource[1]);
             alert(response);
             if (unresolvedResourcesCounter == -1){
               return

@@ -94,10 +94,18 @@ String.prototype.replaceAll = function(search, replacement) {
     return this.split(search).join(replacement);
 };
 
-function encodeURIWithSlashes(str){
-  return str.replaceAll(" ", "-")
+function encodeURIWithUnderscores(str){
+  return str.replaceAll(" ", "__")
 }
 
-function decodeURIWithSlashes(str){
-  return str.replaceAll("-", " ")
+function encodeURIForUser(str){
+  return str.replaceAll(" ", "__")
+}
+
+function decodeURIWithUnderscores(str){
+  return str.replaceAll("__", " ")
+}
+
+function encodeURIForServer(str){
+  return encodeURI(decodeURIWithUnderscores(str));
 }

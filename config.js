@@ -8,14 +8,14 @@ AppConfig = {
     {name: "Contact", path: "/Frontend/templates/Contact.html"},
     {name: "NewTest", path: "/Frontend/templates/NewTest.html"},
     {name: "NewSegment", path: "/Frontend/templates/NewSegment.html"},
-    {name: "TestData", path: "/Get/{params}"}
+    {name: "TestData", path: "/GET/?db=tests{name,date}"}
   ],
   routes: [
     {page: 'Home', path: ["/Home","/"], navigation: "Home", resources: ["Home"]},
     {page: 'NewTest', path: "/NewTest", navigation: "New test", auth: true, resources: ["NewTest"]},
-    {page: 'NewSegment', path: "/NewSegment", navigation: "New segment", auth: true, resources: ["NewSegment", "TestData"]},
+    {page: 'NewSegment', path: "/NewSegment", navigation: "New segment", auth: true, resources: ["NewSegment"]},
     {page: 'Tests', path: "/Tests", navigation: "Tests", auth: true, resources: ["test-component"]},
     {page: 'Contact', path: "/Contact", navigation: "Contact", resources: ["Contact"]},
-    {page: 'Test', path: "/Test", auth: true}
+    {page: 'Test', path: "/Test", auth: true, resources: ["TestData"]}
   ],
 };
