@@ -50,7 +50,7 @@ class ResourceLoader {
             if (unresolvedResourcesCounter == -1){
               return
             }
-            App.data[resource[0]] = JSON.parse(response);
+            App.data[resource[0]] = response;
             unresolvedResourcesCounter -= 1;
             if (unresolvedResourcesCounter == 0){
               successCallback();
@@ -124,11 +124,10 @@ class ResourceLoader {
           url: resource[1],
           jwt: sessionStorage.token,
           success: function(response){
-            alert(response);
             if (unresolvedResourcesCounter == -1){
               return
             }
-            App.data[resource[0]] = JSON.parse(response);
+            App.data[resource[0]] = response;
             unresolvedResourcesCounter -= 1;
             if (unresolvedResourcesCounter == 0){
               successCallback();

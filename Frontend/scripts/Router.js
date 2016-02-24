@@ -7,6 +7,7 @@ class Router {
     this.currentURL = this.siteName + window.location.pathname;
     this.routes = new Map();
     this.resourcesForPage = new Map();
+    this.dataForPage = new Map();
     this.Pages = new Map(); //key: name of the page, value: page object
     this.resourcePaths = new Map();
     this.availableResources = new Set();
@@ -42,6 +43,13 @@ class Router {
           resourceMap.set(resourceName, this.resourcePaths.get(resourceName));
         }
         this.resourcesForPage.set(route.page, resourceMap);
+      }
+      if (route.data){
+        let neededData = new Set();
+        for (let dataName of route.data){
+          neededData.add(dataName);
+        }
+        this.dataForPage.set(route.page, neededData);
       }
       if (route.auth){
         this.needAuthentication.add(route.path);
@@ -122,11 +130,15 @@ class Router {
 
   showPage(){
     let data;
-    let currentPageData = App.router.pageData.get(this.currentPage);
+    let currentPageData = this.dataForPage.get(this.currentPage);
     if (currentPageData){
       data = new Object();
       for (let dataName of currentPageData){
-        data[dataName] = App.data[dataName];
+        let dataNameWithParams = dataName;
+        for (let param of this.urlParams){
+          dataNameWithParams += ":" + param;
+        }
+        data[dataName] = App.data[dataNameWithParams];
       }
     }
     let page = this.Pages.get(this.currentPage);
@@ -174,6 +186,47 @@ class Router {
 
   loadPage(needAuthentication){
     let neededResources = new Map();
+    let urlParams = location.pathname.substring(1).split("/");
+    urlParams.shift();
+    if (this.dataForPage.has(this.currentPage)){
+      for (let neededData of this.dataForPage.get(this.currentPage)){
+        for (let data of AppConfig.data){
+          if (data.name === neededData){
+            let dataName = data.name;
+            if (data.conditions){
+              for (let urlParam of urlParams){
+                dataName += ":" + urlParam;
+              }
+            }
+            if (!App.data[dataName]){
+              let requestURL = "/GET/" + data.table+"/";
+              if (data.columns){
+                for (let sl of data.columns){
+                  requestURL += sl + ",";
+                }
+              }
+              else {
+                requestURL += "*,";
+              }
+              requestURL = requestURL.slice(0,-1) + "/";
+              AppConfig.title ? AppConfig.title : '';
+              let condLen = data.conditions.length;
+              let urlParamsLen = urlParams.length;
+              let len = condLen <= urlParamsLen ? condLen : urlParamsLen;
+              for (let i = 0; i < len; i++){
+                if (data.conditions[i].endsWith("{}")){
+                  requestURL += data.conditions[i].replace("{}", urlParams[i]) + ",";
+                }
+                else {
+                  requestURL +=  "," + urlParams[i];
+                }
+              }
+              neededResources.set(dataName, requestURL.slice(0,-1));
+            }
+          }
+        }
+      }
+    }
     if (this.resourcesForPage.has(this.currentPage)){
       for (let mapItem of this.resourcesForPage.get(this.currentPage)){
         if (!this.availableResources.has(mapItem[0])){
@@ -181,25 +234,9 @@ class Router {
             if (mapItem[1].endsWith(".html") || mapItem[1].endsWith(".js")){
               neededResources.set(mapItem[0], mapItem[1]);
             }
-            else {
-              if (mapItem[1].endsWith("}")){
-                let pos = mapItem[1].indexOf("{");
-                let paramNames = mapItem[1].slice(pos+1,-1).split(",");
-                let realParams = location.pathname.substring(1).split("/");
-                realParams.shift();
-                let queryString = "";
-                let len = realParams.length;
-                for (let i = 0; i < len; i++){
-                  queryString += "&" + paramNames[i] + "=" + realParams[i];
-                }
-                let URL = mapItem[1].slice(0, pos) + queryString;
-                neededResources.set(mapItem[0], encodeURIForServer(URL));
-                alert(encodeURIForServer(URL));
-              }
-            }
           }
           else {
-            if (!isRegistered(mapItem[1].substring(mapItem[1].lastIndexOf("/")+1, mapItem[1].lastIndexOf(".")))){
+            if (mapItem[1].endsWith(".js") && !isRegistered(mapItem[1].substring(mapItem[1].lastIndexOf("/")+1, mapItem[1].lastIndexOf(".")))){
               neededResources.set(mapItem[0], mapItem[1]);
             }
           }
@@ -215,9 +252,6 @@ class Router {
           neededResources.delete("#");
           for (let resource of neededResources){
             App.router.availableResources.add(resource[0]);
-            if (resource[1].endsWith("}")){
-              App.router.pageData.get(App.router.currentPage).push(resource[0]);
-            }
           }
           App.router.showPage();
         },
@@ -232,10 +266,6 @@ class Router {
           neededResources.delete("#");
           for (let resource of neededResources){
             App.router.availableResources.add(resource[0]);
-            if (resource[1].startsWith("/GET") || resource[1].startsWith("/POST") || resource[1].startsWith("/PUT") || resource[1].startsWith("/DELETE")
-                || resource[1].startsWith("/EXP")){
-              App.router.pageData.get(App.router.currentPage).push(resource[0]);
-            }
           }
           App.router.showPage();
         },

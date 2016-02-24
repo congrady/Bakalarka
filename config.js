@@ -7,8 +7,10 @@ AppConfig = {
     {name: "Home", path: "/Frontend/templates/Home.html"},
     {name: "Contact", path: "/Frontend/templates/Contact.html"},
     {name: "NewTest", path: "/Frontend/templates/NewTest.html"},
-    {name: "NewSegment", path: "/Frontend/templates/NewSegment.html"},
-    {name: "TestData", path: "/GET/?db=tests{name,date}"}
+    {name: "NewSegment", path: "/Frontend/templates/NewSegment.html"}
+  ],
+  data: [
+    {name: "TestData", table: "tests", columns:["name","added_by","uploaded_string","last_modified_string"], conditions: ["name={}"]}
   ],
   routes: [
     {page: 'Home', path: ["/Home","/"], navigation: "Home", resources: ["Home"]},
@@ -16,6 +18,6 @@ AppConfig = {
     {page: 'NewSegment', path: "/NewSegment", navigation: "New segment", auth: true, resources: ["NewSegment"]},
     {page: 'Tests', path: "/Tests", navigation: "Tests", auth: true, resources: ["test-component"]},
     {page: 'Contact', path: "/Contact", navigation: "Contact", resources: ["Contact"]},
-    {page: 'Test', path: "/Test", auth: true, resources: ["TestData"]}
+    {page: 'Test', path: "/Test", auth: true, data: ["TestData"]}
   ],
 };
