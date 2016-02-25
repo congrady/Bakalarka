@@ -82,7 +82,9 @@
       }
       else if (mode == "auth"){
         for (let item of App.router.navigation){
-          navigation.set(item[0], item[1]);
+          if (App.router.needAuthentication.get(item[0]) >= App.authLevel || !App.router.needAuthentication.has(item[0])){
+            navigation.set(item[0], item[1]);
+          }
         }
       }
       let width = (100/navigation.size) + "%";

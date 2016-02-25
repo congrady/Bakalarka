@@ -14,10 +14,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	password := r.PostFormValue("password")
 	if login == "Matus" && password == "heslo" {
 		userName := "Matus Congrady"
-		fmt.Fprintf(w, "%s,%s", userName, "token")
+		fmt.Fprintf(w, "%s,%s,%s", userName, "token", "0")
 	} else if login == "user123" && password == "heslo123" {
 		userName := "Nahodny pouzivatel"
-		fmt.Fprintf(w, "%s,%s", userName, "token")
+		fmt.Fprintf(w, "%s,%s,%s", userName, "token", "1")
 	} else {
 		http.Error(w, http.StatusText(403), 403)
 	}

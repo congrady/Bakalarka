@@ -14,10 +14,10 @@ AppConfig = {
   ],
   routes: [
     {page: 'Home', path: ["/Home","/"], navigation: "Home", resources: ["Home"]},
-    {page: 'NewTest', path: "/NewTest", navigation: "New test", auth: true, resources: ["NewTest"]},
-    {page: 'NewSegment', path: "/NewSegment", navigation: "New segment", auth: true, resources: ["NewSegment"]},
-    {page: 'Tests', path: "/Tests", navigation: "Tests", auth: true, resources: ["test-component"]},
+    {page: 'NewTest', path: "/NewTest", navigation: "New test", auth: 0, resources: ["NewTest"]},
+    {page: 'NewSegment', path: "/NewSegment", navigation: "New segment", auth: 0, resources: ["NewSegment"]},
+    {page: 'Tests', path: "/Tests", navigation: "Tests", auth: 1, resources: ["test-component"]},
     {page: 'Contact', path: "/Contact", navigation: "Contact", resources: ["Contact"]},
-    {page: 'Test', path: "/Test", auth: true, data: ["TestData"]}
+    {page: 'Test', path: "/Test", auth: 1, data: ["TestData"]}
   ],
 };

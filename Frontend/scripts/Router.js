@@ -11,9 +11,9 @@ class Router {
     this.Pages = new Map(); //key: name of the page, value: page object
     this.resourcePaths = new Map();
     this.availableResources = new Set();
-    this.needAuthentication = new Set();
+    this.needAuthentication = new Map();
     this.navigation = new Map();
-    this.resourceParams = new Object();
+    this.resourceParams = {};
     this.pageData = new Map();
     this.appTitle = AppConfig.title ? AppConfig.title : '';
     for (let resource of AppConfig.resources){
@@ -51,8 +51,8 @@ class Router {
         }
         this.dataForPage.set(route.page, neededData);
       }
-      if (route.auth){
-        this.needAuthentication.add(route.path);
+      if (route.auth !== undefined){
+        this.needAuthentication.set(route.path, route.auth);
       }
     }
   }
@@ -88,12 +88,14 @@ class Router {
     }
     this.currentPage = this.routes.get(path);
     document.getElementsByTagName("main-navigation")[0].setAttribute("active", this.currentPage);
-    if (this.needAuthentication.has(path)){
-      if (App.userName){
-        if (this.Pages.has(this.currentPage)){
-          this.showPage();
-        } else{
-          this.loadPage(true);
+    if (this.needAuthentication.has(this.currentPage)){
+      if (App.authLevel){
+        if (App.authLevel <= this.needAuthentication.get(this.currentPage)){
+          if (this.Pages.has(this.currentPage)){
+            this.showPage();
+          } else{
+            this.loadPage(true);
+          }
         }
       }
       else {
@@ -126,13 +128,17 @@ class Router {
       $mainContent.innerHTML = "<p>Page does not exist.</p>";
       $title.innerHTML += "Page not found";
     }
+    else {
+      $mainContent.innerHTML = "<p>Unexpected Error occured.</p>";
+      $title.innerHTML += "Unexpected Error";
+    }
   }
 
   showPage(){
     let data;
     let currentPageData = this.dataForPage.get(this.currentPage);
     if (currentPageData){
-      data = new Object();
+      data = {};
       for (let dataName of currentPageData){
         let dataNameWithParams = dataName;
         for (let param of this.urlParams){
@@ -159,11 +165,18 @@ class Router {
       $style.innerHTML = page.css;
       $mainContent.appendChild($style);
     }
+    let res;
     if (data !== undefined){
-      $mainContent.appendChild(page.init(urlParams, data));
+      res = page.init(urlParams, data);
     }
     else {
-      $mainContent.appendChild(page.init(urlParams, null));
+      res = page.init(urlParams, null);
+    }
+    if (res.constructor === DocumentFragment){
+      $mainContent.appendChild(res);
+    }
+    else {
+      this.showError(res);
     }
     if (page.afterAttachedCallback) {
       page.afterAttachedCallback(urlParams);

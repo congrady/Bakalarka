@@ -4,6 +4,7 @@ class Authenticator {
   constructor(){
     App.userName = sessionStorage.getItem("userName");
     App.token = sessionStorage.getItem("token");
+    App.authLevel = sessionStorage.getItem("authLevel");
   }
   loginRequest(login, password, url, loginSuccessful, loginError){
     var xhr = new XMLHttpRequest();

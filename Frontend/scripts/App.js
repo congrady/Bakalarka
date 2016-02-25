@@ -2,7 +2,7 @@
 
 var App = {
   htmlTemplates: new Map(),
-  data: new Object(),
+  data: {},
   init: function(){
     if (!App.router){
       App.router = new Router();
@@ -22,8 +22,7 @@ var App = {
       }
       return "404";
     }
-    let href;
-    href = getHref(event.target);
+    let href = getHref(event.target);
     if (href === "404"){
       App.router.showError("pageNotFound");
     }
@@ -44,10 +43,13 @@ var App = {
         response = response.split(",");
         let userName = response[0];
         let token = response[1];
+        let authLevel = response[2];
         self.userName = userName
         self.token = token;
+        self.authLevel = authLevel;
         sessionStorage.setItem('userName', userName);
         sessionStorage.setItem('token', token);
+        sessionStorage.setItem('authLevel', authLevel);
         options.success();
         self.router.servePage();
         document.getElementsByTagName("main-navigation")[0].setAttribute("mode", "auth");

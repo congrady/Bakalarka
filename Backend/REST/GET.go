@@ -26,12 +26,13 @@ func GET(w http.ResponseWriter, r *http.Request) {
 	}
 	//fmt.Println(columns)
 
-	conditions := ""
+	var conditions string
 	if urlParams[2] != "" {
 		conditionsArray := strings.Split(urlParams[2], ",")
-		conditions := "WHERE "
+		conditions = "WHERE "
+		var c []string
 		for _, cond := range conditionsArray {
-			c := strings.Split(cond, "=")
+			c = strings.Split(cond, "=")
 			conditions += (c[0] + `="` + c[1] + `" AND `)
 		}
 		conditions = strings.TrimSuffix(conditions, " AND ")
@@ -42,8 +43,7 @@ func GET(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusBadRequest)
 	}
 
-	fmt.Println(fmt.Sprintf("SELECT %s FROM %s%s;", columns, table, conditions))
-	rows, err := db.Query(fmt.Sprintf("SELECT %s FROM %s%s;", columns, table, conditions))
+	rows, err := db.Query(fmt.Sprintf("SELECT %s FROM %s %s;", columns, table, conditions))
 	if err != nil {
 		http.Error(w, "Error executing query: "+err.Error(), http.StatusBadRequest)
 		return
