@@ -38,12 +38,12 @@ body {
 header {
   position: relative;
   overflow: auto;
-  background-image: url("../data/imgs/softec-background.gif");
+  background-image: url("/data/imgs/softec-background.gif");
   color: #fff;
   box-shadow: 0 0 4px #000000;
 }
 footer {
-  background-image: url("../data/imgs/softec-background.gif");
+  background-image: url("/data/imgs/softec-background.gif");
   color: #fff;
   height: 60px;
   line-height: 60px;

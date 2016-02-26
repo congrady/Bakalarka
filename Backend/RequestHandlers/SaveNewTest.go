@@ -1,4 +1,4 @@
-package explicit
+package RequestHandlers
 
 import (
 	"database/sql"
@@ -26,7 +26,7 @@ func SaveNewTest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	os.Mkdir("data/tests/"+name, 0777)
+	os.Mkdir("../data/tests/"+name, 0777)
 
 	fmt.Fprintln(w, "New test successfuly saved.")
 }

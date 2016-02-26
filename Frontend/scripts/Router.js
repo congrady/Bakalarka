@@ -88,12 +88,14 @@ class Router {
     }
     this.currentPage = this.routes.get(path);
     document.getElementsByTagName("main-navigation")[0].setAttribute("active", this.currentPage);
-    if (this.needAuthentication.has(this.currentPage)){
-      if (App.authLevel){
-        if (App.authLevel <= this.needAuthentication.get(this.currentPage)){
+    if (this.needAuthentication.has(path)){
+      if (App.authLevel !== undefined){
+        if (App.authLevel <= this.needAuthentication.get(path)){
           if (this.Pages.has(this.currentPage)){
+            alert("show");
             this.showPage();
           } else{
+            alert("load");
             this.loadPage(true);
           }
         }

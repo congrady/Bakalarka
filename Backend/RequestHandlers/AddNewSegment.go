@@ -1,4 +1,4 @@
-package explicit
+package RequestHandlers
 
 import (
 	"bytes"
@@ -38,7 +38,7 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 	var segmentID string
 	err = db.QueryRow(`SELECT COUNT(*) FROM segments WHERE test_name = "` + testName + `"`).Scan(&segmentID)
 
-	filePath := "data/tests/" + testName + "/ETresult" + segmentID
+	filePath := "../data/tests/" + testName + "/ETresult" + segmentID
 
 	stmt, _ := db.Prepare("INSERT INTO `segments` (test_name, added_by, uploaded, file_path) VALUES (?,?,?,?)")
 	_, err = stmt.Exec(testName, addedBy, uploaded, filePath)
@@ -63,7 +63,7 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 		panic("could not generate frame")
 	}
 
-	imageFileName := "data/tests/" + testName + "/frame.jpeg"
+	imageFileName := "../data/tests/" + testName + "/frame.jpeg"
 	outfile, err := os.Create(imageFileName)
 	if err != nil {
 		http.Error(w, "Error creating file: "+err.Error(), http.StatusBadRequest)
