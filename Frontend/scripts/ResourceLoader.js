@@ -126,7 +126,6 @@ class ResourceLoader {
             if (unresolvedResourcesCounter == -1){
               return
             }
-            alert(response);
             App.data[resource[0]] = JSON.parse(response);
             unresolvedResourcesCounter -= 1;
             if (unresolvedResourcesCounter == 0){

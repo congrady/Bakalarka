@@ -17,7 +17,7 @@ App.newPage({
     root.add("p", {innerHTML: `Added by: ${addedBy}`});
     root.add("p", {innerHTML: `Uploaded: ${uploaded}`});
     root.add("p", {innerHTML: `Last Modified: ${lastModified}`});
-    root.add("img", {src: `/data/tests/${name}/frame.jpeg`});
+    root.addImg(`/data/tests/${name}/frame.jpeg`);
 
     return root;
   }

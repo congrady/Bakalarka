@@ -60,8 +60,10 @@ var App = {
   logout: function(){
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('userName');
+    sessionStorage.removeItem('authLevel');
     App.userName = null;
     App.token = null;
+    App.authLevel = null;
     document.getElementsByTagName("main-navigation")[0].setAttribute("mode", "free");
     App.router.servePage();
   },
@@ -72,6 +74,3 @@ var App = {
 
 App.init();
 window.addEventListener('popstate', App.init);
-/*window.addEventListener('unload', function(){
-  //alert("unload");
-});*/

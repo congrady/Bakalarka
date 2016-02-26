@@ -8,7 +8,7 @@ import (
 
 // GetTestNames sends test names saved in DB
 func GetTestNames(w http.ResponseWriter, r *http.Request) {
-	db, _ := sql.Open("sqlite3", "data/UXPtests.db")
+	db, _ := sql.Open("sqlite3", "UXPtests.db")
 
 	var testNames []string
 	rows, _ := db.Query("SELECT DISTINCT `name` FROM tests")

@@ -38,7 +38,7 @@ func GET(w http.ResponseWriter, r *http.Request) {
 		conditions = strings.TrimSuffix(conditions, " AND ")
 	}
 
-	db, err := sql.Open("sqlite3", "data/UXPtests.db")
+	db, err := sql.Open("sqlite3", "UXPtests.db")
 	if err != nil {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusBadRequest)
 	}

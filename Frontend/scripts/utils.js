@@ -59,6 +59,28 @@ DocumentFragment.prototype.add = function(elementType, attrs){
   return element;
 }
 Element.prototype.add = DocumentFragment.prototype.add;
+DocumentFragment.prototype.addImg = function(url, attrs){
+  let element = document.createElement("img");
+  for (let attr in attrs){
+    element.setAttribute(attr, attrs[attr]);
+  }
+  let hashCode = url.hashCode;
+  element.setAttribute("id", hashCode)
+  this.appendChild(element);
+
+  let xhr = new XMLHttpRequest();
+  xhr.open("GET", url, true);
+  xhr.responseType = "blob";
+  xhr.onload = function(response){
+    let blob = new Blob([this.response], {type: "image/jpeg"});
+    let imageURL = window.URL.createObjectURL(blob);
+    document.getElementById(hashCode).src = imageURL;
+    window.URL.revokeObjectURL(blob);
+  }
+  xhr.send();
+}
+Element.prototype.addImg = DocumentFragment.prototype.addImg;
+
 
 DocumentFragment.prototype.importTemplate = function(templateName){
   let temp = document.createElement('body');
@@ -108,4 +130,15 @@ function decodeURIWithUnderscores(str){
 
 function encodeURIForServer(str){
   return encodeURI(decodeURIWithUnderscores(str));
+}
+
+String.prototype.hashCode = function() {
+  var hash = 0, i, chr, len;
+  if (this.length === 0) return hash;
+  for (i = 0, len = this.length; i < len; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
 }

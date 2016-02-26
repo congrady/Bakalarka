@@ -1,4 +1,4 @@
-package RequestHandlers
+package explicit
 
 import (
 	"database/sql"
@@ -17,7 +17,7 @@ func SaveNewTest(w http.ResponseWriter, r *http.Request) {
 	addedBy := r.FormValue("userName")
 	uploaded := time.Now().Format("02.01.2006 15:04:05")
 
-	db, _ := sql.Open("sqlite3", "UXPtests.db")
+	db, _ := sql.Open("sqlite3", "data/UXPtests.db")
 
 	stmt, _ := db.Prepare("INSERT INTO `tests` (name, added_by, uploaded, uploaded_string, last_modified, last_modified_string) VALUES (?,?,?,?,?,?)")
 	_, err := stmt.Exec(name, addedBy, uploaded, uploaded, uploaded, uploaded)

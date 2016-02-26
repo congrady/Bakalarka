@@ -91,11 +91,9 @@ class Router {
     if (this.needAuthentication.has(path)){
       if (App.authLevel !== undefined){
         if (App.authLevel <= this.needAuthentication.get(path)){
-          if (this.Pages.has(this.currentPage)){
-            alert("show");
+          if (this.Pages.has(this.currentPage) && !this.dataForPage.has(this.currentPage)){
             this.showPage();
           } else{
-            alert("load");
             this.loadPage(true);
           }
         }
@@ -236,7 +234,7 @@ class Router {
                   requestURL +=  "," + urlParams[i];
                 }
               }
-              neededResources.set(dataName, requestURL.slice(0,-1));
+              neededResources.set(dataName, encodeURIForServer(requestURL.slice(0,-1)));
             }
           }
         }

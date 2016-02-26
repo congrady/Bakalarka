@@ -42,6 +42,9 @@ header {
   color: #fff;
   box-shadow: 0 0 4px #000000;
 }
+img {
+  padding: 10px;
+}
 footer {
   background-image: url("/data/imgs/softec-background.gif");
   color: #fff;

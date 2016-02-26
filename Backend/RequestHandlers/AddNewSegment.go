@@ -33,7 +33,7 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 	addedBy := r.FormValue("userName")
 	uploaded := time.Now().Format("02.01.2006 15:04:05")
 
-	db, _ := sql.Open("sqlite3", "data/UXPtests.db")
+	db, _ := sql.Open("sqlite3", "UXPtests.db")
 
 	var segmentID string
 	err = db.QueryRow(`SELECT COUNT(*) FROM segments WHERE test_name = "` + testName + `"`).Scan(&segmentID)
@@ -53,6 +53,8 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error saving files: "+err.Error(), 409)
 		return
 	}
+	http.HandleFunc(filePath[2:]+".mp4", SendResources)
+	http.HandleFunc(filePath[2:]+".csv", SendResources)
 
 	width := 640
 	height := 360
@@ -69,6 +71,7 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error creating file: "+err.Error(), http.StatusBadRequest)
 		return
 	}
+	http.HandleFunc(imageFileName[2:], SendResources)
 
 	_, err = buffer.WriteTo(outfile)
 	if err != nil {
