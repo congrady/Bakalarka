@@ -2,7 +2,7 @@
 
 App.newPage({
   title: "Contact",
-  init: function(urlParams, data) {
+  init: function(urlParams) {
     let root = new DocumentFragment();
     root.add("h3", {id: "page-title", innerHTML: this.title});
     root.importTemplate("Contact");

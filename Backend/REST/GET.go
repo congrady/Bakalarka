@@ -12,7 +12,7 @@ import (
 func GET(w http.ResponseWriter, r *http.Request) {
 	urlParams := strings.Split(r.URL.Path[5:], "/")
 
-	table := urlParams[0]
+	table := "`" + urlParams[0] + "`"
 
 	columns := ""
 	if urlParams[1] == "*" {
@@ -38,12 +38,25 @@ func GET(w http.ResponseWriter, r *http.Request) {
 		conditions = strings.TrimSuffix(conditions, " AND ")
 	}
 
+	fmt.Println(urlParams[3])
+	var order string
+	if urlParams[3] != "" {
+		orderArray := strings.Split(urlParams[3], ",")
+		order = ""
+		for _, ord := range orderArray {
+			order += (ord + ", ")
+		}
+		order = strings.TrimSuffix(order, ", ")
+	}
+	fmt.Println(order)
+
 	db, err := sql.Open("sqlite3", "UXPtests.db")
 	if err != nil {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusBadRequest)
 	}
 
-	rows, err := db.Query(fmt.Sprintf("SELECT %s FROM %s %s;", columns, table, conditions))
+	fmt.Println(fmt.Sprintf("SELECT %s FROM %s %s ORDER BY %s;", columns, table, conditions, order))
+	rows, err := db.Query(fmt.Sprintf("SELECT %s FROM %s %s ORDER BY %s;", columns, table, conditions, order))
 	if err != nil {
 		http.Error(w, "Error executing query: "+err.Error(), http.StatusBadRequest)
 		return

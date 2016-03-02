@@ -10,13 +10,14 @@ AppConfig = {
     {name: "NewSegment", path: "/Frontend/templates/NewSegment.html"}
   ],
   data: [
-    {name: "TestData", table: "tests", columns:["name","added_by","uploaded_string","last_modified_string"], conditions: ["name={}"]}
+    {name: "TestData", table: "tests", columns:["name","added_by","uploaded_string","last_modified_string"], conditions: ["name={}"], orderBy: ["last_modified"]},
+    {name: "TestsInfo", url: "/GetTestsInfo"}
   ],
   routes: [
     {page: 'Home', path: ["/Home","/"], navigation: "Home", resources: ["Home"]},
     {page: 'NewTest', path: "/NewTest", navigation: "New test", auth: 0, resources: ["NewTest"]},
     {page: 'NewSegment', path: "/NewSegment", navigation: "New segment", auth: 0, resources: ["NewSegment"]},
-    {page: 'Tests', path: "/Tests", navigation: "Tests", auth: 1, resources: ["test-component"]},
+    {page: 'Tests', path: "/Tests", navigation: "Tests", auth: 1, resources: ["test-component"], data: ["TestsInfo"]},
     {page: 'Contact', path: "/Contact", navigation: "Contact", resources: ["Contact"]},
     {page: 'Test', path: "/Test", auth: 1, data: ["TestData"]}
   ],

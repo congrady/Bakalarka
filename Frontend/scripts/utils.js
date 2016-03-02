@@ -64,8 +64,8 @@ DocumentFragment.prototype.addImg = function(url, attrs){
   for (let attr in attrs){
     element.setAttribute(attr, attrs[attr]);
   }
-  let hashCode = url.hashCode;
-  element.setAttribute("id", hashCode)
+  let hashCode = url.hashCode();
+  element.setAttribute("id", hashCode);
   this.appendChild(element);
 
   let xhr = new XMLHttpRequest();
@@ -74,7 +74,7 @@ DocumentFragment.prototype.addImg = function(url, attrs){
   xhr.onload = function(response){
     let blob = new Blob([this.response], {type: "image/jpeg"});
     let imageURL = window.URL.createObjectURL(blob);
-    document.getElementById(hashCode).src = imageURL;
+    document.getElementById(url.hashCode()).src = imageURL;
     window.URL.revokeObjectURL(blob);
   }
   xhr.send();
@@ -138,7 +138,7 @@ String.prototype.hashCode = function() {
   for (i = 0, len = this.length; i < len; i++) {
     chr   = this.charCodeAt(i);
     hash  = ((hash << 5) - hash) + chr;
-    hash |= 0; // Convert to 32bit integer
+    hash |= 0;
   }
   return hash;
 }
