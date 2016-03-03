@@ -1,166 +1,127 @@
 'use strict';
 
 class ResourceLoader {
-  loadData(neededData, auth) {
-    if (!this.worker) {
+	loadData(neededData, auth) {
+		if (!this.worker) {
       this.worker = new Worker("/Frontend/scripts/ResourceLoaderWorker.js");
-    }
-    this.worker.addEventListener("message", function(message) {
-      App.data[message.data.name] = message.data.response;
-    });
-    for (let data of neededData) {
-      if (auth) {
-        this.worker.postMessage({
-          "name": data[0],
-          url: data[1],
-          token: App.token
-        });
-      } else {
-        this.worker.postMessage({
-          "name": data[0],
-          url: data[1]
-        });
-      }
-    }
-  }
+		}
+		this.worker.addEventListener("message", function(message) {
+			App.data[message.data.name] = message.data.response;
+		});
+		for (let data of neededData) {
+			if (auth) {
+				this.worker.postMessage({
+					"name": data[0],
+					url: data[1],
+					token: App.token
+				});
+			} else {
+				this.worker.postMessage({
+					"name": data[0],
+					url: data[1]
+				});
+			}
+		}
+	}
 
-  loadScript(neededResources, success) {
-    let unresolvedResourcesCounter = neededResources.size;
-    let $head = document.getElementsByTagName('head')[0];
-    for (let resource of neededResources) {
-      if (resource[1].endsWith('.js')) {
-        let $script = document.createElement('script');
-        $script.src = resource[1];
-        $script.async = true;
-        $script.onload = function() {
-          if (unresolvedResourcesCounter == -1) {
-            return
-          }
-          unresolvedResourcesCounter -= 1;
-          if (unresolvedResourcesCounter == 0) {
-            success();
-          }
-        };
-        $script.onerror = function() {
-          unresolvedResourcesCounter = -1;
-          App.router.showError("timeout");
-        };
-        $head.appendChild($script);
-      } else if (resource[1].endsWith(".html")) {
-        xhr_get({
-          url: resource[1],
-          success: function(response) {
-            if (unresolvedResourcesCounter == -1) {
-              return
-            }
-            App.htmlTemplates.set(resource[0], response);
-            unresolvedResourcesCounter -= 1;
-            if (unresolvedResourcesCounter == 0) {
-              success();
-            }
-          },
-          timeout: function() {
-            unresolvedResourcesCounter = -1;
-            App.router.showError("timeout");
-          }
-        });
-      } else {
-        xhr_get({
-          url: resource[1],
-          success: function(response) {
-            if (unresolvedResourcesCounter == -1) {
-              return
-            }
-            App.data[resource[0]] = JSON.parse(response);
-            unresolvedResourcesCounter -= 1;
-            if (unresolvedResourcesCounter == 0) {
-              success();
-            }
-          },
-          timeout: function() {
-            unresolvedResourcesCounter = -1;
-            App.router.showError("timeout");
-          }
-        });
-      }
-    }
-  }
-  loadRestrictedScript(neededResources, success) {
-    let unresolvedResourcesCounter = neededResources.size;
-    let $head = document.getElementsByTagName('head')[0];
-    for (let resource of neededResources) {
-      if (resource[1].endsWith('.js')) {
-        xhr_get({
-          url: resource[1],
-          jwt: sessionStorage.token,
-          success: function(response) {
-            if (unresolvedResourcesCounter == -1) {
-              return
-            }
-            let $script = document.createElement('script');
-            $script.innerHTML = response;
-            $head.appendChild($script);
-            unresolvedResourcesCounter -= 1;
-            if (unresolvedResourcesCounter == 0) {
-              success();
-            }
-          },
-          unauthorized: function() {
-            unresolvedResourcesCounter = -1;
-            App.router.showError("unauthorized");
-          },
-          timeout: function() {
-            unresolvedResourcesCounter = -1;
-            App.router.showError("timeout");
-          }
-        });
-      } else if (resource[1].endsWith(".html")) {
-        xhr_get({
-          url: resource[1],
-          jwt: sessionStorage.token,
-          success: function(response) {
-            if (unresolvedResourcesCounter == -1) {
-              return
-            }
-            App.htmlTemplates.set(resource[0], response);
-            unresolvedResourcesCounter -= 1;
-            if (unresolvedResourcesCounter == 0) {
-              success();
-            }
-          },
-          unauthorized: function() {
-            unresolvedResourcesCounter = -1;
-            App.router.showError("unauthorized");
-          },
-          timeout: function() {
-            unresolvedResourcesCounter = -1;
-            App.router.showError("timeout");
-          }
-        });
-      } else {
-        xhr_get({
-          url: resource[1],
-          jwt: sessionStorage.token,
-          success: function(response) {
-            if (unresolvedResourcesCounter == -1) {
-              return
-            }
-            App.data[resource[0]] = JSON.parse(response);
-            unresolvedResourcesCounter -= 1;
-            if (unresolvedResourcesCounter == 0) {
-              success();
-            }
-          },
-          unauthorized: function() {
-            unresolvedResourcesCounter = -1;
-            App.router.showError("unauthorized");
-          },
-          timeout: function() {
-            unresolvedResourcesCounter = -1;
-            App.router.showError("timeout");
-          }
-        });
-      }
-    }
-  }
+	handleError(type) {
+		App.router.showError(type);
+		this.unresolvedResourcesCounter = -1;
+	}
+
+	loadHTML(resourceName, url, auth, success) {
+		if (this.unresolvedResourcesCounter == -1) {
+			return
+		}
+		var self = this;
+		xhr_get({
+			url: url,
+			token: auth ? sessionStorage.token : false,
+			success: function(response) {
+				if (self.unresolvedResourcesCounter == -1) {
+					return
+				}
+				App.htmlTemplates.set(resourceName, response);
+				self.unresolvedResourcesCounter -= 1;
+				if (self.unresolvedResourcesCounter == 0) {
+					success();
+				}
+			},
+			unauthorized: function() {
+				self.handleError("unauthorized");
+			},
+			timeout: function() {
+				self.handleError("timeout");
+			}
+		});
+	}
+
+	loadRestrictedScript(url, success) {
+		if (this.unresolvedResourcesCounter == -1) {
+			return
+		}
+		var self = this;
+		xhr_get({
+			url: url,
+			token: sessionStorage.token,
+			success: function(response) {
+				if (self.unresolvedResourcesCounter == -1) {
+					return
+				}
+				let head = document.getElementsByTagName('head')[0];
+				let script = document.createElement('script');
+				script.innerHTML = response;
+				head.appendChild(script);
+				self.unresolvedResourcesCounter -= 1;
+				if (self.unresolvedResourcesCounter == 0) {
+					success();
+				}
+			},
+			unauthorized: function() {
+				self.handleError("unauthorized");
+			},
+			timeout: function() {
+				self.handleError("timeout");
+			}
+		});
+	}
+
+	loadScript(url, success) {
+		if (this.unresolvedResourcesCounter == -1) {
+			return
+		}
+		var self = this;
+		let head = document.getElementsByTagName('head')[0];
+		let script = document.createElement('script');
+		script.src = url;
+		script.async = true;
+		script.onload = function() {
+			if (self.unresolvedResourcesCounter == -1) {
+				return
+			}
+			self.unresolvedResourcesCounter -= 1;
+			if (self.unresolvedResourcesCounter == 0) {
+				success();
+			}
+		};
+		script.onerror = function() {
+			self.handleError("timeout");
+		};
+		head.appendChild(script);
+	}
+
+	loadResources(neededResources, auth, success) {
+		this.unresolvedResourcesCounter = neededResources.size;
+		for (let resource of neededResources) {
+			if (resource[1].endsWith('.js')) {
+				if (auth) {
+					this.loadRestrictedScript(resource[1], success);
+				} else {
+					this.loadScript(resource[1], success)
+				}
+			} else if (resource[1].endsWith(".html")) {
+				this.loadHTML(resource[0], resource[1], auth, success);
+			}
+		}
+	}
 }

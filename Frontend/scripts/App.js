@@ -11,7 +11,7 @@ var App = {
     }
     App.router.servePage();
   },
-  onDataLoad(dataName, func) {
+  onDataLoad: function(dataName, func) {
     for (let urlParam of App.router.urlParams){
       dataName += ":" + urlParam;
     }
@@ -26,6 +26,7 @@ var App = {
       });
     }
   },
+
   navigate: function(event, relative) {
     event.preventDefault();
 
@@ -56,15 +57,12 @@ var App = {
       AppConfig.loginPath,
       function(response) {
         response = response.split(",");
-        let userName = response[0];
-        let token = response[1];
-        let authLevel = response[2];
-        self.userName = userName
-        self.token = token;
-        self.authLevel = authLevel;
-        sessionStorage.setItem('userName', userName);
-        sessionStorage.setItem('token', token);
-        sessionStorage.setItem('authLevel', authLevel);
+        self.userName = response[0]
+        self.token = response[1];
+        self.authLevel = response[2];
+        sessionStorage.setItem('userName', response[0]);
+        sessionStorage.setItem('token', response[1]);
+        sessionStorage.setItem('authLevel', response[2]);
         options.success();
         self.router.servePage();
         document.getElementsByTagName("main-navigation")[0].setAttribute("mode", "auth");

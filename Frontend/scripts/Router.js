@@ -43,9 +43,9 @@ class Router {
         this.resourcesForPage.set(route.page, resourceMap);
       }
       if (route.data) {
-        let neededData = new Set();
+        let neededData = [];
         for (let dataName of route.data) {
-          neededData.add(dataName);
+          neededData.push(dataName);
         }
         this.dataForPage.set(route.page, neededData);
       }
@@ -71,8 +71,7 @@ class Router {
   }
 
   servePage() {
-    this.urlParams = location.pathname.substring(1)
-      .split("/");
+    this.urlParams = location.pathname.substring(1).split("/");
     let path = "/" + this.urlParams.shift();
     if (!this.routes.has(path)) {
       this.detachedHandler();
@@ -80,12 +79,22 @@ class Router {
       return;
     }
     this.currentPage = this.routes.get(path);
-    document.getElementsByTagName("main-navigation")[0].setAttribute("active", this.currentPage);
     if (this.needAuthentication.has(path)) {
-      if (App.authLevel !== undefined) {
+      if (App.hasOwnProperty("authLevel")) {
         if (App.authLevel <= this.needAuthentication.get(path)) {
-          if (this.Pages.has(this.currentPage) && !this.dataForPage.has(this.currentPage)) {
-            this.showPage();
+          if (this.Pages.has(this.currentPage)) {
+            if (!this.dataForPage.has(this.currentPage)){
+              this.showPage();
+            } else {
+              let dataName = this.currentPage;
+              for (let urlParam of this.urlParams){
+                dataName += ":" + urlParam;
+              }
+              if (!App.data[dataName]){
+                this.loadData(true);
+              }
+              this.showPage();
+            }
           } else {
             this.loadPage(true);
             if (this.dataForPage.has(this.currentPage)) {
@@ -139,8 +148,16 @@ class Router {
     while ($mainContent.lastChild) {
       $mainContent.removeChild($mainContent.lastChild);
     }
-    if (page.beforeAttachedCallback) {
-      page.beforeAttachedCallback(urlParams);
+    if (page.beforePageShow) {
+      page.beforePageShow(urlParams);
+    }
+    if (AppConfig.beforePageShow){
+      for (let func of AppConfig.beforePageShow){
+        let param = {};
+        param.page = this.currentPage;
+        param.urlParams = urlParams;
+        func(param);
+      }
     }
     if (page.css) {
       let $style = document.createElement("style");
@@ -153,8 +170,16 @@ class Router {
     } else {
       this.showError(res);
     }
-    if (page.afterAttachedCallback) {
-      page.afterAttachedCallback(urlParams);
+    if (page.afterPageShow) {
+      page.afterPageShow(urlParams);
+    }
+    if (AppConfig.afterPageShow){
+      for (let func of AppConfig.afterPageShow){
+        let param = {};
+        param.page = this.currentPage;
+        param.urlParams = urlParams;
+        func(param);
+      }
     }
   }
 
@@ -171,49 +196,64 @@ class Router {
     }
   }
 
-  loadData(needAuthentication) {
+  prepareRequestURL(dataEntry){
+    let requestURL = "/GET/" + dataEntry.table + "$";
     let urlParams = this.urlParams;
+    if (dataEntry.columns) {
+      for (let sl of dataEntry.columns) {
+        requestURL += sl + ",";
+      }
+    } else {
+      requestURL += "*,";
+    }
+    requestURL = requestURL.slice(0, -1) + "$";
+    AppConfig.title ? AppConfig.title : '';
+    let condLen = dataEntry.conditions.length;
+    let urlParamsLen = urlParams.length;
+    let len = condLen <= urlParamsLen ? condLen : urlParamsLen;
+    for (let i = 0; i < len; i++) {
+      if (dataEntry.conditions[i].endsWith("{}")) {
+        requestURL += dataEntry.conditions[i].replace("{}", urlParams[i]) + ",";
+      } else {
+        requestURL += "," + urlParams[i];
+      }
+      requestURL = requestURL.slice(0, -1);
+    }
+    requestURL += "$";
+    if (dataEntry.groupBy) {
+      for (let o of dataEntry.groupBy) {
+        requestURL += o + ",";
+      }
+      requestURL = requestURL.slice(0, -1);
+    }
+    requestURL += "$";
+    if (dataEntry.orderBy) {
+      for (let o of dataEntry.orderBy) {
+        requestURL += o + ",";
+      }
+      requestURL = requestURL.slice(0, -1);
+    }
+    return encodeURIForServer(requestURL);
+  }
+
+  loadData(needAuthentication) {
     let neededDataMap = new Map();
+    let urlParams = this.urlParams;
     for (let neededData of this.dataForPage.get(this.currentPage)) {
-      for (let data of AppConfig.data) {
-        if (data.name === neededData) {
-          let dataName = data.name;
-          if (data.conditions) {
+      for (let dataEntry of AppConfig.data) {
+        if (dataEntry.name === neededData) {
+          let dataName = dataEntry.name;
+          if (dataEntry.conditions) {
             for (let urlParam of urlParams) {
               dataName += ":" + urlParam;
             }
           }
           if (!App.data[dataName]) {
-            if (data.url) {
-              neededDataMap.set(dataName, data.url);
+            if (dataEntry.url) {
+              neededDataMap.set(dataName, dataEntry.url);
             } else {
-              let requestURL = "/GET/" + data.table + "/";
-              if (data.columns) {
-                for (let sl of data.columns) {
-                  requestURL += sl + ",";
-                }
-              } else {
-                requestURL += "*,";
-              }
-              requestURL = requestURL.slice(0, -1) + "/";
-              AppConfig.title ? AppConfig.title : '';
-              let condLen = data.conditions.length;
-              let urlParamsLen = urlParams.length;
-              let len = condLen <= urlParamsLen ? condLen : urlParamsLen;
-              for (let i = 0; i < len; i++) {
-                if (data.conditions[i].endsWith("{}")) {
-                  requestURL += data.conditions[i].replace("{}", urlParams[i]) + ",";
-                } else {
-                  requestURL += "," + urlParams[i];
-                }
-              }
-              requestURL = requestURL.slice(0, -1) + "/";
-              if (data.orderBy) {
-                for (let o of data.orderBy) {
-                  requestURL += o + ",";
-                }
-              }
-              neededDataMap.set(dataName, encodeURIForServer(requestURL.slice(0, -1)));
+              let url = this.prepareRequestURL(dataEntry);
+              neededDataMap.set(dataName, url);
             }
           }
         }
@@ -243,24 +283,17 @@ class Router {
         }
       }
     }
+
     neededResources.set("#", "/Frontend/pages/" + this.currentPage + ".js")
-    var self = this;
-    if (!needAuthentication) {
-      App.resourceLoader.loadScript(neededResources, function() {
-        neededResources.delete("#");
-        for (let resource of neededResources) {
-          App.router.availableResources.add(resource[0]);
-        }
-        App.router.showPage();
-      });
-    } else {
-      App.resourceLoader.loadRestrictedScript(neededResources, function() {
-        neededResources.delete("#");
-        for (let resource of neededResources) {
-          App.router.availableResources.add(resource[0]);
-        }
-        App.router.showPage();
-      });
+
+    function onResourceLoad(){
+      neededResources.delete("#");
+      for (let resource of neededResources) {
+        App.router.availableResources.add(resource[0]);
+      }
+      App.router.showPage();
     }
+
+    App.resourceLoader.loadResources(neededResources, needAuthentication, onResourceLoad);
   }
 }

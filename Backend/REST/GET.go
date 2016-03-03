@@ -10,7 +10,7 @@ import (
 
 // GET sends test names saved in DB
 func GET(w http.ResponseWriter, r *http.Request) {
-	urlParams := strings.Split(r.URL.Path[5:], "/")
+	urlParams := strings.Split(r.URL.Path[5:], "$")
 
 	table := "`" + urlParams[0] + "`"
 
@@ -38,25 +38,33 @@ func GET(w http.ResponseWriter, r *http.Request) {
 		conditions = strings.TrimSuffix(conditions, " AND ")
 	}
 
-	fmt.Println(urlParams[3])
-	var order string
+	var groupBy string
 	if urlParams[3] != "" {
-		orderArray := strings.Split(urlParams[3], ",")
-		order = ""
-		for _, ord := range orderArray {
-			order += (ord + ", ")
+		groupByArray := strings.Split(urlParams[3], ",")
+		groupBy = " GROUP BY "
+		for _, grp := range groupByArray {
+			groupBy += ("`" + grp + "`, ")
 		}
-		order = strings.TrimSuffix(order, ", ")
+		groupBy = strings.TrimSuffix(groupBy, ", ")
 	}
-	fmt.Println(order)
+
+	var orderBy string
+	if urlParams[4] != "" {
+		orderByArray := strings.Split(urlParams[3], ",")
+		orderBy = " ORDER BY "
+		for _, ord := range orderByArray {
+			orderBy += ("`" + ord + "`, ")
+		}
+		orderBy = strings.TrimSuffix(orderBy, ", ")
+	}
 
 	db, err := sql.Open("sqlite3", "UXPtests.db")
 	if err != nil {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusBadRequest)
 	}
 
-	fmt.Println(fmt.Sprintf("SELECT %s FROM %s %s ORDER BY %s;", columns, table, conditions, order))
-	rows, err := db.Query(fmt.Sprintf("SELECT %s FROM %s %s ORDER BY %s;", columns, table, conditions, order))
+	fmt.Println(fmt.Sprintf("SELECT %s FROM %s %s%s%s;", columns, table, conditions, groupBy, orderBy))
+	rows, err := db.Query(fmt.Sprintf("SELECT %s FROM %s%s%s%s;", columns, table, conditions, groupBy, orderBy))
 	if err != nil {
 		http.Error(w, "Error executing query: "+err.Error(), http.StatusBadRequest)
 		return

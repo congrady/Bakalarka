@@ -10,7 +10,12 @@ AppConfig = {
     {name: "NewSegment", path: "/Frontend/templates/NewSegment.html"}
   ],
   data: [
-    {name: "TestData", table: "tests", columns:["name","added_by","uploaded_string","last_modified_string"], conditions: ["name={}"], orderBy: ["last_modified"]},
+    {
+      name: "TestData",
+      table: "tests",
+      columns:["name","added_by","uploaded_string","last_modified_string"],
+      conditions: ["name={}"]
+    },
     {name: "TestsInfo", url: "/GetTestsInfo"}
   ],
   routes: [
@@ -21,4 +26,10 @@ AppConfig = {
     {page: 'Contact', path: "/Contact", navigation: "Contact", resources: ["Contact"]},
     {page: 'Test', path: "/Test", auth: 1, data: ["TestData"]}
   ],
+  beforePageShow: [
+    function(params){ document.getElementsByTagName("main-navigation")[0].setAttribute("active", params.page);}
+  ],
+  afterPageShow: [
+
+  ]
 };

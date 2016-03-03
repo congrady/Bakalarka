@@ -31,15 +31,14 @@ String.prototype.capitalizeFirstLetter = function() {
 }
 
 DocumentFragment.prototype.select = function(queryString){
-  if (queryString.charAt(0)=="#"){
-    return this.getElementById(queryString.substring(1));
+  let main = document.getElementsByTagName("main")[0];
+  if (main.lastChild){
+    return main.querySelector(queryString);
+  } else {
+    return this.querySelector(queryString);
   }
-  if (queryString.charAt(0)=="."){
-    return this.getElementsByClassName(queryString.substring(1))[0];
-  }
-  return this.querySelector(queryString);
 }
-Element.prototype.select = DocumentFragment.prototype.select;
+
 DocumentFragment.prototype.selectAll = function(queryString){
   return this.querySelectorAll(queryString);
 }
@@ -59,6 +58,7 @@ DocumentFragment.prototype.add = function(elementType, attrs){
   return element;
 }
 Element.prototype.add = DocumentFragment.prototype.add;
+
 DocumentFragment.prototype.addImg = function(url, attrs){
   let element = document.createElement("img");
   for (let attr in attrs){

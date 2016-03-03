@@ -2,11 +2,11 @@
 
 App.newPage({
   title: "Home",
-  beforeAttachedCallback: function(){
-    //alert("beforeAttachedCallback");
+  beforePageShow: function(){
+    alert("beforeAttachedCallback");
   },
-  afterAttachedCallback: function(){
-    //alert("afterAttachedCallback");
+  afterPageShow: function(){
+    alert("afterAttachedCallback");
   },
   detachedCallback: function(){
     //alert("detachedCallback");
