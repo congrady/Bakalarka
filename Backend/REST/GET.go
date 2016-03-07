@@ -8,54 +8,56 @@ import (
 	"strings"
 )
 
-// GET sends test names saved in DB
+// GET gets requested entry from database
 func GET(w http.ResponseWriter, r *http.Request) {
 	urlParams := strings.Split(r.URL.Path[5:], "$")
 
+	urlParamsLen := len(urlParams)
+
+	if (urlParamsLen > 5) || (urlParamsLen < 2) {
+		wrongURLParamsAmount(w)
+		return
+	}
+
+	if urlParams[0] == "" {
+		missingPartError(w, "table")
+		return
+	}
 	table := "`" + urlParams[0] + "`"
 
-	columns := ""
-	if urlParams[1] == "*" {
-		columns = "*"
-	} else {
-		columnsArray := strings.Split(urlParams[1], ",")
-		for _, col := range columnsArray {
-			columns += ("`" + col + "`" + ",")
-		}
-		columns = strings.TrimSuffix(columns, ",")
-	}
-	//fmt.Println(columns)
-
-	var conditions string
-	if urlParams[2] != "" {
-		conditionsArray := strings.Split(urlParams[2], ",")
-		conditions = "WHERE "
-		var c []string
-		for _, cond := range conditionsArray {
-			c = strings.Split(cond, "=")
-			conditions += (c[0] + `="` + c[1] + `" AND `)
-		}
-		conditions = strings.TrimSuffix(conditions, " AND ")
+	columns, errorType := parseQueryParam(urlParams[1])
+	if errorType == "missing part error" {
+		missingPartError(w, "select")
+		return
 	}
 
-	var groupBy string
-	if urlParams[3] != "" {
-		groupByArray := strings.Split(urlParams[3], ",")
-		groupBy = " GROUP BY "
-		for _, grp := range groupByArray {
-			groupBy += ("`" + grp + "`, ")
+	where := ""
+	if urlParamsLen > 2 {
+		res, errorType := parsePairQueryParam(urlParams[2])
+		if errorType == "wrong format error" {
+			wrongFormatError(w, "where")
+			return
 		}
-		groupBy = strings.TrimSuffix(groupBy, ", ")
+		if res != "" {
+			where = " WHERE " + res
+		}
+	}
+	fmt.Println(where)
+
+	groupBy := ""
+	if urlParamsLen > 3 {
+		res, _ := parseQueryParam(urlParams[3])
+		if res != "" {
+			groupBy = " GROUP BY " + res
+		}
 	}
 
-	var orderBy string
-	if urlParams[4] != "" {
-		orderByArray := strings.Split(urlParams[3], ",")
-		orderBy = " ORDER BY "
-		for _, ord := range orderByArray {
-			orderBy += ("`" + ord + "`, ")
+	orderBy := ""
+	if urlParamsLen > 4 {
+		res, _ := parseQueryParam(urlParams[4])
+		if res != "" {
+			orderBy = " ORDER BY " + res
 		}
-		orderBy = strings.TrimSuffix(orderBy, ", ")
 	}
 
 	db, err := sql.Open("sqlite3", "UXPtests.db")
@@ -63,8 +65,8 @@ func GET(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusBadRequest)
 	}
 
-	fmt.Println(fmt.Sprintf("SELECT %s FROM %s %s%s%s;", columns, table, conditions, groupBy, orderBy))
-	rows, err := db.Query(fmt.Sprintf("SELECT %s FROM %s%s%s%s;", columns, table, conditions, groupBy, orderBy))
+	fmt.Println(fmt.Sprintf("SELECT %s FROM %s%s%s%s;", columns, table, where, groupBy, orderBy))
+	rows, err := db.Query(fmt.Sprintf("SELECT %s FROM%s%s%s%s;", columns, table, where, groupBy, orderBy))
 	if err != nil {
 		http.Error(w, "Error executing query: "+err.Error(), http.StatusBadRequest)
 		return

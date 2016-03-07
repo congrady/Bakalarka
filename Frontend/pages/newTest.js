@@ -3,10 +3,10 @@
 App.newPage({
   title: "New Test",
   init: function(urlParams) {
-    let root = new DocumentFragment();
-    root.add("h3", {id: "page-title", innerHTML: this.title});
-    root.importTemplate();
-    let form = root.select("form");
+    let page = new DocumentFragment();
+    page.add("h3", {id: "page-title", innerHTML: this.title});
+    page.importTemplate();
+    let form = page.select("form");
     let message = form.querySelector("#message");
 
     function upload(data) {
@@ -40,6 +40,6 @@ App.newPage({
       upload(formData);
     }
 
-    return root;
+    return page;
   }
 })

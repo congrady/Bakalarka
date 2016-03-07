@@ -6,7 +6,7 @@ class ResourceLoader {
       this.worker = new Worker("/Frontend/scripts/ResourceLoaderWorker.js");
 		}
 		this.worker.addEventListener("message", function(message) {
-			App.data[message.data.name] = message.data.response;
+			App.data[message.data.name] = JSON.parse(message.data.response);
 		});
 		for (let data of neededData) {
 			if (auth) {
@@ -110,6 +110,33 @@ class ResourceLoader {
 		head.appendChild(script);
 	}
 
+	loadBlockingData(dataName, url, auth, success) {
+		if (this.unresolvedResourcesCounter == -1) {
+			return
+		}
+		var self = this;
+		xhr_get({
+			url: url,
+			token: auth ? sessionStorage.token : false,
+			success: function(response) {
+				if (self.unresolvedResourcesCounter == -1) {
+					return
+				}
+				App.data[dataName] = JSON.parse(response);
+				self.unresolvedResourcesCounter -= 1;
+				if (self.unresolvedResourcesCounter == 0) {
+					success();
+				}
+			},
+			unauthorized: function() {
+				self.handleError("unauthorized");
+			},
+			timeout: function() {
+				self.handleError("timeout");
+			}
+		});
+	}
+
 	loadResources(neededResources, auth, success) {
 		this.unresolvedResourcesCounter = neededResources.size;
 		for (let resource of neededResources) {
@@ -121,6 +148,8 @@ class ResourceLoader {
 				}
 			} else if (resource[1].endsWith(".html")) {
 				this.loadHTML(resource[0], resource[1], auth, success);
+			} else {
+				this.loadBlockingData(resource[0], resource[1], auth, success);
 			}
 		}
 	}

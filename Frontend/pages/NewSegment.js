@@ -3,10 +3,10 @@
 App.newPage({
   title: "New Segment",
   init: function(urlParams) {
-    let root = new DocumentFragment();
-    root.add("h3", {id: "page-title", innerHTML: this.title});
-    root.importTemplate();
-    let form = root.select("form");
+    let page = new DocumentFragment();
+    page.add("h3", {id: "page-title", innerHTML: this.title});
+    page.importTemplate();
+    let form = page.select("form");
     let testName;
     if (urlParams){
       testName = urlParams[0];
@@ -91,6 +91,6 @@ App.newPage({
       }
     };
 
-    return root;
+    return page;
   }
 })

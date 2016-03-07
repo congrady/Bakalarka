@@ -21,7 +21,7 @@ var App = {
     } else {
       App.resourceLoader.worker.addEventListener("message", function(message) {
         if (message.data.name == dataName) {
-          func(message.data.response);
+          func(JSON.parse(message.data.response));
         }
       });
     }

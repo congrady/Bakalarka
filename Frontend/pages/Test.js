@@ -19,4 +19,4 @@ App.newPage({
 
     return page;
   }
-}) 
+})

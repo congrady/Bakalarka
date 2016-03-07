@@ -6,7 +6,7 @@ addEventListener('message', function(message) {
   let self = this;
   xhr.onload = function(response) {
     if (xhr.status == 200) {
-      self.postMessage({"name": message.data.name, "response": JSON.parse(this.response)});
+      self.postMessage({"name": message.data.name, "response": this.response});
     }
     else if (xhr.status == 401){
       self.postMessage({"name": message.data.name, "response": "timeout"});

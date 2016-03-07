@@ -3,24 +3,24 @@
 App.newPage({
   title: "Home",
   beforePageShow: function(){
-    alert("beforeAttachedCallback");
+    //alert("beforeAttachedCallback");
   },
   afterPageShow: function(){
-    alert("afterAttachedCallback");
+    //alert("afterAttachedCallback");
   },
   detachedCallback: function(){
     //alert("detachedCallback");
   },
   init: function(urlParams) {
-    let root = new DocumentFragment();
-    root.add("h3", {id: "page-title", innerHTML: this.title});
+    let page = new DocumentFragment();
+    page.add("h3", {id: "page-title", innerHTML: this.title});
     if (urlParams){
-      let div = root.add("div");
+      let div = page.add("div");
       for (let urlParam of urlParams){
         div.add("p", {innerHTML: `Parameter: ${urlParam}`});
       }
     }
-    root.importTemplate();
-    return root;
+    page.importTemplate();
+    return page;
   }
 })

@@ -16,7 +16,7 @@ AppConfig = {
       columns:["name","added_by","uploaded_string","last_modified_string"],
       conditions: ["name={}"]
     },
-    {name: "TestsInfo", url: "/GetTestsInfo"}
+    {name: "TestsInfo", url: "/GetTestsInfo", blocking: true}
   ],
   routes: [
     {page: 'Home', path: ["/Home","/"], navigation: "Home", resources: ["Home"]},
@@ -27,9 +27,15 @@ AppConfig = {
     {page: 'Test', path: "/Test", auth: 1, data: ["TestData"]}
   ],
   beforePageShow: [
-    function(params){ document.getElementsByTagName("main-navigation")[0].setAttribute("active", params.page);}
+    function(params){ document.getElementsByTagName("main-navigation")[0].setAttribute("active", params.page); }
   ],
   afterPageShow: [
-
+    function(params){ console.log("afterPageShow"); }
+  ],
+  beforePageDetach: [
+    function(params){ console.log("beforePageDetach"); }
+  ],
+  onAppInit: [
+    function(){ console.log("onAppInit"); }
   ]
 };
