@@ -76,10 +76,21 @@ class Router {
 	}
 
 	servePage() {
-		this.urlParams = location.pathname.substring(1)
-			.split("/");
-		let path = "/" + this.urlParams.shift();
-		if (!this.routes.has(path)) {
+		let url = location.pathname;
+		let max = 0;
+		let path;
+		for (let p of this.routes.keys()){
+			if (url.startsWith(p)){
+				let len = p.length;
+				if (len > max){
+					max = len;
+					path = p;
+				}
+			}
+		}
+		this.urlParams = url.substring(max, url.length).split("/");
+		let inappChars = this.urlParams.shift();
+		if (max == 0 || inappChars != ""){
 			this.showError("pageNotFound");
 			return;
 		}
@@ -98,7 +109,7 @@ class Router {
 							if (!App.data[dataName]) {
 								this.loadData(true);
 							}
-							this.showPage();
+							this.loadResources(true);
 						}
 					} else {
 						if (this.dataForPage.has(this.currentPage)) {
@@ -209,83 +220,52 @@ class Router {
 		}
 	}
 
-	prepareRequestURL(dataEntry) {
-		let requestURL = "/GET/" + dataEntry.table + "$";
-		let urlParams = this.urlParams;
-		if (dataEntry.columns) {
-			for (let sl of dataEntry.columns) {
-				requestURL += sl + ",";
-			}
-		} else {
-			requestURL += "*,";
-		}
-		requestURL = requestURL.slice(0, -1) + "$";
-		AppConfig.title ? AppConfig.title : '';
-		let condLen = dataEntry.conditions.length;
-		let urlParamsLen = urlParams.length;
-		let len = condLen <= urlParamsLen ? condLen : urlParamsLen;
+	prepareRequestURL(url) {
+		let len = this.urlParams.length;
+		let res = url;
 		for (let i = 0; i < len; i++) {
-			if (dataEntry.conditions[i].endsWith("{}")) {
-				requestURL += dataEntry.conditions[i].replace("{}", urlParams[i]) + ",";
-			} else {
-				requestURL += "," + urlParams[i];
+			if (res.includes("{}")) {
+				break
 			}
-			requestURL = requestURL.slice(0, -1);
-      alert(requestURL);
-		}
-		requestURL += "$";
-		if (dataEntry.groupBy) {
-			for (let o of dataEntry.groupBy) {
-				requestURL += o + ",";
+			else {
+				res = res.replace("{}", this.urlParams[i])
 			}
-			requestURL = requestURL.slice(0, -1);
 		}
-		requestURL += "$";
-		if (dataEntry.orderBy) {
-			for (let o of dataEntry.orderBy) {
-				requestURL += o + ",";
-			}
-			requestURL = requestURL.slice(0, -1);
-		}
-		return encodeURIForServer(requestURL);
+		return encodeURIForServer(res);
 	}
 
 	loadData(needAuthentication) {
     this.currentPageBlockingData = new Map();
 		let neededDataMap = new Map();
-		let urlParams = this.urlParams;
 		for (let neededData of this.dataForPage.get(this.currentPage)) {
 			for (let dataEntry of AppConfig.data) {
+				if (dataEntry.alt){
+					if (App.data[dataEntry.alt]){
+						break;
+					}
+				}
 				if (dataEntry.name === neededData) {
 					let dataName = dataEntry.name;
-					if (dataEntry.conditions) {
-						for (let urlParam of urlParams) {
-							dataName += ":" + urlParam;
-						}
+					for (let urlParam of this.urlParams) {
+						dataName += ":" + urlParam;
 					}
 					if (!App.data[dataName]) {
-						if (dataEntry.url) {
-              if (dataEntry.blocking){
-                this.currentPageBlockingData.set(dataName, dataEntry.url);
-              } else {
-                neededDataMap.set(dataName, dataEntry.url);
-              }
-						} else {
-              let url = this.prepareRequestURL(dataEntry);
-              if (dataEntry.blocking){
-                this.currentPageBlockingData.set(dataName, url);
-              } else {
-  							neededDataMap.set(dataName, url);
-              }
-						}
+					  let url = this.prepareRequestURL(dataEntry.url);
+            if (dataEntry.blocking){
+              this.currentPageBlockingData.set(dataName, url);
+            } else {
+							neededDataMap.set(dataName, url);
+            }
 					}
 				}
 			}
 		}
-		if (needAuthentication) {
-			App.resourceLoader.loadData(neededDataMap, true);
-		} else {
-			App.resourceLoader.loadData(neededDataMap, false);
+		if (neededDataMap.size) {
+			if (needAuthentication){
+				App.resourceLoader.loadData(neededDataMap, true);
+			} else {
+				App.resourceLoader.loadData(neededDataMap, false);
+			}
 		}
 	}
 
@@ -294,7 +274,7 @@ class Router {
 		if (this.resourcesForPage.has(this.currentPage)) {
 			for (let mapItem of this.resourcesForPage.get(this.currentPage)) {
 				if (!this.availableResources.has(mapItem[0])) {
-					if (!mapItem[1].includes("components")) {
+					if (!mapItem[1].includes("web-components")) {
 						if (mapItem[1].endsWith(".html") || mapItem[1].endsWith(".js")) {
 							neededResources.set(mapItem[0], mapItem[1]);
 						}
@@ -306,7 +286,7 @@ class Router {
 				}
 			}
 		}
-
+		
 		neededResources.set("#", "/Frontend/pages/" + this.currentPage + ".js")
     if (this.currentPageBlockingData){
       for (let data of this.currentPageBlockingData){

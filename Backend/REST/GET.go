@@ -65,7 +65,6 @@ func GET(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusBadRequest)
 	}
 
-	fmt.Println(fmt.Sprintf("SELECT %s FROM %s%s%s%s;", columns, table, where, groupBy, orderBy))
 	rows, err := db.Query(fmt.Sprintf("SELECT %s FROM%s%s%s%s;", columns, table, where, groupBy, orderBy))
 	if err != nil {
 		http.Error(w, "Error executing query: "+err.Error(), http.StatusBadRequest)

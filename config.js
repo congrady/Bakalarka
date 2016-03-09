@@ -3,19 +3,14 @@ AppConfig = {
   loginPath: "/Login",
   resources: [
     {name: "jQuery", path: "https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"},
-    {name: "test-component", path: "/Frontend/components/test-component.js"},
+    {name: "test-component", path: "/Frontend/web-components/test-component.js"},
     {name: "Home", path: "/Frontend/templates/Home.html"},
     {name: "Contact", path: "/Frontend/templates/Contact.html"},
     {name: "NewTest", path: "/Frontend/templates/NewTest.html"},
     {name: "NewSegment", path: "/Frontend/templates/NewSegment.html"}
   ],
   data: [
-    {
-      name: "TestData",
-      table: "tests",
-      columns:["name","added_by","uploaded_string","last_modified_string"],
-      conditions: ["name={}"]
-    },
+    {name: "TestData", url: "/GET/tests$name,added_by,uploaded_string,last_modified_string$name={}$$", blocking: true},
     {name: "TestsInfo", url: "/GetTestsInfo", blocking: true}
   ],
   routes: [
