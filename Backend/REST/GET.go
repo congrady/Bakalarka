@@ -42,7 +42,10 @@ func GET(w http.ResponseWriter, r *http.Request) {
 			where = " WHERE " + res
 		}
 	}
+<<<<<<< HEAD
 	fmt.Println(where)
+=======
+>>>>>>> 53256142f54cc1acb559b071f5f11fd9c5377732
 
 	groupBy := ""
 	if urlParamsLen > 3 {
@@ -60,7 +63,11 @@ func GET(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+<<<<<<< HEAD
 	db, err := sql.Open("postgres", "user=root port=8080 dbname=UXPtests password=root sslmode=disable")
+=======
+	db, err := sql.Open("sqlite3", "UXPtests.db")
+>>>>>>> 53256142f54cc1acb559b071f5f11fd9c5377732
 	if err != nil {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusBadRequest)
 	}

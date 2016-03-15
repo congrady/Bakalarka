@@ -33,18 +33,26 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 	addedBy := r.FormValue("userName")
 	uploaded := time.Now().Format("02.01.2006 15:04:05")
 
+<<<<<<< HEAD
 	db, err := sql.Open("postgres", "user=root port=8080 dbname=UXPtests password=root sslmode=disable")
 	if err != nil {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+=======
+	db, _ := sql.Open("sqlite3", "UXPtests.db")
+>>>>>>> 53256142f54cc1acb559b071f5f11fd9c5377732
 
 	var segmentID string
 	err = db.QueryRow(`SELECT COUNT(*) FROM segments WHERE test_name = "` + testName + `"`).Scan(&segmentID)
 
 	filePath := "../data/tests/" + testName + "/ETresult" + segmentID
 
+<<<<<<< HEAD
 	stmt, _ := db.Prepare("INSERT INTO segments (test_name, added_by, uploaded, file_path) VALUES (?,?,?,?)")
+=======
+	stmt, _ := db.Prepare("INSERT INTO `segments` (test_name, added_by, uploaded, file_path) VALUES (?,?,?,?)")
+>>>>>>> 53256142f54cc1acb559b071f5f11fd9c5377732
 	_, err = stmt.Exec(testName, addedBy, uploaded, filePath)
 	if err != nil {
 		http.Error(w, "Error inserting into database: "+err.Error(), 409)

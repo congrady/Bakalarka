@@ -22,6 +22,7 @@ func (t Test) String() string {
 
 // GetTestsInfo sends info about all tests in DB
 func GetTestsInfo(w http.ResponseWriter, r *http.Request) {
+<<<<<<< HEAD
 	db, err := sql.Open("postgres", "user=root port=8080 dbname=UXPtests password=root sslmode=disable")
 	if err != nil {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusInternalServerError)
@@ -29,6 +30,11 @@ func GetTestsInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, err := db.Query("SELECT t.name, t.added_by, t.uploaded, t.last_modified, count(s.test_name) FROM tests t LEFT JOIN segments s ON t.name = s.test_name GROUP BY t.name")
+=======
+	db, _ := sql.Open("sqlite3", "UXPtests.db")
+
+	rows, err := db.Query("SELECT t.name, t.added_by, t.uploaded_string, t.last_modified_string, count(s.test_name) FROM tests t LEFT JOIN segments s ON t.name = s.test_name GROUP BY t.name")
+>>>>>>> 53256142f54cc1acb559b071f5f11fd9c5377732
 	if err != nil {
 		http.Error(w, "Error getting data from database: "+err.Error(), http.StatusBadRequest)
 		return
