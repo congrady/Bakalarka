@@ -1,0 +1,7 @@
+2016-03-11 19:35:23 CET LOG:  received fast shutdown request
+2016-03-11 19:35:23 CET LOG:  aborting any active transactions
+2016-03-11 19:35:23 CET LOG:  autovacuum launcher shutting down
+2016-03-11 19:35:23 CET ERROR:  canceling statement due to user request
+2016-03-11 19:35:23 CET LOG:  autovacuum launcher shutting down
+2016-03-11 19:35:23 CET LOG:  shutting down
+2016-03-11 19:35:23 CET LOG:  database system is shut down
