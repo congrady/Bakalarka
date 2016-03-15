@@ -1,4 +1,0 @@
-2016-03-09 20:30:59 CET LOG:  database system was shut down at 2016-03-09 12:42:19 CET
-2016-03-09 20:30:59 CET LOG:  MultiXact member wraparound protections are now enabled
-2016-03-09 20:30:59 CET LOG:  database system is ready to accept connections
-2016-03-09 20:30:59 CET LOG:  autovacuum launcher started
