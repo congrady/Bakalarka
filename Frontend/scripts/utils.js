@@ -13,6 +13,10 @@ function xhr_get(params){
       if (params.unauthorized){
         params.unauthorized();
       }
+    } else if (xhr.status == 400) {
+      if (params.badReqeust){
+        params.badRequest();
+      }
     }
   };
   if (params.jwt){
@@ -44,7 +48,7 @@ DocumentFragment.prototype.selectAll = function(queryString){
 }
 Element.prototype.selectAll = DocumentFragment.prototype.selectAll;
 
-DocumentFragment.prototype.add = function(elementType, attrs){
+DocumentFragment.prototype.add = function(elementType, attrs, insertBefore){
   let element = document.createElement(elementType);
   for (let attr in attrs){
     if (attr == "innerHTML"){
@@ -54,16 +58,32 @@ DocumentFragment.prototype.add = function(elementType, attrs){
       element.setAttribute(attr, attrs[attr]);
     }
   }
-  this.appendChild(element);
+  if (insertBefore){
+    this.insertBefore(element, this.firstChild)
+  } else {
+    this.appendChild(element);
+  }
   return element;
 }
 Element.prototype.add = DocumentFragment.prototype.add;
 
-DocumentFragment.prototype.addImg = function(url, attrs){
+DocumentFragment.prototype.addImg = function(attrs, error){
   let element = document.createElement("img");
   for (let attr in attrs){
     element.setAttribute(attr, attrs[attr]);
   }
+  element.onerror = function(){
+    if (error == "remove"){
+      this.remove();
+    } else if (error == "hide") {
+      this.hide();
+    } else if (error == "scaleDown"){
+      this.setAttribute("width", 20);
+      this.setAttribute("height", 20);
+    }
+  }
+  this.appendChild(element);
+  /*
   let hashCode = url.hashCode();
   element.setAttribute("id", hashCode);
   this.appendChild(element);
@@ -77,7 +97,7 @@ DocumentFragment.prototype.addImg = function(url, attrs){
     document.getElementById(url.hashCode()).src = imageURL;
     window.URL.revokeObjectURL(blob);
   }
-  xhr.send();
+  xhr.send();*/
 }
 Element.prototype.addImg = DocumentFragment.prototype.addImg;
 
@@ -108,13 +128,21 @@ function createFragmentFromTemplate(template){
   return fragment;
 }
 
+Element.prototype.hide = function(){
+  this.style.visibility = "hidden";
+}
+
+Element.prototype.remove = function() {
+  this.parentElement.removeChild(this);
+}
+
 function isRegistered(name) {
   return document.createElement(name).constructor !== HTMLElement;
 }
 
 String.prototype.replaceAll = function(search, replacement) {
     return this.split(search).join(replacement);
-};
+}
 
 function encodeURIWithUnderscores(str){
   return str.replaceAll(" ", "__")

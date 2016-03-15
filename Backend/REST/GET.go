@@ -42,7 +42,6 @@ func GET(w http.ResponseWriter, r *http.Request) {
 			where = " WHERE " + res
 		}
 	}
-	fmt.Println(where)
 
 	groupBy := ""
 	if urlParamsLen > 3 {

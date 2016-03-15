@@ -21,13 +21,43 @@ var App = {
     } else {
       App.resourceLoader.worker.addEventListener("message", function(message) {
         if (message.data.name == dataName) {
-          alert(message.data.response);
           func(JSON.parse(message.data.response));
         }
       });
     }
   },
-
+  getData: function(dataName){
+    for (let data of App.data){
+      alert(data);
+    }
+    for (let urlParam of App.router.urlParams){
+      dataName += ":" + urlParam;
+    }
+    let res = {};
+    if (App.data[dataName]){
+      //res.data = App.data[dataName];
+      return App.data[dataName]
+    } /*else {
+      let dataEntry;
+      for (let data of AppConfig.data){
+        if (data.name == dataName){
+          dataEntry = data;
+        }
+        if (dataEntry.alt.constructor === Array){
+          for (let alt of dataEntry.alt){
+            if (App.data[alt]){
+              return res.alt = alt;
+            }
+          }
+        } else {
+          if (App.data[dataEntry.alt]){
+            res.alt = dataEntry.alt;
+            return res
+          }
+        }
+      }
+    }*/
+  },
   navigate: function(event, relative) {
     event.preventDefault();
 
@@ -88,3 +118,4 @@ var App = {
 
 App.init();
 window.addEventListener('popstate', App.init);
+window.addEventListener("hashchange", function(){ alert("ahoj"); })

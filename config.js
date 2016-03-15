@@ -10,8 +10,8 @@ AppConfig = {
     {name: "NewSegment", path: "/Frontend/templates/NewSegment.html"}
   ],
   data: [
-    {name: "TestData", url: "/GET/tests$name,added_by,uploaded_string,last_modified_string$name={}$$", blocking: true},
-    {name: "TestsInfo", url: "/GetTestsInfo", blocking: true}
+    {name: "TestData", url: "/GET/tests$name,added_by,uploaded_string,last_modified_string$name={}$$"},
+    {name: "TestsInfo", url: "/GetTestsInfo"}
   ],
   routes: [
     {page: 'Home', path: ["/Home","/"], navigation: "Home", resources: ["Home"]},
@@ -25,12 +25,12 @@ AppConfig = {
     function(params){ document.getElementsByTagName("main-navigation")[0].setAttribute("active", params.page); }
   ],
   afterPageShow: [
-    function(params){ console.log("afterPageShow"); }
+    //function(params){ console.log("afterPageShow"); }
   ],
   beforePageDetach: [
-    function(params){ console.log("beforePageDetach"); }
+    //function(params){ console.log("beforePageDetach"); }
   ],
   onAppInit: [
-    function(){ console.log("onAppInit"); }
+    //function(){ console.log("onAppInit"); }
   ]
 };

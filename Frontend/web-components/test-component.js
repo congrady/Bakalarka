@@ -4,6 +4,7 @@
   let template = `
   <style>
   p {
+    color: black;
     font-size: 15px;
     padding-left: 14px;
     padding-right: 14px;
@@ -13,12 +14,6 @@
   a {
     text-decoration: none;
   }
-  a: hover{
-    color: yellow;
-  }
-  div: hover{
-    background-color: black;
-  }
   div {
     box-shadow: 0 0 4px #000000;
     background-color: #d9d9d9;
@@ -27,39 +22,76 @@
     padding-bottom: 1px;
   }
   #name {
-    padding-top: 13px;
-    font-size: 19px;
+    padding-top: 14px;
+    font-size: 20px;
     font-size: bolder;
   }
+  #error{
+    color: red;
+    font-weight: bolder;
+    font-size: 16px;
+    padding: 20px 15px 0px 15px;
+  }
+  button{
+    box-shadow: 0 0 3px #000000;
+    padding: 0.4em;
+    margin: 5px 10px 10px 10px;
+    font-weight: bold;
+    font-size: 15px;
+  }
   </style>
-    <div>
+  <div>
     <a>
       <p id="name"></p>
       <p id="addedBy"></p>
       <p id="uploaded"></p>
       <p id="lastModified"></p>
       <p id="numSegments"></p>
-      </a>
-    </div>
+    </a>
+    <button>Delete</button>
+  </div>
   `;
 
   class TestComponent extends HTMLElement {
     createdCallback() {
       this.createShadowRoot().innerHTML = template;
-      this.anchor = this.shadowRoot.querySelector('a');
-      this.div = this.shadowRoot.querySelector('div');
+      this.div = this.shadowRoot.querySelector("div");
     }
-    attachedCallback(){
+    setData(data){
+      this.data = data;
       var self = this;
-      this.anchor.href = "/Test/"+encodeURIWithUnderscores(this.getAttribute("name"));
-      this.anchor.onclick = function(event){
-        App.navigate(event);
+      this.setAttribute("id", `test-${this.data.name}`);
+      let anchor = this.shadowRoot.querySelector('a');
+      anchor.href = "/Test/"+encodeURIForUser(this.data.name);
+      anchor.onclick = function(event){
+        App.navigate(event); // framework specific function
       }
-      this.div.querySelector("#name").innerHTML = "<b>" + this.getAttribute("name")+"</b>";
-      this.div.querySelector("#addedBy").innerHTML = "Added by: <b>" + this.getAttribute("addedBy")+"</b>";
-      this.div.querySelector("#uploaded").innerHTML = "Uploaded: <b>" + this.getAttribute("uploaded")+"</b>";
-      this.div.querySelector("#lastModified").innerHTML = "Last modified: <b>" + this.getAttribute("lastModified")+"</b>";
-      this.div.querySelector("#numSegments").innerHTML = "Amount of segments: <b>" + this.getAttribute("numSegments")+"</b>";
+      let div = this.shadowRoot.querySelector('div');
+      this.shadowRoot.querySelector("#name").innerHTML = `<b>${this.data.name}</b>`;
+      this.shadowRoot.querySelector("#addedBy").innerHTML = `Added by: <b>${this.data.addedBy}</b>`;
+      this.shadowRoot.querySelector("#uploaded").innerHTML = `Uploaded: <b>${this.data.uploaded}</b>`;
+      this.shadowRoot.querySelector("#lastModified").innerHTML = `Last Modified: <b>${this.data.lastModified}</b>`;
+      this.shadowRoot.querySelector("#numSegments").innerHTML = `Amout of segments: <b>${this.data.numSegments}</b>`;
+      this.shadowRoot.querySelector("button").onclick = function(event){
+        self.delete();
+      }
+    }
+
+    delete(){
+      var self = this;
+      xhr_get({
+              url: encodeURIForServer(`/DELETE/tests$name=${self.data.name}`),
+              success: function() { self.deleteError() },
+              timeout: function() { self.deleteError() },
+              badRequest: function() { self.deleteError() }
+            });
+    }
+    deleteError(){
+      let p = document.createElement("p");
+      p.id = "error"
+      p.innerHTML = 'Error deleting test from database';
+      let anchor = this.shadowRoot.querySelector("a");
+      anchor.insertBefore(p, anchor.firstChild);
     }
   }
   document.registerElement('test-component', TestComponent);

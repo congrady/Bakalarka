@@ -69,21 +69,22 @@
         }
       }
     }
+
     makeNavigation(mode){
       this.$nav.innerHTML = "";
       let currentPage = App.router.currentPage;
       let navigation = new Map();
       if (mode == "free"){
         for (let item of App.router.navigation){
-          if (!App.router.needAuthentication.has(item[0])){
-            navigation.set(item[0], item[1]);
+          if(!App.router.needAuthentication.has(item[1].page)){
+            navigation.set(item[0], item[1].navigation);
           }
         }
       }
       else if (mode == "auth"){
         for (let item of App.router.navigation){
           if (App.router.needAuthentication.get(item[0]) >= App.authLevel || !App.router.needAuthentication.has(item[0])){
-            navigation.set(item[0], item[1]);
+            navigation.set(item[0], item[1].navigation);
           }
         }
       }

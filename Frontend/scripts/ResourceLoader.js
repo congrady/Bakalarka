@@ -1,10 +1,12 @@
 'use strict';
 
 class ResourceLoader {
+	constructor(){
+		this.unresolvedResourcesCounter = 0;
+		this.worker = new Worker("/Frontend/scripts/ResourceLoaderWorker.js");
+	}
+
 	loadData(neededData, auth) {
-		if (!this.worker) {
-      this.worker = new Worker("/Frontend/scripts/ResourceLoaderWorker.js");
-		}
 		this.worker.addEventListener("message", function(message) {
 			App.data[message.data.name] = JSON.parse(message.data.response);
 		});

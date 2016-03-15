@@ -37,6 +37,7 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println(fmt.Sprintf("DELETE FROM %s WHERE %s;", table, where))
 	_, err = db.Exec(fmt.Sprintf("DELETE FROM %s WHERE %s;", table, where))
 	if err != nil {
 		http.Error(w, "Error executing query: "+err.Error(), http.StatusBadRequest)
