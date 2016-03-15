@@ -40,11 +40,7 @@ func POST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-<<<<<<< HEAD
-	db, err := sql.Open("postgres", "user=root port=8080 dbname=UXPtests password=root sslmode=disable")
-=======
-	db, err := sql.Open("sqlite3", "UXPtests.db")
->>>>>>> 53256142f54cc1acb559b071f5f11fd9c5377732
+	db, err := sql.Open("postgres", "user=root port=5432 dbname=UXPtests password=root sslmode=disable")
 	if err != nil {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusBadRequest)
 		return
