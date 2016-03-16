@@ -15,16 +15,15 @@ func SaveNewTest(w http.ResponseWriter, r *http.Request) {
 
 	name := strings.ToLower(r.FormValue("name"))
 	addedBy := r.FormValue("userName")
-	uploaded := time.Now().Format("02.01.2006 15:04:05")
+	uploaded := time.Now().Format("2006-01-02 15:04:05")
 
-	db, err := sql.Open("postgres", "user=root port=8080 dbname=UXPtests password=root sslmode=disable")
+	db, err := sql.Open("postgres", "user=postgres port=5432 dbname=UXPtests password=root sslmode=disable")
 	if err != nil {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	stmt, _ := db.Prepare("INSERT INTO tests (name, added_by, uploaded, uploaded_string, last_modified, last_modified_string) VALUES (?,?,?,?,?,?)")
-	_, err = stmt.Exec(name, addedBy, uploaded, uploaded, uploaded, uploaded)
+	_, err = db.Exec(fmt.Sprintf("INSERT INTO tests VALUES ('%s','%s','%s','%s')", name, addedBy, uploaded, uploaded))
 	if err != nil {
 		http.Error(w, "Error inserting into database: "+err.Error(), 409)
 		return

@@ -22,13 +22,15 @@ func (t Test) String() string {
 
 // GetTestsInfo sends info about all tests in DB
 func GetTestsInfo(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("postgres", "user=root port=5432 dbname=UXPtests password=root sslmode=disable")
+	db, err := sql.Open("postgres", "user=postgres port=5432 dbname=UXPtests password=root sslmode=disable")
 	if err != nil {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	rows, err := db.Query("SELECT t.name, t.added_by, t.uploaded, t.last_modified, count(s.test_name) FROM tests t LEFT JOIN segments s ON t.name = s.test_name GROUP BY t.name")
+	rows, err := db.Query(`SELECT t.name, t.added_by, COALESCE(to_char(t.uploaded, 'DD.MM.YYYY HH24:MI:SS'), ''),
+	 											COALESCE(to_char(t.last_modified, 'DD.MM.YYYY HH24:MI:SS'), ''), count(s.test_name)
+												FROM tests t LEFT JOIN segments s ON t.name = s.test_name GROUP BY t.name`)
 	if err != nil {
 		http.Error(w, "Error getting data from database: "+err.Error(), http.StatusBadRequest)
 		return

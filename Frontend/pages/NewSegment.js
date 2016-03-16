@@ -12,19 +12,15 @@ App.newPage({
       testName = urlParams[0];
     }
     else{
-      xhr_get({
-        url: "/GetTestNames",
-        success: function(response){
-          if (response == "null"){
-            return;
-          }
-          let testNames = JSON.parse(response);
-          let test = form.querySelector("#testSelect");
-          for (let testName of testNames){
-            test.innerHTML += `<option value = "${testName}">${testName}</option>`;
-          }
+      App.onDataLoad("TestNames", function(data){
+        if (!data){
+          return
         }
-      });
+        let testSelect = form.querySelector("#testSelect");
+        for (let test of data){
+          testSelect.innerHTML += `<option value = "${test.name}">${test.name}</option>`;
+        }
+      })
     }
 
     function upload(data) {

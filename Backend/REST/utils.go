@@ -20,7 +20,8 @@ func wrongURLParamsAmount(w http.ResponseWriter) {
 	http.Error(w, "Wrong REST request: wrong amount of URL parameters", http.StatusBadRequest)
 }
 
-func parsePairQueryParam(urlParam string) (string, string) {
+func parsePairQueryParam(urlParam string, separator string) (string, string) {
+	separator = " " + separator + " "
 	if urlParam == "" {
 		return "", "missing part error"
 	}
@@ -32,9 +33,9 @@ func parsePairQueryParam(urlParam string) (string, string) {
 		if len(params) != 2 {
 			return "", "wrong format error"
 		}
-		res += (params[0] + `="` + params[1] + `" AND `)
+		res += fmt.Sprintf("%s='%s'%s", params[0], params[1], separator)
 	}
-	return strings.TrimSuffix(res, " AND "), ""
+	return strings.TrimSuffix(res, separator), ""
 }
 
 func parseQueryParam(urlParam string) (string, string) {
@@ -44,7 +45,7 @@ func parseQueryParam(urlParam string) (string, string) {
 	res := ""
 	paramArray := strings.Split(urlParam, ",")
 	for _, param := range paramArray {
-		res += ("`" + param + "`" + ",")
+		res += fmt.Sprintf("cast (%s as text),", param)
 	}
 	return strings.TrimSuffix(res, ","), ""
 }

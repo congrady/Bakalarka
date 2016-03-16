@@ -2,7 +2,6 @@ package REST
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -23,7 +22,7 @@ func GET(w http.ResponseWriter, r *http.Request) {
 		missingPartError(w, "table")
 		return
 	}
-	table := "`" + urlParams[0] + "`"
+	table := urlParams[0]
 
 	columns, errorType := parseQueryParam(urlParams[1])
 	if errorType == "missing part error" {
@@ -33,7 +32,7 @@ func GET(w http.ResponseWriter, r *http.Request) {
 
 	where := ""
 	if urlParamsLen > 2 {
-		res, errorType := parsePairQueryParam(urlParams[2])
+		res, errorType := parsePairQueryParam(urlParams[2], "OR")
 		if errorType == "wrong format error" {
 			wrongFormatError(w, "where")
 			return
@@ -59,34 +58,50 @@ func GET(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	db, err := sql.Open("postgres", "user=root port=5432 dbname=UXPtests password=root sslmode=disable")
+	db, err := sql.Open("postgres", "user=postgres port=5432 dbname=UXPtests password=root sslmode=disable")
 	if err != nil {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusBadRequest)
 	}
 
-	rows, err := db.Query(fmt.Sprintf("SELECT %s FROM%s%s%s%s;", columns, table, where, groupBy, orderBy))
+	fmt.Println(fmt.Sprintf("SELECT %s FROM %s%s%s%s;", columns, table, where, groupBy, orderBy))
+	rows, err := db.Query(fmt.Sprintf("SELECT %s FROM %s%s%s%s;", columns, table, where, groupBy, orderBy))
 	if err != nil {
 		http.Error(w, "Error executing query: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	cols, err := rows.Columns()
-	ints := make([]string, len(cols))
-	vals := make([]interface{}, len(cols))
-	for i := range ints {
-		vals[i] = &ints[i]
+	if err != nil {
+		http.Error(w, "Error getting columns: "+err.Error(), http.StatusInternalServerError)
 	}
+	values := make([]string, len(cols))
+	scanArgs := make([]interface{}, len(values))
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
+
+	res := ""
+	numberOfRows := 0
 	for rows.Next() {
-		err = rows.Scan(vals...)
+		numberOfRows++
+		err = rows.Scan(scanArgs...)
 		if err != nil {
-			http.Error(w, "Error executing query: "+err.Error(), http.StatusBadRequest)
+			http.Error(w, "Error scaning rows: "+err.Error(), http.StatusBadRequest)
 			return
 		}
-		res, err := json.Marshal(vals)
+		res += "{"
+		for i := range values {
+			res += fmt.Sprintf(`"%s":"%s",`, cols[i], values[i])
+		}
+		res = res[:len(res)-1] + "},"
 		if err != nil {
 			http.Error(w, "Error coverting tests to JSON: "+err.Error(), http.StatusBadRequest)
 			return
 		}
-		w.Write(res)
+	}
+	if numberOfRows > 1 {
+		fmt.Fprint(w, fmt.Sprintf("[%s]", res[:len(res)-1]))
+	} else {
+		fmt.Fprint(w, res[:len(res)-1])
 	}
 }

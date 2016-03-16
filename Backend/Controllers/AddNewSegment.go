@@ -33,7 +33,7 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 	addedBy := r.FormValue("userName")
 	uploaded := time.Now().Format("02.01.2006 15:04:05")
 
-	db, err := sql.Open("postgres", "user=root port=5432 dbname=UXPtests password=root sslmode=disable")
+	db, err := sql.Open("postgres", "user=postgres port=5432 dbname=UXPtests password=root sslmode=disable")
 	if err != nil {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusInternalServerError)
 		return

@@ -22,7 +22,7 @@ func POST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	update, errorType := parsePairQueryParam(urlParams[1])
+	update, errorType := parsePairQueryParam(urlParams[1], "OR")
 	if errorType == "missing part error" {
 		missingPartError(w, "update")
 		return
@@ -31,7 +31,7 @@ func POST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	where, errorType := parsePairQueryParam(urlParams[2])
+	where, errorType := parsePairQueryParam(urlParams[2], "OR")
 	if errorType == "missing part error" {
 		missingPartError(w, "where")
 		return
@@ -40,7 +40,7 @@ func POST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("postgres", "user=root port=5432 dbname=UXPtests password=root sslmode=disable")
+	db, err := sql.Open("postgres", "user=postgres port=5432 dbname=UXPtests password=root sslmode=disable")
 	if err != nil {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusBadRequest)
 		return
