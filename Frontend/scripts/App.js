@@ -11,52 +11,105 @@ var App = {
     }
     App.router.servePage();
   },
-  onDataLoad: function(dataName, func) {
-    for (let urlParam of App.router.urlParams){
-      dataName += ":" + urlParam;
-    }
-    let data = App.data[dataName];
-    if (data) {
-      func(data);
+  dataHandler: function(params) {
+    if (params.specific){
+      if (App.data[params.dataName] && App.data[params.dataName][params.specific]){
+        params.onload(App.data[params.dataName][params.specific]);
+      }
+    } else if (App.data[params.dataName]){
+      params.onload(App.data[params.dataName])
     } else {
       App.resourceLoader.worker.addEventListener("message", function(message) {
-        if (message.data.name == dataName) {
-          func(JSON.parse(message.data.response));
+        if (message.data.name == params.dataName) {
+          if (params.specific){
+            params.onload(App.data[message.data.name][params.specific]);
+          } else {
+            params.onload(App.data[message.data.name]);
+          }
         }
       });
     }
   },
-  getData: function(dataName){
-    for (let data of App.data){
-      alert(data);
+  fillForm: function(params){
+    let formData = new FormData();
+    formData.append("table", AppConfig.dataModels[params.dataName].table);
+    if (params.key){
+      formData.append("where", AppConfig.dataModels[params.dataName].key + "=" + params.key);
     }
-    for (let urlParam of App.router.urlParams){
-      dataName += ":" + urlParam;
-    }
-    let res = {};
-    if (App.data[dataName]){
-      //res.data = App.data[dataName];
-      return App.data[dataName]
-    } /*else {
-      let dataEntry;
-      for (let data of AppConfig.data){
-        if (data.name == dataName){
-          dataEntry = data;
-        }
-        if (dataEntry.alt.constructor === Array){
-          for (let alt of dataEntry.alt){
-            if (App.data[alt]){
-              return res.alt = alt;
-            }
-          }
-        } else {
-          if (App.data[dataEntry.alt]){
-            res.alt = dataEntry.alt;
-            return res
-          }
-        }
+    if (params.data){
+      let colString = "";
+      for (let col in params.data){
+        colString += (col + "=" + params.data[col]+",");
       }
-    }*/
+      colString = colString.slice(0, -1);
+      formData.append("columns", colString);
+    }
+    return formData
+  },
+  deleteData: function(params){
+    let requestParams = {};
+    requestParams.method = "DELETE";
+    requestParams.url = AppConfig.deleteURL;
+    requestParams.formData = this.fillForm({
+      key: params.key,
+      dataName: params.dataName});
+    if (params.success){
+      requestParams.success = function(){
+        App.deleteLocally();
+        params.success();
+      };
+    }
+    if (params.error){
+      requestParams.error = params.error;
+    }
+    ajaxREST(params)
+  },
+  updateData: function(params){
+    let requestParams = {};
+    requestParams.method = "POST";
+    requestParams.url = AppConfig.updateURL;
+    requestParams.formData = this.fillForm({
+      key: params.key,
+      data: params.data,
+      dataName: params.dataName});
+    if (params.success){
+      requestParams.success = function(){
+        App.updateLocally();
+        params.success();
+      }
+    }
+    if (params.error){
+      requestParams.error = params.error;
+    }
+    ajaxREST(requestParams)
+  },
+  putData: function(params){
+    let requestParams = {};
+    requestParams.method = "PUT";
+    requestParams.url = AppConfig.putURL;
+    requestParams.formData = this.fillForm({
+      key: params.key,
+      data: params.data,
+      dataName: params.dataName});
+    if (params.success){
+      requestParams.success = function(){
+        App.putLocally();
+        params.success();
+      }
+    }
+    if (params.error){
+      requestParams.error = params.error;
+    }
+    ajaxREST(requestParams)
+  },
+  deleteLocally: function(){
+
+  },
+  updateLocally: function(){
+
+  },
+  putLocally: function(){
+
   },
   navigate: function(event, relative) {
     event.preventDefault();
@@ -118,4 +171,3 @@ var App = {
 
 App.init();
 window.addEventListener('popstate', App.init);
-window.addEventListener("hashchange", function(){ alert("ahoj"); })

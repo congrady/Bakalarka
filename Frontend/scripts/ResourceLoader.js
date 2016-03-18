@@ -8,7 +8,16 @@ class ResourceLoader {
 
 	loadData(neededData, auth) {
 		this.worker.addEventListener("message", function(message) {
-			App.data[message.data.name] = JSON.parse(message.data.response);
+			if (AppConfig.dataModels[message.data.name].key){
+				let key = AppConfig.dataModels[message.data.name].key;
+				App.data[message.data.name] = {};
+				let dataResponse = JSON.parse(message.data.response)
+				for (let obj of dataResponse){
+					App.data[message.data.name][obj[key]] = obj;
+				}
+			} else {
+				App.data[message.data.name] = message.data.response;
+			}
 		});
 		for (let data of neededData) {
 			if (auth) {
@@ -124,7 +133,14 @@ class ResourceLoader {
 				if (self.unresolvedResourcesCounter == -1) {
 					return
 				}
-				App.data[dataName] = JSON.parse(response);
+				if (AppConfig.dataModels[message.data.name].key){
+					let key = AppConfig.dataModels[message.data.name].key;
+					for (let data of JSON.parse(message.data.response)){
+						App.data[message.data.name] = {key: data};
+					}
+				} else {
+					App.data[message.data.name] = message.data.response;
+				}
 				self.unresolvedResourcesCounter -= 1;
 				if (self.unresolvedResourcesCounter == 0) {
 					success();

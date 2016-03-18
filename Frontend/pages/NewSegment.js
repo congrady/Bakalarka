@@ -12,7 +12,7 @@ App.newPage({
       testName = urlParams[0];
     }
     else{
-      App.onDataLoad("TestNames", function(data){
+      App.dataHandler("TestNames", function(data){
         if (!data){
           return
         }

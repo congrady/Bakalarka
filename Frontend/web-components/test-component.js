@@ -64,14 +64,13 @@
       let anchor = this.shadowRoot.querySelector('a');
       anchor.href = "/Test/"+encodeURIForUser(this.data.name);
       anchor.onclick = function(event){
-        App.navigate(event); // framework specific function
+        App.navigate(event);
       }
       let div = this.shadowRoot.querySelector('div');
       this.shadowRoot.querySelector("#name").innerHTML = `<b>${this.data.name}</b>`;
-      this.shadowRoot.querySelector("#addedBy").innerHTML = `Added by: <b>${this.data.addedBy}</b>`;
+      this.shadowRoot.querySelector("#addedBy").innerHTML = `Added by: <b>${this.data.added_by}</b>`;
       this.shadowRoot.querySelector("#uploaded").innerHTML = `Uploaded: <b>${this.data.uploaded}</b>`;
-      this.shadowRoot.querySelector("#lastModified").innerHTML = `Last Modified: <b>${this.data.lastModified}</b>`;
-      this.shadowRoot.querySelector("#numSegments").innerHTML = `Amout of segments: <b>${this.data.numSegments}</b>`;
+      this.shadowRoot.querySelector("#lastModified").innerHTML = `Last Modified: <b>${this.data.last_modified}</b>`;
       this.shadowRoot.querySelector("button").onclick = function(event){
         self.delete();
       }
@@ -79,13 +78,15 @@
 
     delete(){
       var self = this;
-      xhr_get({
-              url: encodeURIForServer(`/DELETE/tests$name=${self.data.name}`),
-              success: function() { self.deleteError() },
-              timeout: function() { self.deleteError() },
-              badRequest: function() { self.deleteError() }
-            });
+      App.deleteData({
+        dataName: "TestData",
+        table: "tests",
+        key: self.data.name,
+        success: function(){ self.remove() },
+        error: function() { self.deleteError() }
+      })
     }
+
     deleteError(){
       let p = document.createElement("p");
       p.id = "error"

@@ -13,6 +13,7 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 		missingPartError(w, "table")
 		return
 	}
+
 	whereUnparsed := r.FormValue("where")
 	where := ""
 	if whereUnparsed != "" {
@@ -40,4 +41,5 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(""))
 }

@@ -170,3 +170,43 @@ String.prototype.hashCode = function() {
   }
   return hash;
 }
+
+function ajaxREST(params){
+  let xhr = new XMLHttpRequest();
+  xhr.open(params.method, params.url, true);
+  xhr.onload = function() {
+    if (xhr.status == 200) {
+      if (params.success){
+        params.success();
+      }
+    } else {
+      if (params.error){
+        params.error();
+      }
+    }
+  }
+  if (App.token){
+    xhr.setRequestHeader('Authorization', 'Bearer ' + App.token);
+  }
+  if (params.timeout){
+    if (params.error){
+      params.error();
+    }
+  }
+  xhr.send(params.formData);
+}
+
+function testPUT() {
+  let xhr = new XMLHttpRequest();
+  xhr.open('PUT', '/PUT/', true);
+  xhr.onload = function(event) {
+    if (xhr.status == 200){
+      alert("success load")
+    }
+  };
+  let formData = new FormData();
+  formData.append("table", "tests");
+  formData.append("where", "name=igor");
+  formData.append("columns", "name=matus,added_by=123")
+  xhr.send(formData);
+}

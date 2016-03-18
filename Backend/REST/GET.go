@@ -81,9 +81,7 @@ func GET(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := ""
-	numberOfRows := 0
 	for rows.Next() {
-		numberOfRows++
 		err = rows.Scan(scanArgs...)
 		if err != nil {
 			http.Error(w, "Error scaning rows: "+err.Error(), http.StatusBadRequest)
@@ -99,9 +97,9 @@ func GET(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	if numberOfRows > 1 {
+	if res != "" {
 		fmt.Fprint(w, fmt.Sprintf("[%s]", res[:len(res)-1]))
 	} else {
-		fmt.Fprint(w, res[:len(res)-1])
+		fmt.Fprint(w, "")
 	}
 }

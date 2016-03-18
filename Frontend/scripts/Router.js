@@ -42,11 +42,7 @@ class Router {
         this.resourcesForPage.set(route.page, resourceMap);
       }
       if (route.data) {
-        let neededData = [];
-        for (let dataName of route.data) {
-          neededData.push(dataName);
-        }
-        this.dataForPage.set(route.page, neededData);
+        this.dataForPage.set(route.page, route.data);
       }
       if (route.auth !== undefined) {
         this.needAuthentication.set(route.page, route.auth);
@@ -132,7 +128,7 @@ class Router {
   showError(error) {
     let $mainContent = document.getElementsByTagName('main')[0];
     let $title = document.getElementsByTagName('title')[0];
-    $title.innerHTML = this.appTitle + "Error";
+    $title.innerHTML = this.appTitle + "Error: ";
     if (error === "unauthorized") {
       $mainContent.innerHTML = "<p>This page is available only to logged in users.</p>";
       $title.innerHTML += "Unauthorized access";
@@ -235,25 +231,28 @@ class Router {
 		if (!this.dataForPage.has(this.currentPage)){
 			return []
 		}
-    for (let neededData of this.dataForPage.get(this.currentPage)) {
-      for (let dataEntry of AppConfig.data) {
-        if (App.data[dataEntry.alt]){
-          continue;
-        }
-        if (dataEntry.name === neededData) {
-          let dataName = dataEntry.name;
-          for (let urlParam of this.urlParams) {
-            dataName += ":" + urlParam;
-          }
-          if (!App.data[dataName]) {
-            let url = this.prepareRequestURL(dataEntry.url);
-            if (dataEntry.blocking) {
-              blockingData.set(dataName, url);
-            } else {
-              nonBlockingData.set(dataName, url);
-            }
+    let neededData = this.dataForPage.get(this.currentPage);
+    for (let dataName in neededData) {
+      let url;
+      let dataModel = AppConfig.dataModels[dataName];
+      if (neededData[dataName] == "specific") {
+        if (App.data[dataName] && dataModel.key && dataModel.keyIndex){
+          let urlParamValue = this.urlParams[dataModel.keyIndex];
+          if (App.data[dataName][dataModel.key]){
+            continue
           }
         }
+        url = dataModel.get;
+      } else if (neededData[dataName] == "all"){
+        if (App.data[dataName]){
+          continue
+        }
+        url = dataModel.getAll;
+      }
+      if (dataModel.blocking) {
+        blockingData.set(dataName, this.prepareRequestURL(url));
+      } else {
+        nonBlockingData.set(dataName, this.prepareRequestURL(url));
       }
     }
     App.resourceLoader.loadData(nonBlockingData, needAuthentication);
@@ -279,14 +278,15 @@ class Router {
         }
       }
     }
-    neededResources.set("#", "/Frontend/pages/" + this.currentPage + ".js");
+    if (!this.availableResources.has("#" + this.currentPage)){
+      neededResources.set("#" + this.currentPage, "/Frontend/pages/" + this.currentPage + ".js");
+    }
 
     for (let data of blockingData){
       neededResources.set(data[0], data[1]);
     }
 
     function onResourceLoad() {
-      neededResources.delete("#");
       for (let resource of neededResources) {
         App.router.availableResources.add(resource[0]);
       }
