@@ -13,7 +13,7 @@ func main() {
 	var folders []string
 	folders = append(folders, "../Frontend", "../data")
 	var files []string
-	files = append(files, "../config.js", "../dataModels.js")
+	files = append(files, "../dataModels.js")
 	controllers.FileServer(folders, files)
 
 	http.HandleFunc("/GET/", REST.GET)

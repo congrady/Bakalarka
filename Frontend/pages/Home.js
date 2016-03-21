@@ -20,9 +20,13 @@ App.newPage({
         div.add("p", {innerHTML: `Parameter: ${urlParam}`});
       }
     }
+    let p = page.add("p");
+
+    let reactElement = p.add("ExampleApplication", {name: "Matus"});
+    reactElement.sayHello();
 
     page.add("button", {innerHTML: "Test"}).onclick = function(){
-      App.putData({
+      App.updateData({
         dataName: "TestData",
         data: {name: "matus", added_by: "asdasdad"},
         key: "matus",

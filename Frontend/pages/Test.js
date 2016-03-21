@@ -6,7 +6,8 @@ App.newPage({
     let page = new DocumentFragment();
     let div = page.add("div");
 
-    App.dataHandler({dataName: "TestData", specific: urlParams[0], func: function (data){
+    App.dataHandler({dataName: "TestData", specific: urlParams[0], onload: function (data){
+      console.log(data);
       let div = page.select("div");
       div.add("h3", {id: "page-title", innerHTML: "Test : " + data.name});
       div.add("p", {innerHTML: `Name: ${data.name}`});

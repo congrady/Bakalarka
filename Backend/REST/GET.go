@@ -59,6 +59,7 @@ func GET(w http.ResponseWriter, r *http.Request) {
 	}
 
 	db, err := sql.Open("postgres", "user=postgres port=5432 dbname=UXPtests password=root sslmode=disable")
+	defer db.Close()
 	if err != nil {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusBadRequest)
 	}

@@ -9,17 +9,12 @@ class Router {
     this.resourcesForPage = new Map();
     this.dataForPage = new Map();
     this.Pages = new Map();
-    this.resourcePaths = new Map();
     this.availableResources = new Set();
     this.needAuthentication = new Map();
     this.navigation = new Map();
-    this.pageData = new Map();
     this.appTitle = AppConfig.title ? AppConfig.title : '';
-    for (let resource of AppConfig.resources) {
-      this.resourcePaths.set(resource.name, resource.path);
-    }
+    this.registeredReactComponents = new Set();
     for (let route of AppConfig.routes) {
-      this.pageData.set(route.page, []);
       if (route.path.constructor === Array) {
         for (let path of route.path) {
           this.routes.set(path, route.page);
@@ -35,11 +30,7 @@ class Router {
         }
       }
       if (route.resources) {
-        let resourceMap = new Map();
-        for (let resourceName of route.resources) {
-          resourceMap.set(resourceName, this.resourcePaths.get(resourceName));
-        }
-        this.resourcesForPage.set(route.page, resourceMap);
+        this.resourcesForPage.set(route.page, route.resources);
       }
       if (route.data) {
         this.dataForPage.set(route.page, route.data);
@@ -226,8 +217,8 @@ class Router {
   }
 
   loadNonBlockingDataGetBlockingData(needAuthentication) {
-    let blockingData = new Map();
-    let nonBlockingData = new Map();
+    let blockingData = [];
+    let nonBlockingData = [];
 		if (!this.dataForPage.has(this.currentPage)){
 			return []
 		}
@@ -250,49 +241,53 @@ class Router {
         url = dataModel.getAll;
       }
       if (dataModel.blocking) {
-        blockingData.set(dataName, this.prepareRequestURL(url));
+        blockingData.push({name: dataName, url: this.prepareRequestURL(url)});
       } else {
-        nonBlockingData.set(dataName, this.prepareRequestURL(url));
+        nonBlockingData.push({name: dataName, url: this.prepareRequestURL(url)});
       }
     }
     App.resourceLoader.loadData(nonBlockingData, needAuthentication);
+
     return blockingData;
   }
 
   loadResources(needAuthentication) {
     let blockingData = this.loadNonBlockingDataGetBlockingData(needAuthentication);
 
-    let neededResources = new Map();
+    let neededResources = [];
     if (this.resourcesForPage.has(this.currentPage)) {
-      for (let mapItem of this.resourcesForPage.get(this.currentPage)) {
-        if (!this.availableResources.has(mapItem[0])) {
-          if (!mapItem[1].includes("web-components")) {
-            if (mapItem[1].endsWith(".html") || mapItem[1].endsWith(".js")) {
-              neededResources.set(mapItem[0], mapItem[1]);
-            }
+      for (let resourceName of this.resourcesForPage.get(this.currentPage)) {
+        if (!this.availableResources.has(resourceName)) {
+          let resource = AppConfig.resources[resourceName];
+          resource.name = resourceName;
+          if (resource.type == 'web-component' && isRegisteredElement(resource.componentName)){
+            continue
+          } else if (resource.componentName && this.registeredReactComponents.has(resource.componentName)) {
+            continue
           } else {
-            if (mapItem[1].endsWith(".js") && !isRegistered(mapItem[1].substring(mapItem[1].lastIndexOf("/") + 1, mapItem[1].lastIndexOf(".")))) {
-              neededResources.set(mapItem[0], mapItem[1]);
-            }
+            neededResources.push(resource);
           }
         }
       }
     }
     if (!this.availableResources.has("#" + this.currentPage)){
-      neededResources.set("#" + this.currentPage, "/Frontend/pages/" + this.currentPage + ".js");
+      neededResources.push({name: "#" + this.currentPage, url: "/Frontend/pages/" + this.currentPage + ".js"});
     }
 
     for (let data of blockingData){
-      neededResources.set(data[0], data[1]);
+      neededResources.push(data);
     }
 
     function onResourceLoad() {
       for (let resource of neededResources) {
-        App.router.availableResources.add(resource[0]);
+        App.router.availableResources.add(resource.name);
+        if (resource.type == "react-component"){
+          App.router.registeredReactComponents.add(resource.componentName);
+        }
       }
       App.router.showPage();
     }
-    if (neededResources.size) {
+    if (neededResources.length) {
       App.resourceLoader.loadResources(neededResources, needAuthentication, onResourceLoad);
     } else {
       this.showPage();

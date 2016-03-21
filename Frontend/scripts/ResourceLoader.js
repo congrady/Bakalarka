@@ -22,14 +22,14 @@ class ResourceLoader {
 		for (let data of neededData) {
 			if (auth) {
 				this.worker.postMessage({
-					"name": data[0],
-					url: data[1],
+					"name": data.name,
+					url: data.url,
 					token: App.token
 				});
 			} else {
 				this.worker.postMessage({
-					"name": data[0],
-					url: data[1]
+					"name": data.name,
+					url: data.url
 				});
 			}
 		}
@@ -40,110 +40,62 @@ class ResourceLoader {
 		this.unresolvedResourcesCounter = -1;
 	}
 
-	loadHTML(resourceName, url, auth, success) {
+	loadTemplate(url, templateName) {
+		this.sendRequest(url, function(response){
+			App.htmlTemplates.set(templateName, response);
+		})
+	}
+
+	loadReactComponent(url, componentName) {
+		this.sendRequest(url, function(response){
+			window[componentName] = React.createFactory(eval(response));
+		})
+	}
+
+	loadReactComponent(url, componentName) {
+		this.sendRequest(url, function(response){
+			window[componentName] = React.createFactory(eval(response));
+		})
+	}
+
+	loadScript(url) {
+		this.sendRequest(url, function(response){
+			let head = document.getElementsByTagName('head')[0];
+			let script = document.createElement('script');
+			script.innerHTML = response;
+			head.appendChild(script);
+		})
+	}
+
+	loadBlockingData(url, dataName) {
+		this.sendRequest(url, function(response){
+			if (AppConfig.dataModels[dataName].key){
+				let key = AppConfig.dataModels[dataName].key;
+				for (let data of JSON.parse(response)){
+					App.data[dataName] = {key: data};
+				}
+			} else {
+				App.data[dataName] = response;
+			}
+		})
+	}
+
+	sendRequest(url, resourceSpecificCallBack){
 		if (this.unresolvedResourcesCounter == -1) {
 			return
 		}
 		var self = this;
 		xhr_get({
 			url: url,
-			token: auth ? sessionStorage.token : false,
+			token: self.auth ? App.token : false,
 			success: function(response) {
 				if (self.unresolvedResourcesCounter == -1) {
 					return
 				}
-				App.htmlTemplates.set(resourceName, response);
+				resourceSpecificCallBack(response);
 				self.unresolvedResourcesCounter -= 1;
 				if (self.unresolvedResourcesCounter == 0) {
-					success();
-				}
-			},
-			unauthorized: function() {
-				self.handleError("unauthorized");
-			},
-			timeout: function() {
-				self.handleError("timeout");
-			}
-		});
-	}
-
-	loadRestrictedScript(url, success) {
-		if (this.unresolvedResourcesCounter == -1) {
-			return
-		}
-		var self = this;
-		xhr_get({
-			url: url,
-			token: sessionStorage.token,
-			success: function(response) {
-				if (self.unresolvedResourcesCounter == -1) {
-					return
-				}
-				let head = document.getElementsByTagName('head')[0];
-				let script = document.createElement('script');
-				script.innerHTML = response;
-				head.appendChild(script);
-				self.unresolvedResourcesCounter -= 1;
-				if (self.unresolvedResourcesCounter == 0) {
-					success();
-				}
-			},
-			unauthorized: function() {
-				self.handleError("unauthorized");
-			},
-			timeout: function() {
-				self.handleError("timeout");
-			}
-		});
-	}
-
-	loadScript(url, success) {
-		if (this.unresolvedResourcesCounter == -1) {
-			return
-		}
-		var self = this;
-		let head = document.getElementsByTagName('head')[0];
-		let script = document.createElement('script');
-		script.src = url;
-		script.async = true;
-		script.onload = function() {
-			if (self.unresolvedResourcesCounter == -1) {
-				return
-			}
-			self.unresolvedResourcesCounter -= 1;
-			if (self.unresolvedResourcesCounter == 0) {
-				success();
-			}
-		};
-		script.onerror = function() {
-			self.handleError("timeout");
-		};
-		head.appendChild(script);
-	}
-
-	loadBlockingData(dataName, url, auth, success) {
-		if (this.unresolvedResourcesCounter == -1) {
-			return
-		}
-		var self = this;
-		xhr_get({
-			url: url,
-			token: auth ? sessionStorage.token : false,
-			success: function(response) {
-				if (self.unresolvedResourcesCounter == -1) {
-					return
-				}
-				if (AppConfig.dataModels[message.data.name].key){
-					let key = AppConfig.dataModels[message.data.name].key;
-					for (let data of JSON.parse(message.data.response)){
-						App.data[message.data.name] = {key: data};
-					}
-				} else {
-					App.data[message.data.name] = message.data.response;
-				}
-				self.unresolvedResourcesCounter -= 1;
-				if (self.unresolvedResourcesCounter == 0) {
-					success();
+					self.success();
 				}
 			},
 			unauthorized: function() {
@@ -156,18 +108,18 @@ class ResourceLoader {
 	}
 
 	loadResources(neededResources, auth, success) {
-		this.unresolvedResourcesCounter = neededResources.size;
+		this.unresolvedResourcesCounter = neededResources.length;
+		this.auth = auth;
+		this.success = success;
 		for (let resource of neededResources) {
-			if (resource[1].endsWith('.js')) {
-				if (auth) {
-					this.loadRestrictedScript(resource[1], success);
-				} else {
-					this.loadScript(resource[1], success)
-				}
-			} else if (resource[1].endsWith(".html")) {
-				this.loadHTML(resource[0], resource[1], auth, success);
-			} else {
-				this.loadBlockingData(resource[0], resource[1], auth, success);
+			if (resource.type == 'script' || resource.name[0] == '#' || resource.type == 'web-component') {
+				this.loadScript(resource.url)
+			} else if (resource.type == 'template') {
+				this.loadTemplate(resource.url, resource.name);
+			} else if (resource.type == 'react-component') {
+				this.loadReactComponent(resource.url, resource.componentName);
+			}	else {
+				this.loadBlockingData(resource.url, resource.name);
 			}
 		}
 	}

@@ -49,21 +49,25 @@ DocumentFragment.prototype.selectAll = function(queryString){
 Element.prototype.selectAll = DocumentFragment.prototype.selectAll;
 
 DocumentFragment.prototype.add = function(elementType, attrs, insertBefore){
-  let element = document.createElement(elementType);
-  for (let attr in attrs){
-    if (attr == "innerHTML"){
-      element.innerHTML = attrs["innerHTML"];
-    }
-    else {
-      element.setAttribute(attr, attrs[attr]);
-    }
-  }
-  if (insertBefore){
-    this.insertBefore(element, this.firstChild)
+  if (App.router.registeredReactComponents.has(elementType)) {
+    return ReactDOM.render(window[elementType](attrs), this);
   } else {
-    this.appendChild(element);
+    let element = document.createElement(elementType);
+    for (let attr in attrs){
+      if (attr == "innerHTML"){
+        element.innerHTML = attrs["innerHTML"];
+      }
+      else {
+        element.setAttribute(attr, attrs[attr]);
+      }
+    }
+    if (insertBefore){
+      this.insertBefore(element, this.firstChild)
+    } else {
+      this.appendChild(element);
+    }
+    return element;
   }
-  return element;
 }
 Element.prototype.add = DocumentFragment.prototype.add;
 
@@ -83,21 +87,6 @@ DocumentFragment.prototype.addImg = function(attrs, error){
     }
   }
   this.appendChild(element);
-  /*
-  let hashCode = url.hashCode();
-  element.setAttribute("id", hashCode);
-  this.appendChild(element);
-
-  let xhr = new XMLHttpRequest();
-  xhr.open("GET", url, true);
-  xhr.responseType = "blob";
-  xhr.onload = function(response){
-    let blob = new Blob([this.response], {type: "image/jpeg"});
-    let imageURL = window.URL.createObjectURL(blob);
-    document.getElementById(url.hashCode()).src = imageURL;
-    window.URL.revokeObjectURL(blob);
-  }
-  xhr.send();*/
 }
 Element.prototype.addImg = DocumentFragment.prototype.addImg;
 
@@ -136,8 +125,8 @@ Element.prototype.remove = function() {
   this.parentElement.removeChild(this);
 }
 
-function isRegistered(name) {
-  return document.createElement(name).constructor !== HTMLElement;
+function isRegisteredElement(name) {
+  return document.createElement(name).constructor == HTMLElement;
 }
 
 String.prototype.replaceAll = function(search, replacement) {

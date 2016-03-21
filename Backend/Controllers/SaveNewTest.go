@@ -18,6 +18,7 @@ func SaveNewTest(w http.ResponseWriter, r *http.Request) {
 	uploaded := time.Now().Format("2006-01-02 15:04:05")
 
 	db, err := sql.Open("postgres", "user=postgres port=5432 dbname=UXPtests password=root sslmode=disable")
+	defer db.Close()
 	if err != nil {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusInternalServerError)
 		return
