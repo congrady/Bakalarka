@@ -126,7 +126,7 @@ Element.prototype.remove = function() {
 }
 
 function isRegisteredElement(name) {
-  return document.createElement(name).constructor == HTMLElement;
+  return document.createElement(name).constructor !== HTMLElement;
 }
 
 String.prototype.replaceAll = function(search, replacement) {
@@ -183,19 +183,4 @@ function ajaxREST(params){
     }
   }
   xhr.send(params.formData);
-}
-
-function testPUT() {
-  let xhr = new XMLHttpRequest();
-  xhr.open('PUT', '/PUT/', true);
-  xhr.onload = function(event) {
-    if (xhr.status == 200){
-      alert("success load")
-    }
-  };
-  let formData = new FormData();
-  formData.append("table", "tests");
-  formData.append("where", "name=igor");
-  formData.append("columns", "name=matus,added_by=123")
-  xhr.send(formData);
 }

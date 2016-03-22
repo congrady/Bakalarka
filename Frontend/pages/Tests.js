@@ -5,12 +5,13 @@ App.newPage({
   init: function(urlParams) {
     let page = new DocumentFragment();
     page.add("h3", {id: "page-title", innerHTML: this.title});
-    page.add("p");
+    page.add("div");
 
-    App.dataHandler({dataName: "TestData", onload: function(data){
-      let p = page.select("p");
+    App.dataHandler({dataName: "TestData", action: function(data){
+      let div = page.select("div");
       for (let index in data){
-        p.add("test-component").setData(data[index]);
+        let testComponent = div.add("test-component");
+        testComponent.setData(data[index]);
       }
     }});
 

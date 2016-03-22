@@ -8,10 +8,10 @@ AppConfig.resources = {
     url: "/Frontend/web-components/test-component.js",
     componentName: "test-component"
   },
-  "ExampleApplication": {
+  "Hello": {
     type: "react-component",
-    url: "/Frontend/react-components/example-application.js",
-    componentName: "ExampleApplication"
+    url: "/Frontend/react-components/hello.js",
+    componentName: "Hello"
   },
   "Home": {
     type: "template",

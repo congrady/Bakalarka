@@ -31,7 +31,7 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 
 	testName := strings.ToLower(r.FormValue("testName"))
 	addedBy := r.FormValue("userName")
-	uploaded := time.Now().Format("02.01.2006 15:04:05")
+	uploaded := time.Now().Format("2006-01-02 15:04:05")
 
 	db, err := sql.Open("postgres", "user=postgres port=5432 dbname=UXPtests password=root sslmode=disable")
 	defer db.Close()
@@ -45,8 +45,13 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 
 	filePath := "../data/tests/" + testName + "/ETresult" + segmentID
 
-	stmt, _ := db.Prepare("INSERT INTO segments (test_name, added_by, uploaded, file_path) VALUES (?,?,?,?)")
-	_, err = stmt.Exec(testName, addedBy, uploaded, filePath)
+	query := fmt.Sprintf(
+		`INSERT INTO segments
+		(test_name, added_by, uploaded, file_path)
+		VALUES ('%s','%s','%s','%s');`,
+		testName, addedBy, uploaded, filePath)
+	fmt.Println(query)
+	_, err = db.Exec(query)
 	if err != nil {
 		http.Error(w, "Error inserting into database: "+err.Error(), 409)
 		return

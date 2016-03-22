@@ -6,19 +6,39 @@ class ResourceLoader {
 		this.worker = new Worker("/Frontend/scripts/ResourceLoaderWorker.js");
 	}
 
+	saveData(dataName, response){
+		if (AppConfig.data[dataName].type == 'json' && AppConfig.data[dataName].key){
+			let key = AppConfig.data[dataName].key;
+			App.data[dataName] = {};
+			let dataResponse = JSON.parse(response)
+			for (let obj of dataResponse){
+				App.data[dataName][obj[key]] = obj;
+			}
+		} else if (AppConfig.data[dataName].type == 'json'){
+			App.data[dataName] = JSON.parse(response);
+		} else {
+			App.data[dataName] = response;
+		}
+	}
+
 	loadData(neededData, auth) {
+		var self = this;
 		this.worker.addEventListener("message", function(message) {
-			if (AppConfig.dataModels[message.data.name].key){
-				let key = AppConfig.dataModels[message.data.name].key;
-				App.data[message.data.name] = {};
-				let dataResponse = JSON.parse(message.data.response)
-				for (let obj of dataResponse){
-					App.data[message.data.name][obj[key]] = obj;
+			self.saveData(message.data.name, message.data.response);
+			let index = App.actionPool.length;
+			while (index--) {
+				let dataPoolEntry = App.actionPool[index];
+				if (dataPoolEntry.dataName == message.data.name){
+					if (dataPoolEntry.specific){
+						dataPoolEntry.action(App.data[dataPoolEntry.dataName][dataPoolEntry.specific]);
+					} else {
+						dataPoolEntry.action(App.data[dataPoolEntry.dataName]);
+					}
+					App.actionPool.splice(index, 1);
 				}
-			} else {
-				App.data[message.data.name] = message.data.response;
 			}
 		});
+
 		for (let data of neededData) {
 			if (auth) {
 				this.worker.postMessage({
@@ -68,15 +88,9 @@ class ResourceLoader {
 	}
 
 	loadBlockingData(url, dataName) {
+		var self = this;
 		this.sendRequest(url, function(response){
-			if (AppConfig.dataModels[dataName].key){
-				let key = AppConfig.dataModels[dataName].key;
-				for (let data of JSON.parse(response)){
-					App.data[dataName] = {key: data};
-				}
-			} else {
-				App.data[dataName] = response;
-			}
+			self.saveData(dataName, response)
 		})
 	}
 

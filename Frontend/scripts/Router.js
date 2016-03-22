@@ -14,29 +14,30 @@ class Router {
     this.navigation = new Map();
     this.appTitle = AppConfig.title ? AppConfig.title : '';
     this.registeredReactComponents = new Set();
-    for (let route of AppConfig.routes) {
-      if (route.path.constructor === Array) {
-        for (let path of route.path) {
-          this.routes.set(path, route.page);
+    for (let pageName in AppConfig.pages) {
+      let page = AppConfig.pages[pageName];
+      if (page.path.constructor === Array) {
+        for (let path of page.path) {
+          this.routes.set(path, pageName);
         }
       } else {
-        this.routes.set(route.path, route.page);
+        this.routes.set(page.path, pageName);
       }
-      if (route.navigation) {
-        if (route.path.constructor === Array) {
-          this.navigation.set(route.path[0], {navigation: route.navigation, page: route.page});
+      if (page.navigation) {
+        if (page.path.constructor === Array) {
+          this.navigation.set(page.path[0], {navigation: page.navigation, page: pageName});
         } else {
-          this.navigation.set(route.path, {navigation: route.navigation, page: route.page});
+          this.navigation.set(page.path, {navigation: page.navigation, page: pageName});
         }
       }
-      if (route.resources) {
-        this.resourcesForPage.set(route.page, route.resources);
+      if (page.resources) {
+        this.resourcesForPage.set(pageName, page.resources);
       }
-      if (route.data) {
-        this.dataForPage.set(route.page, route.data);
+      if (page.data) {
+        this.dataForPage.set(pageName, page.data);
       }
-      if (route.auth !== undefined) {
-        this.needAuthentication.set(route.page, route.auth);
+      if (page.auth !== undefined) {
+        this.needAuthentication.set(pageName, page.auth);
       }
     }
     if (AppConfig.onAppInit) {
@@ -224,21 +225,20 @@ class Router {
 		}
     let neededData = this.dataForPage.get(this.currentPage);
     for (let dataName in neededData) {
-      let url;
-      let dataModel = AppConfig.dataModels[dataName];
+      let url = AppConfig.data[dataName].useDefaultGetURL ? AppConfig.getURL : '';
+      let dataModel = AppConfig.data[dataName];
       if (neededData[dataName] == "specific") {
-        if (App.data[dataName] && dataModel.key && dataModel.keyIndex){
-          let urlParamValue = this.urlParams[dataModel.keyIndex];
-          if (App.data[dataName][dataModel.key]){
+        if (App.data[dataName] && dataModel.key && (dataModel.keyIndex !== 'undefined')){
+          if (App.data[dataName][this.urlParams[dataModel.keyIndex]]){
             continue
           }
         }
-        url = dataModel.get;
+        url += dataModel.get;
       } else if (neededData[dataName] == "all"){
         if (App.data[dataName]){
           continue
         }
-        url = dataModel.getAll;
+        url += dataModel.getAll;
       }
       if (dataModel.blocking) {
         blockingData.push({name: dataName, url: this.prepareRequestURL(url)});

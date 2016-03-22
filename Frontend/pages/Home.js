@@ -22,8 +22,8 @@ App.newPage({
     }
     let p = page.add("p");
 
-    let reactElement = p.add("ExampleApplication", {name: "Matus"});
-    reactElement.sayHello();
+    let reactElement = p.add("Hello", {name: "Matus"});
+    //reactElement.sayHello();
 
     page.add("button", {innerHTML: "Test"}).onclick = function(){
       App.updateData({

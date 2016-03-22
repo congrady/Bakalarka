@@ -3,6 +3,7 @@
 var App = {
   htmlTemplates: new Map(),
   data: {},
+  actionPool: [],
   init: function() {
     if (!App.router) {
       App.router = new Router();
@@ -12,29 +13,31 @@ var App = {
     App.router.servePage();
   },
   dataHandler: function(params) {
-    if (params.specific){
-      if (App.data[params.dataName] && App.data[params.dataName][params.specific]){
-        params.onload(App.data[params.dataName][params.specific]);
-      }
+    if (params.specific && App.data[params.dataName] && App.data[params.dataName][params.specific]){
+      params.action(App.data[params.dataName][params.specific]);
     } else if (App.data[params.dataName]){
-      params.onload(App.data[params.dataName])
+      params.action(App.data[params.dataName])
     } else {
-      App.resourceLoader.worker.addEventListener("message", function(message) {
-        if (message.data.name == params.dataName) {
-          if (params.specific){
-            params.onload(App.data[message.data.name][params.specific]);
-          } else {
-            params.onload(App.data[message.data.name]);
-          }
-        }
-      });
+      App.actionPool.push(params);
     }
   },
   fillForm: function(params){
     let formData = new FormData();
-    formData.append("table", AppConfig.dataModels[params.dataName].table);
+    let getURL;
+    if (AppConfig.data[params.dataName]['get']){
+      getURL = AppConfig.data[params.dataName]['get'].split("$")[0];
+    } else {
+      getURL = AppConfig.data[params.dataName]['getAll'].split("$")[0];
+    }
+    let table;
+    if (getURL.startsWith(AppConfig.getURL)){
+      table = getURL.slice(AppConfig.getURL.length, getURL.length);
+    } else {
+      table = getURL;
+    }
+    formData.append("table", table);
     if (params.key){
-      formData.append("where", AppConfig.dataModels[params.dataName].key + "=" + params.key);
+      formData.append("where", AppConfig.data[params.dataName].key + "=" + params.key);
     }
     if (params.data){
       let colString = "";
@@ -52,7 +55,8 @@ var App = {
     requestParams.url = AppConfig.deleteURL;
     requestParams.formData = this.fillForm({
       key: params.key,
-      dataName: params.dataName});
+      dataName: params.dataName
+    });
     if (params.success){
       requestParams.success = function(){
         App.deleteLocally();
@@ -62,7 +66,7 @@ var App = {
     if (params.error){
       requestParams.error = params.error;
     }
-    ajaxREST(params)
+    ajaxREST(requestParams)
   },
   updateData: function(params){
     let requestParams = {};
@@ -71,7 +75,8 @@ var App = {
     requestParams.formData = this.fillForm({
       key: params.key,
       data: params.data,
-      dataName: params.dataName});
+      dataName: params.dataName
+    });
     if (params.success){
       requestParams.success = function(){
         App.updateLocally();
@@ -90,7 +95,8 @@ var App = {
     requestParams.formData = this.fillForm({
       key: params.key,
       data: params.data,
-      dataName: params.dataName});
+      dataName: params.dataName
+    });
     if (params.success){
       requestParams.success = function(){
         App.putLocally();

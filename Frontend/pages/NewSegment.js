@@ -12,15 +12,12 @@ App.newPage({
       testName = urlParams[0];
     }
     else{
-      App.dataHandler("TestNames", function(data){
-        if (!data){
-          return
-        }
+      App.dataHandler({dataName: "TestName", action: function(data){
         let testSelect = form.querySelector("#testSelect");
         for (let test of data){
           testSelect.innerHTML += `<option value = "${test.name}">${test.name}</option>`;
         }
-      })
+      }})
     }
 
     function upload(data) {
