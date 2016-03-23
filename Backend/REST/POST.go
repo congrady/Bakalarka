@@ -48,14 +48,20 @@ func POST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := fmt.Sprintf(`UPDATE %s %s %s;`, table, columnPairs, where)
+	query := fmt.Sprintf(`UPDATE %s %s %s RETURNING row_to_json(%s);`, table, columnPairs, where, table)
+	var res string
 	fmt.Println(query)
-
-	_, err = db.Exec(query)
+	err = db.QueryRow(query).Scan(&res)
 	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprint(w, "{}")
+			return
+		}
 		http.Error(w, "Error executing query: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, res)
 }

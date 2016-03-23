@@ -9,6 +9,13 @@ import (
 	"time"
 )
 
+type test struct {
+	Name         string `json:"name"`
+	AddedBy      string `json:"added_by"`
+	Uploaded     string `json:"uploaded"`
+	LastModified string `json:"last_modified"`
+}
+
 // SaveNewTest reads form, saves information about new test into database
 func SaveNewTest(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(0)

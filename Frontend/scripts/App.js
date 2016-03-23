@@ -23,19 +23,7 @@ var App = {
   },
   fillForm: function(params){
     let formData = new FormData();
-    let getURL;
-    if (AppConfig.data[params.dataName]['get']){
-      getURL = AppConfig.data[params.dataName]['get'].split("$")[0];
-    } else {
-      getURL = AppConfig.data[params.dataName]['getAll'].split("$")[0];
-    }
-    let table;
-    if (getURL.startsWith(AppConfig.getURL)){
-      table = getURL.slice(AppConfig.getURL.length, getURL.length);
-    } else {
-      table = getURL;
-    }
-    formData.append("table", table);
+    formData.append("table", AppConfig.data[params.dataName].table);
     if (params.key){
       formData.append("where", AppConfig.data[params.dataName].key + "=" + params.key);
     }
@@ -53,15 +41,12 @@ var App = {
     let requestParams = {};
     requestParams.method = "DELETE";
     requestParams.url = AppConfig.deleteURL;
-    requestParams.formData = this.fillForm({
+    requestParams.formData = App.fillForm({
       key: params.key,
       dataName: params.dataName
     });
     if (params.success){
-      requestParams.success = function(){
-        App.deleteLocally();
-        params.success();
-      };
+      requestParams.success = params.success;
     }
     if (params.error){
       requestParams.error = params.error;
@@ -72,16 +57,13 @@ var App = {
     let requestParams = {};
     requestParams.method = "POST";
     requestParams.url = AppConfig.updateURL;
-    requestParams.formData = this.fillForm({
+    requestParams.formData = App.fillForm({
       key: params.key,
       data: params.data,
       dataName: params.dataName
     });
     if (params.success){
-      requestParams.success = function(){
-        App.updateLocally();
-        params.success();
-      }
+      requestParams.success = params.success;
     }
     if (params.error){
       requestParams.error = params.error;
@@ -92,30 +74,37 @@ var App = {
     let requestParams = {};
     requestParams.method = "PUT";
     requestParams.url = AppConfig.putURL;
-    requestParams.formData = this.fillForm({
-      key: params.key,
+    requestParams.formData = App.fillForm({
       data: params.data,
       dataName: params.dataName
     });
     if (params.success){
-      requestParams.success = function(){
-        App.putLocally();
-        params.success();
-      }
+      requestParams.success = params.success;
     }
     if (params.error){
       requestParams.error = params.error;
     }
     ajaxREST(requestParams)
   },
-  deleteLocally: function(){
-
+  deleteClientData: function(params){
+    if (params.key){
+      delete this.data[params.dataName][params.key];
+    } else {
+      delete this.data[params.dataName];
+    }
   },
-  updateLocally: function(){
-
+  updateClientData: function(params){
+    for (let propName in params.data){
+      this.data[params.dataName][params.key] = params.data[propName];
+    }
   },
-  putLocally: function(){
-
+  putClientData: function(params){
+    console.log(App.data);
+    if (!App.data[params.dataName]){
+      App.data[params.dataName] = {};
+    }
+    App.data[params.dataName][params.data[AppConfig.data[params.dataName].key]] = params.data;
+    console.log(App.data)
   },
   navigate: function(event, relative) {
     event.preventDefault();
@@ -155,7 +144,6 @@ var App = {
         sessionStorage.setItem('authLevel', response[2]);
         options.success();
         self.router.servePage();
-        document.getElementsByTagName("main-navigation")[0].setAttribute("mode", "auth");
       },
       options.error
     );
@@ -167,7 +155,6 @@ var App = {
     delete App.userName;
     delete App.token;
     delete App.authLevel;
-    document.getElementsByTagName("main-navigation")[0].setAttribute("mode", "free");
     App.router.servePage();
   },
   newPage: function(page) {

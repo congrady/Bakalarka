@@ -166,11 +166,11 @@ function ajaxREST(params){
   xhr.onload = function() {
     if (xhr.status == 200) {
       if (params.success){
-        params.success();
+        params.success(xhr.response);
       }
     } else {
       if (params.error){
-        params.error();
+        params.error(xhr.response);
       }
     }
   }
@@ -179,7 +179,7 @@ function ajaxREST(params){
   }
   if (params.timeout){
     if (params.error){
-      params.error();
+      params.error(xhr.response);
     }
   }
   xhr.send(params.formData);

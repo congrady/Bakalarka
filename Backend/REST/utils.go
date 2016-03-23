@@ -1,6 +1,7 @@
 package REST
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strings"
@@ -45,7 +46,39 @@ func parseQueryParam(input string) (string, string) {
 	res := ""
 	paramArray := strings.Split(input, ",")
 	for _, param := range paramArray {
-		res += fmt.Sprintf("cast (%s as text),", param)
+		res += fmt.Sprintf("%s,", param)
 	}
 	return strings.TrimSuffix(res, ","), ""
+}
+
+func getJSON(rows *sql.Rows) (string, string) {
+	cols, err := rows.Columns()
+	if err != nil {
+		return "", "Error getting columns: " + err.Error()
+	}
+	values := make([]string, len(cols))
+	scanArgs := make([]interface{}, len(values))
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
+
+	res := ""
+	for rows.Next() {
+		err = rows.Scan(scanArgs...)
+		if err != nil {
+			return "", "Error scaning rows: " + err.Error()
+		}
+		res += "{"
+		for i := range values {
+			res += fmt.Sprintf(`"%s":"%s",`, cols[i], values[i])
+		}
+		res = res[:len(res)-1] + "},"
+		if err != nil {
+			return "", "Error coverting tests to JSON: " + err.Error()
+		}
+	}
+	if res != "" {
+		return fmt.Sprintf("[%s]", res[:len(res)-1]), ""
+	}
+	return "", ""
 }

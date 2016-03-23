@@ -82,6 +82,7 @@
         password: event.target.password.value,
         success: function(){
          self.setAttribute("mode", "loggedIn");
+         document.querySelector("main-navigation").setAttribute("mode", "auth");
         },
         error: function(){
          self.loginErrorCallback();
@@ -107,6 +108,7 @@
         var self = this;
         this.shadowRoot.querySelector("#logout").onclick = function(){
           self.setAttribute("mode", "notLoggedIn");
+          document.querySelector("main-navigation").setAttribute("mode", "free");
           App.logout();
         }
       }

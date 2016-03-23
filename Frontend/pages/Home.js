@@ -28,9 +28,9 @@ App.newPage({
     page.add("button", {innerHTML: "Test"}).onclick = function(){
       App.updateData({
         dataName: "TestData",
-        data: {name: "matus", added_by: "asdasdad"},
+        data: {name: "matus", added_by: "p"},
         key: "matus",
-        success: function(){ alert("pridane") },
+        success: function(response){ console.log(JSON.parse(response)) },
         error: function() { alert("error - nepridane") }
       });
     };

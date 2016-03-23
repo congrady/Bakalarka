@@ -1,6 +1,6 @@
 AppConfig.data = {
   'TestData': {
-    useDefaultGetURL: true, // if set, adds AppConfig.getURL suffix to get request
+    table: 'tests',
     get: "tests$name,added_by,uploaded,last_modified$name={}$$", // url to get specific TestData object
     getAll: "tests$name,added_by,uploaded,last_modified$$$", // url to get all TestData objects
     type: 'json', // if set to JSON, response will be JSON-parsed before saved
@@ -9,7 +9,8 @@ AppConfig.data = {
     //blocking: true // if set, page wont start rendering until data are loaded
   },
   'TestName' : {
-    getAll: '/GET/tests$name',
+    table: 'tests',
+    getAll: 'tests$name',
     type: 'json'
   }
 }

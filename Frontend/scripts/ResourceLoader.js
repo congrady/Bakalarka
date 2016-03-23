@@ -3,14 +3,13 @@
 class ResourceLoader {
 	constructor(){
 		this.unresolvedResourcesCounter = 0;
-		this.worker = new Worker("/Frontend/scripts/ResourceLoaderWorker.js");
 	}
 
 	saveData(dataName, response){
 		if (AppConfig.data[dataName].type == 'json' && AppConfig.data[dataName].key){
 			let key = AppConfig.data[dataName].key;
 			App.data[dataName] = {};
-			let dataResponse = JSON.parse(response)
+			let dataResponse = JSON.parse(response);
 			for (let obj of dataResponse){
 				App.data[dataName][obj[key]] = obj;
 			}
@@ -22,23 +21,27 @@ class ResourceLoader {
 	}
 
 	loadData(neededData, auth) {
-		var self = this;
-		this.worker.addEventListener("message", function(message) {
-			self.saveData(message.data.name, message.data.response);
-			let index = App.actionPool.length;
-			while (index--) {
-				let dataPoolEntry = App.actionPool[index];
-				if (dataPoolEntry.dataName == message.data.name){
-					if (dataPoolEntry.specific){
-						dataPoolEntry.action(App.data[dataPoolEntry.dataName][dataPoolEntry.specific]);
-					} else {
-						dataPoolEntry.action(App.data[dataPoolEntry.dataName]);
+		if (!this.worker){
+			this.worker = new Worker("/Frontend/scripts/ResourceLoaderWorker.js");
+			var self = this;
+			this.worker.addEventListener("message", function(message) {
+				self.saveData(message.data.name, message.data.response);
+				let index = App.actionPool.length;
+				while (index--) {
+					let dataPoolEntry = App.actionPool[index];
+					if (dataPoolEntry.dataName == message.data.name){
+						if (message.data.response){
+							if (dataPoolEntry.specific){
+								dataPoolEntry.action(App.data[dataPoolEntry.dataName][dataPoolEntry.specific]);
+							} else {
+								dataPoolEntry.action(App.data[dataPoolEntry.dataName]);
+							}
+						}
+						App.actionPool.splice(index, 1);
 					}
-					App.actionPool.splice(index, 1);
 				}
-			}
-		});
-
+			});
+		}
 		for (let data of neededData) {
 			if (auth) {
 				this.worker.postMessage({

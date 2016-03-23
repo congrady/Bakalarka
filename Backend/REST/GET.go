@@ -64,43 +64,21 @@ func GET(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error opening database: "+err.Error(), http.StatusBadRequest)
 	}
 
-	fmt.Println(fmt.Sprintf("SELECT %s FROM %s%s%s%s;", columns, table, where, groupBy, orderBy))
-	rows, err := db.Query(fmt.Sprintf("SELECT %s FROM %s%s%s%s;", columns, table, where, groupBy, orderBy))
+	query := fmt.Sprintf(`SELECT array_to_json(array_agg(row_to_json(t))) FROM (select %s FROM %s) t %s%s%s;`,
+		columns, table, where, groupBy, orderBy)
+	fmt.Println(query)
+	var res string
+	err = db.QueryRow(query).Scan(&res)
+	if err != nil && err.Error() == "sql: Scan error on column index 0: unsupported driver -> Scan pair: <nil> -> *string" {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "[]")
+		return
+	}
 	if err != nil {
 		http.Error(w, "Error executing query: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	cols, err := rows.Columns()
-	if err != nil {
-		http.Error(w, "Error getting columns: "+err.Error(), http.StatusInternalServerError)
-	}
-	values := make([]string, len(cols))
-	scanArgs := make([]interface{}, len(values))
-	for i := range values {
-		scanArgs[i] = &values[i]
-	}
-
-	res := ""
-	for rows.Next() {
-		err = rows.Scan(scanArgs...)
-		if err != nil {
-			http.Error(w, "Error scaning rows: "+err.Error(), http.StatusBadRequest)
-			return
-		}
-		res += "{"
-		for i := range values {
-			res += fmt.Sprintf(`"%s":"%s",`, cols[i], values[i])
-		}
-		res = res[:len(res)-1] + "},"
-		if err != nil {
-			http.Error(w, "Error coverting tests to JSON: "+err.Error(), http.StatusBadRequest)
-			return
-		}
-	}
-	if res != "" {
-		fmt.Fprint(w, fmt.Sprintf("[%s]", res[:len(res)-1]))
-	} else {
-		fmt.Fprint(w, "")
-	}
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, res)
 }

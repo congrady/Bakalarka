@@ -59,3 +59,20 @@ function loadScriptsByWorker(){
                     WHERE t.name = s.test_name);
 
 */
+
+
+let getURL;
+if (AppConfig.data[params.dataName]['get']){
+  getURL = AppConfig.data[params.dataName]['get'].split("$")[0];
+} else {
+  getURL = AppConfig.data[params.dataName]['getAll'].split("$")[0];
+}
+let table;
+let defaultURL = AppConfig.data[params.dataName].getURL ?
+                 AppConfig.data[params.dataName].getURL :
+                 AppConfig.getURL;
+if (getURL.startsWith(AppConfig.getURL)){
+  table = getURL.slice(AppConfig.getURL.length, getURL.length);
+} else {
+  table = getURL;
+}

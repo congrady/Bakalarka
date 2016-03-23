@@ -1,4 +1,4 @@
-package controllers
+/*package controllers
 
 import (
 	"database/sql"
@@ -48,4 +48,4 @@ func GetTestsInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(res)
-}
+}*/

@@ -225,7 +225,9 @@ class Router {
 		}
     let neededData = this.dataForPage.get(this.currentPage);
     for (let dataName in neededData) {
-      let url = AppConfig.data[dataName].useDefaultGetURL ? AppConfig.getURL : '';
+      let url = AppConfig.data[dataName].getURL ?
+      AppConfig.data[dataName].getURL :
+      AppConfig.getURL;
       let dataModel = AppConfig.data[dataName];
       if (neededData[dataName] == "specific") {
         if (App.data[dataName] && dataModel.key && (dataModel.keyIndex !== 'undefined')){
@@ -235,9 +237,6 @@ class Router {
         }
         url += dataModel.get;
       } else if (neededData[dataName] == "all"){
-        if (App.data[dataName]){
-          continue
-        }
         url += dataModel.getAll;
       }
       if (dataModel.blocking) {

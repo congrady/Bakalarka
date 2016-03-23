@@ -34,13 +34,20 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(fmt.Sprintf("DELETE FROM %s%s;", table, where))
-	_, err = db.Exec(fmt.Sprintf("DELETE FROM %s%s;", table, where))
+	query := fmt.Sprintf("DELETE FROM %s%s RETURNING row_to_json(%s);", table, where, table)
+	var res string
+	fmt.Println(query)
+	err = db.QueryRow(query).Scan(&res)
 	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprint(w, "{}")
+			return
+		}
 		http.Error(w, "Error executing query: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(""))
+	fmt.Fprint(w, res)
 }

@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-// Todo
-
 // PUT creates or updates requested entry in a database
 func PUT(w http.ResponseWriter, r *http.Request) {
 	table := r.FormValue("table")
@@ -18,22 +16,9 @@ func PUT(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	whereUnparsed := r.FormValue("where")
-	where := ""
-	if whereUnparsed != "" {
-		res, errorType := parsePairQueryParam(whereUnparsed, "OR")
-		if errorType == "wrong format error" {
-			wrongFormatError(w, "where")
-			return
-		}
-		if res != "" {
-			where = "WHERE " + table + "." + res
-		}
-	}
-
 	columnPairsUnparsed := r.FormValue("columns")
 	columnPairs := ""
-	if whereUnparsed != "" {
+	if columnPairsUnparsed != "" {
 		res, errorType := parsePairQueryParam(columnPairsUnparsed, ",")
 		if errorType == "wrong format error" {
 			wrongFormatError(w, "columns")
@@ -86,15 +71,16 @@ func PUT(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := fmt.Sprintf(`INSERT INTO %s %s %s ON CONFLICT (%s) DO UPDATE%s %s;`,
-		table, columns, values, primaryKey, columnPairs, where)
+	query := fmt.Sprintf(`INSERT INTO %s %s %s ON CONFLICT (%s) DO UPDATE%s RETURNING row_to_json(%s);`,
+		table, columns, values, primaryKey, columnPairs, table)
 	fmt.Println(query)
-
-	_, err = db.Exec(query)
+	var res string
+	err = db.QueryRow(query).Scan(&res)
 	if err != nil {
 		http.Error(w, "Error executing query: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, res)
 }

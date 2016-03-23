@@ -82,7 +82,13 @@
         dataName: "TestData",
         table: "tests",
         key: self.data.name,
-        success: function(){ self.remove() },
+        success: function(){
+          App.deleteClientData({
+            dataName: "TestData",
+            key: self.data.name,
+          });
+          self.remove();
+        },
         error: function() { self.deleteError() }
       })
     }

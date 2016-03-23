@@ -21,7 +21,6 @@ func main() {
 	http.HandleFunc("/POST/", REST.POST)
 	http.HandleFunc("/PUT/", REST.PUT)
 
-	http.HandleFunc("/GetTestsInfo", controllers.GetTestsInfo)
 	http.HandleFunc("/AddNewSegment", controllers.AddNewSegment)
 	http.HandleFunc("/SaveNewTest", controllers.SaveNewTest)
 	http.HandleFunc("/Login", controllers.Login)
