@@ -14,6 +14,7 @@ class Router {
     this.navigation = new Map();
     this.appTitle = AppConfig.title ? AppConfig.title : '';
     this.registeredReactComponents = new Set();
+    this.htmlTemplates = new Map();
     for (let pageName in AppConfig.pages) {
       let page = AppConfig.pages[pageName];
       if (page.path.constructor === Array) {
@@ -230,8 +231,8 @@ class Router {
       AppConfig.getURL;
       let dataModel = AppConfig.data[dataName];
       if (neededData[dataName] == "specific") {
-        if (App.data[dataName] && dataModel.key && (dataModel.keyIndex !== 'undefined')){
-          if (App.data[dataName][this.urlParams[dataModel.keyIndex]]){
+        if (App.dataStore.data[dataName] && dataModel.key && (dataModel.keyIndex !== 'undefined')){
+          if (App.dataStore.data[dataName][this.urlParams[dataModel.keyIndex]]){
             continue
           }
         }

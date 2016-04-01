@@ -23,8 +23,7 @@ App.newPage({
             dataName: "TestData",
             data: JSON.parse(response)
           });
-          message.innerHTML = "Test successfuly saved.";
-          message.style.color = "green";
+          App.navigate('/Tests')
         },
         error: function() {
           message.innerHTML = "Test with this name already exists."

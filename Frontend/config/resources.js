@@ -28,5 +28,10 @@ AppConfig.resources = {
   "NewSegment": {
     type: "template",
     url: "/Frontend/templates/NewSegment.html"
+  },
+  "test-collection": {
+    type: "react-component",
+    url: "/Frontend/react-components/test-collection.js",
+    componentName: "Test-collection"
   }
 }

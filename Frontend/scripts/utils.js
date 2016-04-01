@@ -94,10 +94,10 @@ Element.prototype.addImg = DocumentFragment.prototype.addImg;
 DocumentFragment.prototype.importTemplate = function(templateName){
   let temp = document.createElement('body');
   if (templateName){
-    temp.innerHTML = App.htmlTemplates.get(templateName);
+    temp.innerHTML = App.router.htmlTemplates.get(templateName);
   }
   else {
-    temp.innerHTML = App.htmlTemplates.get(App.router.currentPage);
+    temp.innerHTML = App.router.htmlTemplates.get(App.router.currentPage);
   }
   let element;
   while(element = temp.firstElementChild){
@@ -158,29 +158,4 @@ String.prototype.hashCode = function() {
     hash |= 0;
   }
   return hash;
-}
-
-function ajaxREST(params){
-  let xhr = new XMLHttpRequest();
-  xhr.open(params.method, params.url, true);
-  xhr.onload = function() {
-    if (xhr.status == 200) {
-      if (params.success){
-        params.success(xhr.response);
-      }
-    } else {
-      if (params.error){
-        params.error(xhr.response);
-      }
-    }
-  }
-  if (App.token){
-    xhr.setRequestHeader('Authorization', 'Bearer ' + App.token);
-  }
-  if (params.timeout){
-    if (params.error){
-      params.error(xhr.response);
-    }
-  }
-  xhr.send(params.formData);
 }

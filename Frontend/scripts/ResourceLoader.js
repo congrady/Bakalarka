@@ -8,15 +8,15 @@ class ResourceLoader {
 	saveData(dataName, response){
 		if (AppConfig.data[dataName].type == 'json' && AppConfig.data[dataName].key){
 			let key = AppConfig.data[dataName].key;
-			App.data[dataName] = {};
+			App.dataStore.data[dataName] = {};
 			let dataResponse = JSON.parse(response);
 			for (let obj of dataResponse){
-				App.data[dataName][obj[key]] = obj;
+				App.dataStore.data[dataName][obj[key]] = obj;
 			}
 		} else if (AppConfig.data[dataName].type == 'json'){
-			App.data[dataName] = JSON.parse(response);
+			App.dataStore.data[dataName] = JSON.parse(response);
 		} else {
-			App.data[dataName] = response;
+			App.dataStore.data[dataName] = response;
 		}
 	}
 
@@ -26,18 +26,18 @@ class ResourceLoader {
 			var self = this;
 			this.worker.addEventListener("message", function(message) {
 				self.saveData(message.data.name, message.data.response);
-				let index = App.actionPool.length;
+				let index = App.dataStore.actionPool.length;
 				while (index--) {
-					let dataPoolEntry = App.actionPool[index];
+					let dataPoolEntry = App.dataStore.actionPool[index];
 					if (dataPoolEntry.dataName == message.data.name){
 						if (message.data.response){
 							if (dataPoolEntry.specific){
-								dataPoolEntry.action(App.data[dataPoolEntry.dataName][dataPoolEntry.specific]);
+								dataPoolEntry.action(App.dataStore.data[dataPoolEntry.dataName][dataPoolEntry.specific]);
 							} else {
-								dataPoolEntry.action(App.data[dataPoolEntry.dataName]);
+								dataPoolEntry.action(App.dataStore.data[dataPoolEntry.dataName]);
 							}
 						}
-						App.actionPool.splice(index, 1);
+						App.dataStore.actionPool.splice(index, 1);
 					}
 				}
 			});
@@ -65,7 +65,7 @@ class ResourceLoader {
 
 	loadTemplate(url, templateName) {
 		this.sendRequest(url, function(response){
-			App.htmlTemplates.set(templateName, response);
+			App.router.htmlTemplates.set(templateName, response);
 		})
 	}
 

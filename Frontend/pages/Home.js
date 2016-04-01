@@ -35,6 +35,39 @@ App.newPage({
       });
     };
 
+    page.add("button", {innerHTML: "Put"}).onclick = function(){
+      App.putClientData({
+        dataName: "TestData",
+        data: {name: "matus", added_by: "p"}
+      });
+      console.log(App.dataStore.data);
+    };
+
+    page.add("button", {innerHTML: "Update"}).onclick = function(){
+      App.updateClientData({
+        dataName: "TestData",
+        key: 'matus',
+        data: {name: "matus", added_by: "kloaka"},
+      });
+      console.log(App.dataStore.data);
+    };
+
+    page.add("button", {innerHTML: "Delete"}).onclick = function(){
+      App.deleteClientData({
+        dataName: "TestData",
+        key: 'matus'
+      });
+      console.log(App.dataStore.data);
+    };
+
+    page.add("button", {innerHTML: "Sync"}).onclick = function(){
+      App.syncData({
+        dataName: "TestData",
+        success: function(){ alert("ahoj") }
+      });
+      console.log(App.dataStore.data);
+    };
+
     page.importTemplate();
     return page;
   }

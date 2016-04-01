@@ -6,7 +6,6 @@ AppConfig.pages = {
   },
   'NewTest' : {
     path: "/NewTest",
-    navigation: "New test",
     resources: ["NewTest"],
     auth: 0
   },
@@ -20,7 +19,7 @@ AppConfig.pages = {
   'Tests' : {
     path: "/Tests",
     navigation: "Tests",
-    resources: ["test-component"],
+    resources: ["test-component", "test-collection"],
     data: {TestData: "all"},
     auth: 1
   },

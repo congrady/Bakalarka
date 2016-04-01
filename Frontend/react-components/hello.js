@@ -3,8 +3,10 @@ React.createClass({
     alert(`Hello ${this.props.name}`);
   },
   render: function() {
-    var message = `Hello ${this.props.name}`;
+    //var message = `Hello ${this.props.name}`;
 
-    return React.DOM.p(null, message);
+    //var x = React.createElement('div', {href: 'https://facebook.github.io/react/'}, 'Hello!')
+
+    return React.createElement('div', {href: 'https://facebook.github.io/react/'}, 'Hello!')
   }
 });

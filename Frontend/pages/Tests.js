@@ -5,14 +5,15 @@ App.newPage({
   init: function(urlParams) {
     let page = new DocumentFragment();
     page.add("h3", {id: "page-title", innerHTML: this.title});
-    page.add("div");
+    let button = page.add("button", {innerHTML: 'Add new test'});
+    button.onclick = function(){
+      App.navigate('/NewTest')
+    }
 
+    page.add("div");
     App.dataHandler({dataName: "TestData", action: function(data){
       let div = page.select("div");
-      for (let index in data){
-        let testComponent = div.add("test-component");
-        testComponent.setData(data[index]);
-      }
+      div.add("Test-collection", {tests: data})
     }});
 
     return page;
