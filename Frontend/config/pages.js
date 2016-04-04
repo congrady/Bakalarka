@@ -6,7 +6,7 @@ AppConfig.pages = {
   },
   'NewTest' : {
     path: "/NewTest",
-    resources: ["NewTest"],
+    resources: ["NewTest-templat"],
     auth: 0
   },
   'NewSegment' : {
@@ -30,7 +30,7 @@ AppConfig.pages = {
   },
   'Test' : {
     path: "/Test",
-    data: {TestData: "specific"},
+    data: {TestData: "specific", SegmentsCount: 'specific'},
     auth: 1
   }
 }

@@ -7,13 +7,15 @@ App.newPage({
     page.add("h3", {id: "page-title", innerHTML: this.title});
     page.importTemplate();
     let form = page.select("form");
+    let testSelect = form.querySelector("#testSelect");
+    let message = page.select("#message");
     let testName;
     if (urlParams){
       testName = urlParams[0];
+      testSelect.innerHTML += `<option>${testName}</option>`;
     }
     else{
       App.dataHandler({dataName: "TestName", action: function(data){
-        let testSelect = form.querySelector("#testSelect");
         for (let test of data){
           testSelect.innerHTML += `<option value = "${test.name}">${test.name}</option>`;
         }
@@ -25,11 +27,15 @@ App.newPage({
       xhr.open('POST', '/AddNewSegment', true);
       xhr.onload = function(event) {
         if (xhr.status == 200){
-          message.innerHTML = "Test successfuly saved."
-          message.style.color = "green";
+          if (urlParams){
+            App.navigate('/Tests');
+          } else {
+            message.innerHTML = "New segment successfuly saved.";
+            message.style.color = "green";
+          }
         }
         else {
-          message.innerHTML = "Test with this name already exists."
+          message.innerHTML = "Failed to add new segment."
           message.style.color = "red";
         }
       };

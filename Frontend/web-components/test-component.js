@@ -77,6 +77,7 @@
         <button id="view_details">View details</button>
         <button id="delete">Delete</button>
         <button id="edit">Edit</button>
+        <button id="add_new_segment">Add new segment</button>
       </div>
     </div>
   </div>
@@ -91,8 +92,8 @@
     attachedCallback() {
       this.name = this.getAttribute("name");
       this.addedBy = this.getAttribute("added_by");
-      this.uploaded = this.getAttribute("uploaded").toLocaleString();
-      this.lastModified = this.getAttribute("last_modified").toLocaleString();
+      this.uploaded = parseDate(this.getAttribute("uploaded")).toLocaleString();
+      this.lastModified = parseDate(this.getAttribute("last_modified")).toLocaleString();
       this.setAttribute("id", `test-${this.name}`);
       let img = this.shadowRoot.getElementById("img_fragment");
       img.src = `/data/tests/${this.name}/frame.jpeg`
@@ -112,6 +113,9 @@
       }
       this.shadowRoot.getElementById("view_details").onclick = function(event){
         self.viewDetails();
+      }
+      this.shadowRoot.getElementById("add_new_segment").onclick = function(event){
+        self.addNewSegment();
       }
     }
 
@@ -147,6 +151,10 @@
 
     viewDetails(){
       App.navigate(`/Test/${this.name}`);
+    }
+
+    addNewSegment(){
+      App.navigate(`/NewSegment/${this.name}`);
     }
 
     edit(){

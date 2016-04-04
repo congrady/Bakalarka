@@ -30,6 +30,41 @@ function xhr_get(params){
   xhr.send();
 }
 
+function xhr_post(params){
+  let xhr = new XMLHttpRequest();
+  let data = new FormData();
+  for (let prop in params.data){
+    data.append(prop, params.data[prop])
+  }
+  xhr.open("POST", params.url, true);
+  xhr.onload = function() {
+    if (xhr.status == 200) {
+      if (params.success){
+        params.success(xhr.response);
+      }
+    }
+    else if (xhr.status == 401){
+      if (params.unauthorized){
+        params.unauthorized();
+      }
+    } else if (xhr.status == 400) {
+      if (params.badReqeust){
+        params.badRequest();
+      }
+    }
+  };
+  if (params.jwt){
+    xhr.setRequestHeader('Authorization', 'Bearer ' + params.jwt);
+  }
+  if (params.timeout){
+    xhr.onerror = function(){
+      params.timeout();
+    }
+  }
+  console.log(data);
+  xhr.send(data);
+}
+
 String.prototype.capitalizeFirstLetter = function() {
   return this.charAt(0).toUpperCase() + this.substring(1);
 }
@@ -41,6 +76,10 @@ DocumentFragment.prototype.select = function(queryString){
   } else {
     return this.querySelector(queryString);
   }
+}
+
+function parseDate(string){
+  return new Date(Date.parse(string)).toLocaleString();
 }
 
 DocumentFragment.prototype.selectAll = function(queryString){
@@ -87,6 +126,7 @@ DocumentFragment.prototype.addImg = function(attrs, error){
     }
   }
   this.appendChild(element);
+  return element;
 }
 Element.prototype.addImg = DocumentFragment.prototype.addImg;
 

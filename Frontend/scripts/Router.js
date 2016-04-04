@@ -226,9 +226,7 @@ class Router {
 		}
     let neededData = this.dataForPage.get(this.currentPage);
     for (let dataName in neededData) {
-      let url = AppConfig.data[dataName].getURL ?
-      AppConfig.data[dataName].getURL :
-      AppConfig.getURL;
+      let url;
       let dataModel = AppConfig.data[dataName];
       if (neededData[dataName] == "specific") {
         if (App.dataStore.data[dataName] && dataModel.key && (dataModel.keyIndex !== 'undefined')){
@@ -236,15 +234,16 @@ class Router {
             continue
           }
         }
-        url += dataModel.get;
+        url = dataModel.get;
       } else if (neededData[dataName] == "all"){
-        url += dataModel.getAll;
+        url = dataModel.getAll;
       }
       if (dataModel.blocking) {
         blockingData.push({name: dataName, url: this.prepareRequestURL(url)});
       } else {
         nonBlockingData.push({name: dataName, url: this.prepareRequestURL(url)});
       }
+      alert(url)
     }
     App.resourceLoader.loadData(nonBlockingData, needAuthentication);
 

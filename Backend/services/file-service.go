@@ -6,7 +6,7 @@ import (
 )
 
 // SaveFile creates a file and copies contents of Reader to it
-func SaveFile(filePath string, content io.Reader) error {
+func saveFile(filePath string, content io.Reader) error {
 	file, err := os.Create(filePath)
 	if err != nil {
 		return err //errors.New("Error creating file.")

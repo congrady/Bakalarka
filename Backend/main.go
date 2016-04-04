@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/congrady/Bakalarka/Backend/REST"
-	"github.com/congrady/Bakalarka/Backend/controllers"
+	"github.com/congrady/Bakalarka/Backend/services"
 
 	_ "github.com/lib/pq"
 )
@@ -14,17 +14,18 @@ func main() {
 	folders = append(folders, "../Frontend", "../data")
 	var files []string
 	files = append(files, "../dataModels.js")
-	controllers.FileServer(folders, files)
+	services.FileServer(folders, files)
 
 	http.HandleFunc("/GET/", REST.GET)
 	http.HandleFunc("/DELETE/", REST.DELETE)
 	http.HandleFunc("/POST/", REST.POST)
 	http.HandleFunc("/PUT/", REST.PUT)
 
-	http.HandleFunc("/AddNewSegment", controllers.AddNewSegment)
-	http.HandleFunc("/SaveNewTest", controllers.SaveNewTest)
-	http.HandleFunc("/Login", controllers.Login)
-	http.HandleFunc("/", controllers.Index)
+	http.HandleFunc("/AddNewSegment", services.AddNewSegment)
+	http.HandleFunc("/SegmentsCount/", services.SegmentsCount)
+	http.HandleFunc("/SaveNewTest", services.SaveNewTest)
+	http.HandleFunc("/Login", services.Login)
+	http.HandleFunc("/", services.Index)
 
 	http.ListenAndServe(":8000", nil)
 }

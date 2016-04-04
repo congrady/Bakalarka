@@ -11,21 +11,17 @@ App.newPage({
 
     form.onsubmit = function(event){
       event.preventDefault();
-      let name = this.name.value;
-      App.putData({
-        dataName: "TestData",
+      var self = this;
+      xhr_post({
+        url: '/SaveNewTest',
         data: {
-          'name': name,
-          'added_by': App.userName
+          name: self.name.value,
+          userName: App.userName
         },
-        success: function(response){
-          App.putClientData({
-            dataName: "TestData",
-            data: JSON.parse(response)
-          });
+        success: function(){
           App.navigate('/Tests')
         },
-        error: function() {
+        badRequest: function() {
           message.innerHTML = "Test with this name already exists."
           message.style.color = "red";
         }

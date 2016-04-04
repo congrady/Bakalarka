@@ -1,4 +1,4 @@
-package controllers
+package services
 
 import (
 	"database/sql"
@@ -6,15 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 )
-
-type test struct {
-	Name         string `json:"name"`
-	AddedBy      string `json:"added_by"`
-	Uploaded     string `json:"uploaded"`
-	LastModified string `json:"last_modified"`
-}
 
 // SaveNewTest reads form, saves information about new test into database
 func SaveNewTest(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +14,6 @@ func SaveNewTest(w http.ResponseWriter, r *http.Request) {
 
 	name := strings.ToLower(r.FormValue("name"))
 	addedBy := r.FormValue("userName")
-	uploaded := time.Now().Format("2006-01-02 15:04:05")
 
 	db, err := sql.Open("postgres", "user=postgres port=5432 dbname=UXPtests password=root sslmode=disable")
 	defer db.Close()
@@ -31,7 +22,10 @@ func SaveNewTest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = db.Exec(fmt.Sprintf("INSERT INTO tests VALUES ('%s','%s','%s','%s')", name, addedBy, uploaded, uploaded))
+	query := fmt.Sprintf(`INSERT INTO tests (name, added_by) VALUES ('%s', '%s')`, name, addedBy)
+	fmt.Println(query)
+	_, err = db.Exec(query)
+
 	if err != nil {
 		http.Error(w, "Error inserting into database: "+err.Error(), 409)
 		return
