@@ -5,15 +5,17 @@ AppConfig.data = {
     getAll: "/GET/tests$name,added_by,uploaded,last_modified$$$", // url to get all TestData objects
     type: 'json', // if set to JSON, response will be JSON-parsed before saved
     key: "name", // data property that should be considered as unique identifier
-    keyIndex: 0, //index of URL parameter that will replace {} in get request
-    //blocking: true // if set, page wont start rendering until data are loaded
+    //keyIndex: 0, //index of URL parameter that will replace {} in get request, default: 0
+    //blocking: true // if set, page wont start rendering until this data are loaded
   },
   'TestName' : {
-    getAll: '/tests$name',
+    getAll: '/GET/tests$name',
     type: 'json'
   },
   'SegmentsCount' : {
     get: '/SegmentsCount/${}',
-    type: 'plain'
+    getAll: '/SegmentsCount/',
+    type: 'json',
+    key: 'name'
   }
 }

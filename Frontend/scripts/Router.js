@@ -229,8 +229,9 @@ class Router {
       let url;
       let dataModel = AppConfig.data[dataName];
       if (neededData[dataName] == "specific") {
-        if (App.dataStore.data[dataName] && dataModel.key && (dataModel.keyIndex !== 'undefined')){
-          if (App.dataStore.data[dataName][this.urlParams[dataModel.keyIndex]]){
+        let keyIndex = dataModel.keyIndex ? dataModel.keyIndex : 0;
+        if (App.dataStore.data[dataName] && dataModel.key){
+          if (App.dataStore.data[dataName][this.urlParams[keyIndex]]){
             continue
           }
         }
@@ -243,7 +244,6 @@ class Router {
       } else {
         nonBlockingData.push({name: dataName, url: this.prepareRequestURL(url)});
       }
-      alert(url)
     }
     App.resourceLoader.loadData(nonBlockingData, needAuthentication);
 

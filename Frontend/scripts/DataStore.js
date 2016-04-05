@@ -17,8 +17,6 @@ class DataStore {
   dataHandler(params) {
     if (params.specific && App.dataStore.data[params.dataName] && App.dataStore.data[params.dataName][params.specific]){
       params.action(App.dataStore.data[params.dataName][params.specific]);
-    } else if (App.dataStore.data[params.dataName]){
-      params.action(App.dataStore.data[params.dataName])
     } else {
       App.dataStore.actionPool.push(params);
     }
@@ -85,16 +83,16 @@ class DataStore {
         params.success(response);
         App.dataStore.updateClientData({
           dataName: params.dataName,
-          key: params.data,
-          data: params.data
+          key: params.key,
+          data: JSON.parse(response)
         })
       }
     } else {
       requestParams.success = function(response) {
         App.dataStore.updateClientData({
           dataName: params.dataName,
-          key: params.data,
-          data: params.data
+          key: params.key,
+          data: JSON.parse(response)
         })
       }
     }
@@ -167,16 +165,19 @@ class DataStore {
 
   deleteClientData(params){
     delete this.data[params.dataName][params.key];
-    params.action = 'DELETE';
-    this.enqueueDataChange(params);
   }
 
   updateClientData(params){
+    let key = params.key;
     for (let propName in params.data){
-      this.data[params.dataName][params.key][propName] = params.data[propName];
+      if (propName == this.dataKeys[params.dataName]){
+        alert(params.data[propName])
+        key = params.data[propName];
+        this.data[params.dataName][key] = this.data[params.dataName][params.key];
+        this.data[params.dataName][key][propName] = params.data[propName];
+        delete this.data[params.dataName][params.key];
+      }
     }
-    params.action = 'UPDATE';
-    this.enqueueDataChange(params);
   }
 
   putClientData(params) {
@@ -184,8 +185,6 @@ class DataStore {
       App.dataStore.data[params.dataName] = {};
     }
     App.dataStore.data[params.dataName][params.data[AppConfig.data[params.dataName].key]] = params.data;
-    params.action = 'PUT';
-    this.enqueueDataChange(params);
   }
 
   ajaxREST(params){

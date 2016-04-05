@@ -24,12 +24,18 @@ var App = {
   },
   putClientData: function(params){
     this.dataStore.putClientData(params)
+    params.action = 'PUT';
+    this.dataStore.enqueueDataChange(params);
   },
   updateClientData: function(params){
-    this.dataStore.updateClientData(params)
+    this.dataStore.updateClientData(params);
+    params.action = 'UPDATE';
+    this.dataStore.enqueueDataChange(params);
   },
   deleteClientData: function(params){
     this.dataStore.deleteClientData(params);
+    params.action = 'DELETE';
+    this.dataStore.enqueueDataChange(params);
   },
   syncData: function(params){
     this.dataStore.syncData(params)

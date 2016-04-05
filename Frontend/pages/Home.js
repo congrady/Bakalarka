@@ -22,6 +22,7 @@ App.newPage({
     }
     let p = page.add("p");
 
+    /*
     let reactElement = p.add("Hello", {name: "Matus"});
     //reactElement.sayHello();
 
@@ -66,7 +67,7 @@ App.newPage({
         success: function(){ alert("ahoj") }
       });
       console.log(App.dataStore.data);
-    };
+    };*/
 
     page.importTemplate();
     return page;

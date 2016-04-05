@@ -58,21 +58,25 @@
   }
   img {
     float: left;
-    margin: 1%;
-    margin-left: 1.5%;
+    margin: 1.5%;
+    margin-left: 2%;
   }
   </style>
   <div id="wrapper">
     <img id="img_fragment"></img>
     <div id="details">
-      <h3>Name: </h3>
-      <p id="name" type="text"></p>
-      <h3>Added by: </h3>
-      <p id="added_by" type="text"></p>
+      <div id="editable">
+        <h3>Name: </h3>
+        <p id="name"></p>
+        <h3>Added by: </h3>
+        <p id="added_by"></p>
+      </div>
       <h3>Uploaded: </h3>
-      <p id="uploaded" type="text"></p>
+      <p id="uploaded"></p>
       <h3>Last Modified: </h3>
-      <p id="last_modified" type="text"></p>
+      <p id="last_modified"></p>
+      <h3>Amount of Segments: </h3>
+      <p id="segments_amount"></p>
       <div id="controls">
         <button id="view_details">View details</button>
         <button id="delete">Delete</button>
@@ -90,26 +94,29 @@
       this.anchor = this.shadowRoot.querySelector('a');
     }
     attachedCallback() {
-      this.name = this.getAttribute("name");
-      this.addedBy = this.getAttribute("added_by");
-      this.uploaded = parseDate(this.getAttribute("uploaded")).toLocaleString();
-      this.lastModified = parseDate(this.getAttribute("last_modified")).toLocaleString();
-      this.setAttribute("id", `test-${this.name}`);
+      this.name = this.getAttribute("name") ? this.getAttribute("name") : "loading...";
+      this.addedBy = this.getAttribute("added_by") ? this.getAttribute("added_by") : "loading...";
+      this.uploaded = this.getAttribute("uploaded") ? parseDate(this.getAttribute("uploaded")).toLocaleString() : "loading...";
+      this.lastModified = this.getAttribute("last_modified") ?  parseDate(this.getAttribute("last_modified")).toLocaleString() : "loading...";
+      this.segmentsAmount = this.getAttribute("segments_amount") ? this.getAttribute("segments_amount") : "loading...";
+
       let img = this.shadowRoot.getElementById("img_fragment");
       img.src = `/data/tests/${this.name}/frame.jpeg`
-      img.width = '370';
-      img.height = '240';
+      img.width = '375';
+      img.height = '270';
 
-      this.shadowRoot.querySelector("#name").innerHTML = this.name;
-      this.shadowRoot.querySelector("#added_by").innerHTML = this.addedBy;
-      this.shadowRoot.querySelector("#uploaded").innerHTML = this.uploaded;
-      this.shadowRoot.querySelector("#last_modified").innerHTML = this.lastModified;
+      this.shadowRoot.getElementById("name").innerHTML = this.name;
+      this.shadowRoot.getElementById("added_by").innerHTML = this.addedBy;
+      this.shadowRoot.getElementById("uploaded").innerHTML = this.uploaded;
+      this.shadowRoot.getElementById("last_modified").innerHTML = this.lastModified;
+      this.shadowRoot.getElementById("segments_amount").innerHTML = this.segmentsAmount;
+
       var self = this;
       this.shadowRoot.getElementById("delete").onclick = function(event){
         self.delete();
       }
       this.shadowRoot.getElementById("edit").onclick = function(event){
-        self.edit();
+        self.setEditMode();
       }
       this.shadowRoot.getElementById("view_details").onclick = function(event){
         self.viewDetails();
@@ -122,31 +129,37 @@
     attributeChangedCallback(attrName, oldVal, newVal) {
       if (attrName == "name"){
         this.name = newVal;
-        this.shadowRoot.querySelector("#name").innerHTML = `<b>${this.name}</b>`;
-      } else if (attrName == "addedBy"){
+        this.shadowRoot.getElementById("name").innerHTML = this.name;
+      } else if (attrName == "added_by"){
         this.addedBy = newVal;
-        this.shadowRoot.querySelector("#added_by").innerHTML = `<b>${this.addedBy}</b>`;
+        this.shadowRoot.getElementById("added_by").innerHTML = this.addedBy;
       } else if (attrName == "uploaded"){
-        this.uploaded = newVal;
-        this.shadowRoot.querySelector("#uploaded").innerHTML = `<b>${this.uploaded}</b>`;
-      } else if (attrName == "lastModified"){
-        this.lastModified = newVal;
-        this.shadowRoot.querySelector("#last_modified").innerHTML = `<b>${this.lastModified}</b>`;
+        this.uploaded = parseDate(newVal);
+        this.shadowRoot.getElementById("uploaded").innerHTML = this.uploaded;
+      } else if (attrName == "last_modified"){
+        this.lastModified = parseDate(newVal);
+        this.shadowRoot.getElementById("last_modified").innerHTML = this.lastModified;
+      } else if (attrName == "segments_amount"){
+        this.segmentsAmount = newVal;
+        this.shadowRoot.getElementById("segments_amount").innerHTML = this.segmentsAmount;
       }
     }
 
     delete(){
-      var self = this;
-      App.deleteData({
-        dataName: "TestData",
-        key: self.name,
-        success: function(){
-          self.remove();
-        },
-        error: function() {
-          self.deleteError()
-        }
-      })
+      let confirmed = confirm("Are you sure you want to delete a test from database? This will remove all it's segments aswell");
+      if (confirmed == true) {
+        var self = this;
+        App.deleteData({
+          dataName: "TestData",
+          key: self.name,
+          success: function(){
+            self.remove();
+          },
+          error: function() {
+            self.error('Error deleting test from database.')
+          }
+        })
+      }
     }
 
     viewDetails(){
@@ -157,44 +170,47 @@
       App.navigate(`/NewSegment/${this.name}`);
     }
 
-    edit(){
-      let name = this.shadowRoot.getElementById("name");
-      let addedBy = this.shadowRoot.getElementById("added_by");
-      let editableName = document.createElement('input');
-      editableName.value = this.name;
-      editableName.type = 'text';
-      editableName.id = name.id;
-      let editableAddedBy = document.createElement('input');
-      editableAddedBy.value = this.addedBy;
-      editableAddedBy.type = 'text';
-      editableAddedBy.id = addedBy.id;
-      name.parentNode.replaceChild(editableName, name);
-      addedBy.parentNode.replaceChild(editableAddedBy, addedBy);
+    setEditMode(){
+      this.shadowRoot.getElementById("editable").innerHTML = `
+        <form>
+          <h3>Name: </h3>
+          <input type="text" id="name" value="${this.name}"></p>
+          <h3>Added by: </h3>
+          <input type="text" id="added_by" value="${this.addedBy}"></p>
+          <input type="submit" hidden>
+        </form>
+      `;
+      let form = this.shadowRoot.querySelector("form");
+
       let edit = this.shadowRoot.getElementById("edit");
       let ok = document.createElement('button');
       ok.id = 'ok';
       ok.innerHTML = 'Ok'
       var self = this;
+      form.onsubmit = function(event){
+        event.preventDefault();
+        self.confirmEdit({
+          name: event.target.name.value,
+          addedBy: event.target.added_by.value
+        })
+      }
+      var self = this;
       ok.onclick = function(){
-        self.ok()
+        let form = self.shadowRoot.querySelector("form");
+        self.confirmEdit({
+          name: form.name.value,
+          addedBy: form.added_by.value
+        })
       }
       edit.parentNode.replaceChild(ok, edit);
     }
 
-    ok(){
-      let editableName = this.shadowRoot.getElementById("name");
-      let editableAddedBy = this.shadowRoot.getElementById("added_by");
-      this.name = editableName.value;
-      this.addedBy = editableAddedBy.value;
-
-      let name = document.createElement('p');
-      name.innerHTML = this.name;
-      name.id = 'name';
-      let addedBy = document.createElement('p');
-      addedBy.innerHTML = this.addedBy;
-      addedBy.id = 'added_by'
-      editableName.parentNode.replaceChild(name, editableName);
-      editableAddedBy.parentNode.replaceChild(addedBy, editableAddedBy);
+    setNormalMode(){
+      let normalTemplate = `<h3>Name: </h3>
+                            <p id="name">${this.name}</p>
+                            <h3>Added by: </h3>
+                            <p id="added_by">${this.addedBy}</p>`;
+      this.shadowRoot.getElementById("editable").innerHTML = normalTemplate;
 
       let ok = this.shadowRoot.getElementById("ok");
       let edit = document.createElement('button');
@@ -202,15 +218,35 @@
       edit.id = 'edit';
       var self = this;
       edit.onclick = function(){
-        self.edit()
+        self.setEditMode();
       }
       ok.parentNode.replaceChild(edit, ok);
     }
 
-    deleteError(){
+    confirmEdit(data){
+      var self = this;
+      App.updateData({
+        dataName: "TestData",
+        key: self.name,
+        data: {
+          name: data.name,
+          added_by: data.addedBy
+        },
+        success: function(){
+          self.name = data.name;
+          self.addedBy = data.addedBy;
+          self.setNormalMode();
+        },
+        error: function() {
+          self.error('Error updating test in database.')
+        }
+      })
+    }
+
+    error(message){
       let p = document.createElement("p");
       p.id = this.getAttribute("id") + "-error";
-      p.innerHTML = 'Error deleting test from database';
+      p.innerHTML = message;
       let wrapper = this.shadowRoot.getElementById("wrapper");
       wrapper.insertBefore(p, wrapper.firstChild);
     }

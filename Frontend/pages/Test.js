@@ -19,8 +19,7 @@ App.newPage({
       page.select('#frame').src = `/data/tests/${data.name}/frame.jpeg`;
     }});
     App.dataHandler({dataName: "SegmentsCount", specific: urlParams[0], action: function (data){
-      console.log(data)
-      page.select('#segments_amount').innerHTML = `Amount of segments: ${data}`;
+      page.select('#segments_amount').innerHTML = `Amount of segments: ${data.count}`;
     }});
 
     return page;
