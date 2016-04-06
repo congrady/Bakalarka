@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"strings"
 )
 
 // AddNewSegment saves new segment to database, and saves .csv file
@@ -26,7 +25,7 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	testName := strings.ToLower(r.FormValue("testName"))
+	testID := r.FormValue("testID")
 	addedBy := r.FormValue("userName")
 
 	db, err := sql.Open("postgres", "user=postgres port=5432 dbname=UXPtests password=root sslmode=disable")
@@ -37,16 +36,22 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var numSegments string
-	err = db.QueryRow(`SELECT COUNT(*) FROM segments WHERE test_name = '` + testName + `'`).Scan(&numSegments)
+	err = db.QueryRow(`SELECT COUNT(*) FROM segments WHERE test_id = '` + testID + `'`).Scan(&numSegments)
 	fmt.Println(numSegments)
 
-	filePath := "../data/tests/" + testName + "/ETresult" + numSegments
+	filePath := "../data/tests/" + testID + "/ETresult" + numSegments
 
 	query := fmt.Sprintf(
 		`INSERT INTO segments
-		(test_name, added_by, file_path)
+		(test_id, added_by, file_path)
 		VALUES ('%s','%s','%s');`,
-		testName, addedBy, filePath)
+		testID, addedBy, filePath)
+	_, err = db.Exec(query)
+	if err != nil {
+		http.Error(w, "Error inserting into database: "+err.Error(), 409)
+		return
+	}
+	query = fmt.Sprintf(`UPDATE tests SET segments_amount = segments_amount + 1 WHERE id = '%s'`, testID)
 	_, err = db.Exec(query)
 	if err != nil {
 		http.Error(w, "Error inserting into database: "+err.Error(), 409)
@@ -62,7 +67,7 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 	http.HandleFunc(filePath[2:]+".mp4", SendResources)
 	http.HandleFunc(filePath[2:]+".csv", SendResources)
 
-	imageFileName := "../data/tests/" + testName + "/frame.jpeg"
+	imageFileName := "../data/tests/" + testID + "/frame.jpeg"
 	_, err = os.Open(imageFileName)
 	if err == nil {
 		fmt.Fprintln(w, "New segment successfuly saved.")

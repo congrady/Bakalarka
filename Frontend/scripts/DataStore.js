@@ -171,7 +171,6 @@ class DataStore {
     let key = params.key;
     for (let propName in params.data){
       if (propName == this.dataKeys[params.dataName]){
-        alert(params.data[propName])
         key = params.data[propName];
         this.data[params.dataName][key] = this.data[params.dataName][params.key];
         this.data[params.dataName][key][propName] = params.data[propName];

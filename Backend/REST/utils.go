@@ -2,29 +2,41 @@ package REST
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 )
 
 // MissingPartError sends error response, specifying which part of request is missing
-func missingPartError(w http.ResponseWriter, part string) {
-	http.Error(w, fmt.Sprintf("Wrong REST request: `%s` part of SQL query not specified", part), http.StatusBadRequest)
+func missingPartError(part string) (string, int, error) {
+	return "", http.StatusBadRequest, fmt.Errorf("Wrong REST request: `%s` part of SQL query not specified", part)
 }
 
 // WrongFormatError sends error response, specifying which part of request has wrong format
-func wrongFormatError(w http.ResponseWriter, part string) {
-	http.Error(w, fmt.Sprintf("Wrong REST request: `%s` part has wrong format", part), http.StatusBadRequest)
+func wrongFormatError(part string) (string, int, error) {
+	return "", http.StatusBadRequest, fmt.Errorf("Wrong REST request: `%s` part has wrong format", part)
 }
 
-func wrongURLParamsAmount(w http.ResponseWriter) {
-	http.Error(w, "Wrong REST request: wrong amount of URL parameters", http.StatusBadRequest)
+func wrongURLParamsAmount() (string, int, error) {
+	return "", http.StatusBadRequest, errors.New("Wrong REST request: wrong amount of URL parameters")
 }
 
-func parsePairQueryParam(input string, separator string) (string, string) {
+func otherError(message string, status int) (string, int, error) {
+	return "", status, errors.New(message)
+}
+
+func parsingError(err error, part string) (string, int, error) {
+	if err.Error() == "wrong format error" {
+		return wrongFormatError(part)
+	}
+	return missingPartError(part)
+}
+
+func parsePairQueryParam(input string, separator string) (string, error) {
 	separator = separator + " "
 	if input == "" {
-		return "", "missing part error"
+		return "", errors.New("missing part error")
 	}
 	res := ""
 	paramArray := strings.Split(input, ",")
@@ -32,23 +44,23 @@ func parsePairQueryParam(input string, separator string) (string, string) {
 	for _, pair := range paramArray {
 		params = strings.Split(pair, "=")
 		if len(params) != 2 {
-			return "", "wrong format error"
+			return "", errors.New("wrong format error")
 		}
 		res += fmt.Sprintf("%s='%s'%s", params[0], params[1], separator)
 	}
-	return strings.TrimSuffix(res, separator), ""
+	return strings.TrimSuffix(res, separator), nil
 }
 
-func parseQueryParam(input string) (string, string) {
+func parseQueryParam(input string) (string, error) {
 	if input == "" {
-		return "", "missing part error"
+		return "", errors.New("missing part error")
 	}
 	res := ""
 	paramArray := strings.Split(input, ",")
 	for _, param := range paramArray {
 		res += fmt.Sprintf("%s,", param)
 	}
-	return strings.TrimSuffix(res, ","), ""
+	return strings.TrimSuffix(res, ","), nil
 }
 
 func getJSON(rows *sql.Rows) (string, string) {

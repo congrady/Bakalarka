@@ -1,16 +1,19 @@
 AppConfig.pages = {
   'Home': {
     path: ["/Home","/"],
+    title: 'Home',
     navigation: "Home",
-    resources: ["Home", "Hello"]
+    resources: ["Home"]
   },
   'NewTest' : {
     path: "/NewTest",
+    title: 'NewTest',
     resources: ["NewTest"],
     auth: 0
   },
   'NewSegment' : {
     path: "/NewSegment",
+    title: 'NewSegment',
     navigation: "New segment",
     resources: ["NewSegment"],
     data: {TestName: "all"},
@@ -18,19 +21,22 @@ AppConfig.pages = {
   },
   'Tests' : {
     path: "/Tests",
+    title: 'Tests',
     navigation: "Tests",
     resources: ["test-component"],
-    data: {TestData: "all", SegmentsCount: "all"},
+    data: {TestData: "all"},
     auth: 1
   },
   'Contact' : {
     path: "/Contact",
+    title: 'Contact',
     navigation: "Contact",
     resources: ["Contact"]
   },
   'Test' : {
     path: "/Test",
-    data: {TestData: "specific", SegmentsCount: 'specific'},
+    title: 'Test',
+    data: {TestData: "specific"},
     auth: 1
   }
 }

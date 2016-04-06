@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 
-	"github.com/congrady/Bakalarka/Backend/REST"
 	"github.com/congrady/Bakalarka/Backend/services"
 
 	_ "github.com/lib/pq"
@@ -16,13 +15,12 @@ func main() {
 	files = append(files, "../dataModels.js")
 	services.FileServer(folders, files)
 
-	http.HandleFunc("/GET/", REST.GET)
-	http.HandleFunc("/DELETE/", REST.DELETE)
-	http.HandleFunc("/POST/", REST.POST)
-	http.HandleFunc("/PUT/", REST.PUT)
+	http.HandleFunc("/GET/", services.GET)
+	http.HandleFunc("/DELETE/", services.DELETE)
+	http.HandleFunc("/POST/", services.POST)
+	http.HandleFunc("/PUT/", services.PUT)
 
 	http.HandleFunc("/AddNewSegment", services.AddNewSegment)
-	http.HandleFunc("/SegmentsCount/", services.SegmentsCount)
 	http.HandleFunc("/SaveNewTest", services.SaveNewTest)
 	http.HandleFunc("/Login", services.Login)
 	http.HandleFunc("/", services.Index)

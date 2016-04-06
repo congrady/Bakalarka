@@ -71,7 +71,7 @@
         <h3>Added by: </h3>
         <p id="added_by"></p>
       </div>
-      <h3>Uploaded: </h3>
+      <h3>Added: </h3>
       <p id="uploaded"></p>
       <h3>Last Modified: </h3>
       <p id="last_modified"></p>
@@ -99,11 +99,16 @@
       this.uploaded = this.getAttribute("uploaded") ? parseDate(this.getAttribute("uploaded")).toLocaleString() : "loading...";
       this.lastModified = this.getAttribute("last_modified") ?  parseDate(this.getAttribute("last_modified")).toLocaleString() : "loading...";
       this.segmentsAmount = this.getAttribute("segments_amount") ? this.getAttribute("segments_amount") : "loading...";
+      this.realID = this.id.slice(1, this.id.length);
 
       let img = this.shadowRoot.getElementById("img_fragment");
-      img.src = `/data/tests/${this.name}/frame.jpeg`
       img.width = '375';
       img.height = '270';
+      if (this.segmentsAmount == '0'){
+        img.src = `/data/imgs/error.gif`;
+      } else {
+        img.src = `/data/tests/${this.realID}/frame.jpeg`;
+      }
 
       this.shadowRoot.getElementById("name").innerHTML = this.name;
       this.shadowRoot.getElementById("added_by").innerHTML = this.addedBy;
@@ -151,7 +156,7 @@
         var self = this;
         App.deleteData({
           dataName: "TestData",
-          key: self.name,
+          key: this.realID,
           success: function(){
             self.remove();
           },
@@ -163,11 +168,11 @@
     }
 
     viewDetails(){
-      App.navigate(`/Test/${this.name}`);
+      App.navigate(`/Test/${this.realID}`);
     }
 
     addNewSegment(){
-      App.navigate(`/NewSegment/${this.name}`);
+      App.navigate(`/NewSegment/${this.realID}`);
     }
 
     setEditMode(){
@@ -227,14 +232,16 @@
       var self = this;
       App.updateData({
         dataName: "TestData",
-        key: self.name,
+        key: this.realID,
         data: {
           name: data.name,
           added_by: data.addedBy
         },
-        success: function(){
-          self.name = data.name;
-          self.addedBy = data.addedBy;
+        success: function(response){
+          let updated = JSON.parse(response);
+          for (let prop in updated){
+            self.setAttribute(prop, updated[prop]);
+          }
           self.setNormalMode();
         },
         error: function() {

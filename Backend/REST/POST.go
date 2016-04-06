@@ -7,45 +7,37 @@ import (
 )
 
 // POST updates requested columns of an entry
-func POST(w http.ResponseWriter, r *http.Request) {
+func POST(w http.ResponseWriter, r *http.Request) (string, int, error) {
 	table := r.FormValue("table")
 
 	if table == "" {
-		missingPartError(w, "table")
-		return
+		return missingPartError("table")
 	}
 
 	whereUnparsed := r.FormValue("where")
 	where := ""
 	if whereUnparsed != "" {
-		res, errorType := parsePairQueryParam(whereUnparsed, "OR")
-		if errorType == "wrong format error" {
-			wrongFormatError(w, "where")
-			return
+		res, err := parsePairQueryParam(whereUnparsed, "OR")
+		if err != nil {
+			return parsingError(err, "where")
 		}
-		if res != "" {
-			where = "WHERE " + res
-		}
+		where = "WHERE " + res
 	}
 
 	columnPairsUnparsed := r.FormValue("columns")
 	columnPairs := ""
-	if whereUnparsed != "" {
-		res, errorType := parsePairQueryParam(columnPairsUnparsed, ",")
-		if errorType == "wrong format error" {
-			wrongFormatError(w, "columns")
-			return
+	if columnPairsUnparsed != "" {
+		res, err := parsePairQueryParam(columnPairsUnparsed, ",")
+		if err != nil {
+			return parsingError(err, "columns")
 		}
-		if res != "" {
-			columnPairs = "SET " + res
-		}
+		columnPairs = "SET " + res
 	}
 
 	db, err := sql.Open("postgres", "user=postgres port=5432 dbname=UXPtests password=root sslmode=disable")
 	defer db.Close()
 	if err != nil {
-		http.Error(w, "Error opening database: "+err.Error(), http.StatusInternalServerError)
-		return
+		return otherError("Error opening database: "+err.Error(), http.StatusInternalServerError)
 	}
 
 	query := fmt.Sprintf(`UPDATE %s %s %s RETURNING row_to_json(%s);`, table, columnPairs, where, table)
@@ -54,14 +46,10 @@ func POST(w http.ResponseWriter, r *http.Request) {
 	err = db.QueryRow(query).Scan(&res)
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprint(w, "{}")
-			return
+			return "{}", http.StatusOK, nil
 		}
-		http.Error(w, "Error executing query: "+err.Error(), http.StatusBadRequest)
-		return
+		return otherError("Error executing query: "+err.Error(), http.StatusBadRequest)
 	}
 
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, res)
+	return res, http.StatusOK, nil
 }

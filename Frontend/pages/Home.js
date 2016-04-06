@@ -1,7 +1,6 @@
 'use strict';
 
 App.newPage({
-  title: "Home",
   beforePageShow: function(){
     //alert("beforeAttachedCallback");
   },
@@ -13,16 +12,16 @@ App.newPage({
   },
   init: function(urlParams) {
     let page = new DocumentFragment();
-    page.add("h3", {id: "page-title", innerHTML: this.title});
+    page.add("h3", {id: "page-title", innerHTML: 'Home'});
     if (urlParams){
       let div = page.add("div");
       for (let urlParam of urlParams){
         div.add("p", {innerHTML: `Parameter: ${urlParam}`});
       }
     }
+    /*
     let p = page.add("p");
 
-    /*
     let reactElement = p.add("Hello", {name: "Matus"});
     //reactElement.sayHello();
 

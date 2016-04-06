@@ -61,7 +61,6 @@ function xhr_post(params){
       params.timeout();
     }
   }
-  console.log(data);
   xhr.send(data);
 }
 

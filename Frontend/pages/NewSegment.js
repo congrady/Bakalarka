@@ -1,23 +1,23 @@
 'use strict';
 
 App.newPage({
-  title: "New Segment",
   init: function(urlParams) {
     let page = new DocumentFragment();
-    page.add("h3", {id: "page-title", innerHTML: this.title});
+    page.add("h3", {id: "page-title", innerHTML: 'New Segment'});
     page.importTemplate();
     let form = page.select("form");
     let testSelect = form.querySelector("#testSelect");
     let message = page.select("#message");
-    let testName;
+    let testID;
     if (urlParams){
-      testName = urlParams[0];
-      testSelect.innerHTML += `<option>${testName}</option>`;
+      testID = urlParams[0];
+      page.select("#testSelect").style.display  = "none";
+      page.select("#select_label").style.display  = "none";
     }
     else{
       App.dataHandler({dataName: "TestName", action: function(data){
         for (let test of data){
-          testSelect.innerHTML += `<option value = "${test.name}">${test.name}</option>`;
+          testSelect.innerHTML += `<option value = "${test.id}">${test.name}</option>`;
         }
       }})
     }
@@ -63,11 +63,13 @@ App.newPage({
         return
       }
       let formData = new FormData();
-      let selectElement = form.querySelector('#testSelect');
-      let testName = selectElement.options[selectElement.selectedIndex].value;
+      if (!testID){
+        let selectElement = form.querySelector('#testSelect');
+        let testID = selectElement.options[selectElement.selectedIndex].value;
+      }
       formData.append("video", video);
       formData.append("et", et);
-      formData.append("testName", testName);
+      formData.append("testID", testID);
       formData.append("userName", App.userName);
       upload(formData);
     }

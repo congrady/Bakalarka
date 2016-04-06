@@ -141,8 +141,8 @@ class Router {
     let page = this.Pages.get(this.currentPage);
     let urlParams = this.urlParams != "" ? this.urlParams : null;
     let $mainContent = document.getElementsByTagName('main')[0];
-    if (page.title) {
-      document.getElementsByTagName('title')[0].innerHTML = this.appTitle + page.title;
+    if (AppConfig['pages'][this.currentPage]['title']) {
+      document.getElementsByTagName('title')[0].innerHTML = this.appTitle + AppConfig['pages'][this.currentPage]['title'];
     }
     while ($mainContent.lastChild) {
       $mainContent.removeChild($mainContent.lastChild);

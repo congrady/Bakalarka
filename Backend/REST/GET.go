@@ -8,38 +8,32 @@ import (
 )
 
 // GET gets requested entry from database
-func GET(w http.ResponseWriter, r *http.Request) {
+func GET(w http.ResponseWriter, r *http.Request) (string, int, error) {
 	urlParams := strings.Split(r.URL.Path[5:], "$")
 
 	urlParamsLen := len(urlParams)
 
 	if (urlParamsLen > 5) || (urlParamsLen < 2) {
-		wrongURLParamsAmount(w)
-		return
+		return wrongURLParamsAmount()
 	}
 
 	if urlParams[0] == "" {
-		missingPartError(w, "table")
-		return
+		return missingPartError("table")
 	}
 	table := urlParams[0]
 
-	columns, errorType := parseQueryParam(urlParams[1])
-	if errorType == "missing part error" {
-		missingPartError(w, "select")
-		return
+	columns, _ := parseQueryParam(urlParams[1])
+	if columns == "" {
+		columns = " * "
 	}
 
 	where := ""
-	if urlParamsLen > 2 {
-		res, errorType := parsePairQueryParam(urlParams[2], "OR")
-		if errorType == "wrong format error" {
-			wrongFormatError(w, "where")
-			return
+	if urlParamsLen > 2 && urlParams[2] != "" {
+		res, err := parsePairQueryParam(urlParams[2], "OR")
+		if err != nil {
+			return parsingError(err, "where")
 		}
-		if res != "" {
-			where = " WHERE " + res
-		}
+		where = " WHERE " + res
 	}
 
 	groupBy := ""
@@ -69,16 +63,12 @@ func GET(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(query)
 	var res string
 	err = db.QueryRow(query).Scan(&res)
-	if err != nil && err.Error() == "sql: Scan error on column index 0: unsupported driver -> Scan pair: <nil> -> *string" {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, "[]")
-		return
-	}
 	if err != nil {
-		http.Error(w, "Error executing query: "+err.Error(), http.StatusBadRequest)
-		return
+		if err.Error() == "sql: Scan error on column index 0: unsupported driver -> Scan pair: <nil> -> *string" {
+			return "[]", http.StatusOK, nil
+		}
+		return otherError("Error executing query: "+err.Error(), http.StatusBadRequest)
 	}
 
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, res)
+	return res, http.StatusOK, nil
 }
