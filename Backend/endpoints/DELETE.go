@@ -1,4 +1,4 @@
-package services
+package endpoints
 
 import (
 	"fmt"
@@ -7,9 +7,9 @@ import (
 	"github.com/congrady/Bakalarka/Backend/REST"
 )
 
-// GET sends requested entry from database
-func GET(w http.ResponseWriter, r *http.Request) {
-	res, status, err := REST.GET(w, r)
+// DELETE deletes requested entry from database
+func DELETE(w http.ResponseWriter, r *http.Request) {
+	res, status, err := REST.DELETE(w, r)
 
 	if err != nil {
 		http.Error(w, err.Error(), status)

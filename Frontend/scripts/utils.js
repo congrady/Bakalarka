@@ -114,7 +114,7 @@ DocumentFragment.prototype.addImg = function(attrs, error){
   for (let attr in attrs){
     element.setAttribute(attr, attrs[attr]);
   }
-  element.onerror = function(){
+  element.onerror = function(response){
     if (error == "remove"){
       this.remove();
     } else if (error == "hide") {

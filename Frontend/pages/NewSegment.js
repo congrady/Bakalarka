@@ -28,7 +28,7 @@ App.newPage({
       xhr.onload = function(event) {
         if (xhr.status == 200){
           if (urlParams){
-            App.navigate('/Tests');
+            App.navigate('/Test/'+urlParams[0]);
           } else {
             message.innerHTML = "New segment successfuly saved.";
             message.style.color = "green";
@@ -66,6 +66,7 @@ App.newPage({
       if (!testID){
         let selectElement = form.querySelector('#testSelect');
         let testID = selectElement.options[selectElement.selectedIndex].value;
+        formData.append("testID", testID);
       }
       formData.append("video", video);
       formData.append("et", et);

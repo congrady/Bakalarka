@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/congrady/Bakalarka/Backend/services"
+	"github.com/congrady/Bakalarka/Backend/endpoints"
 
 	_ "github.com/lib/pq"
 )
@@ -13,17 +13,18 @@ func main() {
 	folders = append(folders, "../Frontend", "../data")
 	var files []string
 	files = append(files, "../dataModels.js")
-	services.FileServer(folders, files)
+	endpoints.FileServer(folders, files)
 
-	http.HandleFunc("/GET/", services.GET)
-	http.HandleFunc("/DELETE/", services.DELETE)
-	http.HandleFunc("/POST/", services.POST)
-	http.HandleFunc("/PUT/", services.PUT)
+	http.HandleFunc("/GET/", endpoints.GET)
+	http.HandleFunc("/DELETE/", endpoints.DELETE)
+	http.HandleFunc("/POST/", endpoints.POST)
+	http.HandleFunc("/PUT/", endpoints.PUT)
 
-	http.HandleFunc("/AddNewSegment", services.AddNewSegment)
-	http.HandleFunc("/SaveNewTest", services.SaveNewTest)
-	http.HandleFunc("/Login", services.Login)
-	http.HandleFunc("/", services.Index)
+	http.HandleFunc("/AddNewSegment", endpoints.AddNewSegment)
+	http.HandleFunc("/SaveNewTest", endpoints.SaveNewTest)
+	http.HandleFunc("/Login", endpoints.Login)
+	http.HandleFunc("/GenerateHeatMap", endpoints.GenerateHeatMap)
+	http.HandleFunc("/", endpoints.Index)
 
 	http.ListenAndServe(":8000", nil)
 }

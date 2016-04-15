@@ -1,4 +1,4 @@
-package services
+package endpoints
 
 import (
 	"bytes"
@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+
+	"github.com/congrady/Bakalarka/Backend/services"
 )
 
 // AddNewSegment saves new segment to database, and saves .csv file
@@ -37,7 +39,6 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 
 	var numSegments string
 	err = db.QueryRow(`SELECT COUNT(*) FROM segments WHERE test_id = '` + testID + `'`).Scan(&numSegments)
-	fmt.Println(numSegments)
 
 	filePath := "../data/tests/" + testID + "/ETresult" + numSegments
 
@@ -58,24 +59,25 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = saveFile(filePath+".mp4", video)
-	err = saveFile(filePath+".csv", et)
+	err = services.SaveFile(filePath+".mp4", video)
+	err = services.SaveFile(filePath+".csv", et)
 	if err != nil {
 		http.Error(w, "Error saving files: "+err.Error(), 409)
 		return
 	}
-	http.HandleFunc(filePath[2:]+".mp4", SendResources)
-	http.HandleFunc(filePath[2:]+".csv", SendResources)
+	//http.HandleFunc(filePath[2:]+".mp4", SendResources)
+	//http.HandleFunc(filePath[2:]+".csv", SendResources)
 
 	imageFileName := "../data/tests/" + testID + "/frame.jpeg"
-	_, err = os.Open(imageFileName)
+	imgfile, err := os.Open(imageFileName)
+	defer imgfile.Close()
 	if err == nil {
 		fmt.Fprintln(w, "New segment successfuly saved.")
 		return
 	}
 
-	width := 640
-	height := 360
+	width := 1280
+	height := 720
 	cmd := exec.Command("ffmpeg", "-i", filePath+".mp4", "-vframes", "1", "-s", fmt.Sprintf("%dx%d", width, height), "-f", "singlejpeg", "-")
 	var buffer bytes.Buffer
 	cmd.Stdout = &buffer
@@ -84,6 +86,7 @@ func AddNewSegment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	outfile, err := os.Create(imageFileName)
+	defer outfile.Close()
 	if err != nil {
 		http.Error(w, "Error creating file: "+err.Error(), http.StatusBadRequest)
 		return

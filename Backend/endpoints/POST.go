@@ -1,4 +1,4 @@
-package services
+package endpoints
 
 import (
 	"fmt"
@@ -7,10 +7,9 @@ import (
 	"github.com/congrady/Bakalarka/Backend/REST"
 )
 
-// PUT puts requested entry to database
-// PUT is an idepotent operation
-func PUT(w http.ResponseWriter, r *http.Request) {
-	res, status, err := REST.PUT(w, r)
+// POST updates requested entry in database
+func POST(w http.ResponseWriter, r *http.Request) {
+	res, status, err := REST.POST(w, r)
 
 	if err != nil {
 		http.Error(w, err.Error(), status)
