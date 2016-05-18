@@ -1,3 +1,13 @@
+AppConfig.globalDependencies = [
+  {
+    url: 'https://cdnjs.cloudflare.com/ajax/libs/react/15.0.2/react-dom.min.js'
+  }, 
+  {
+    url: 'https://cdnjs.cloudflare.com/ajax/libs/react/15.0.2/react.min.js',
+    wrap: 'igor'
+  }
+]
+
 AppConfig.templates = {
   'Home': {
     url: '/Client/pages/Home/Home.html'
@@ -11,15 +21,23 @@ AppConfig.templates = {
   'NewSegment': {
     url: '/Client/pages/NewSegment/NewSegment.html'
   },
-  'default-layout' : {
+  'default-layout': {
     url: '/Client/pages/_DefaultLayout/default-layout.html'
   }
 }
 
-AppConfig.compontents = {
+AppConfig.components = {
   'test-component': {
     type: 'web-component',
     url: '/Client/web-components/test-component.js'
+  },
+  'main-navigation': {
+    type: 'web-component',
+    url: '/Client/web-components/main-navigation.js'
+  },
+  'main-login': {
+    type: 'web-component',
+    url: '/Client/web-components/main-login.js'
   },
   'Hello': {
     type: 'react',

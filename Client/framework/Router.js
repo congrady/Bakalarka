@@ -36,7 +36,8 @@ class Router {
       }
     }
   }
-
+  
+  // Initializes router paths and it's needed url params
   setRoute(pageName, path) {
     let index = path.indexOf(':');
     let urlParams;
@@ -59,7 +60,12 @@ class Router {
     }
     this.routes[path] = { page: pageName, urlParams: urlParams };
   }
-
+  
+  
+  // Navigates to desired URL
+  // Uses history API routing
+  // If newPath is the same as last, doesnt add new record to history, 
+  // just reloads the page
   navigate(newPath, relative) {
     this.detachedHandler();
     if (relative) {
@@ -75,21 +81,9 @@ class Router {
     }
     this.servePage();
   }
-
-  getDataNamesWithParamsMap() {
-    let res = new Map();
-    for (let dataEntry of AppConfig.data) {
-      if (dataEntry.name == this.currentPage) {
-        if (dataEntry.blocking) {
-          App.resourceLoader.loadBlockingData(dataName, prepareRequestURL(dataEntry.url), true, App.router.showPage());
-        } else {
-          this.loadData(true);
-          this.showPage();
-        }
-      }
-    }
-  }
-
+  
+  // Sets curent page and it's URL params depending on current URL
+  // and path/url params set in page config
   setCurrentPageAndUrlParams() {
     let url = location.pathname;
     let max = 0;
@@ -107,7 +101,7 @@ class Router {
     this.urlParams = {};
     this.currentPage = this.routes[currentPath].page;
     let unassignedParams = url.substring(max, url.length).split('/');
-    
+
     let inappropriateChars = unassignedParams.shift();
     if (max == 0 || inappropriateChars != '') {
       return
@@ -126,7 +120,10 @@ class Router {
       }
     }
   }
-
+  
+  // Decides which page load
+  // If theres an error, shows error
+  // If page needs dependencies that are not already loaded, loads dependencies
   servePage() {
     this.setCurrentPageAndUrlParams();
     let errorLayout = this.currentLayout ? this.currentLayout : 'default';
@@ -150,7 +147,9 @@ class Router {
       this.loadResources({ needAuthentication: false, layout: layout });
     }
   }
-
+  
+  // Sends error message content to renderPage
+  // Sets error title
   showError(error) {
     let title = document.getElementsByTagName('title')[0];
     let errorMessage = document.createElement('p');
@@ -170,7 +169,9 @@ class Router {
     }
     this.renderPage({ contents: errorMessage, layout: 'default' });
   }
-
+  
+  // Renders page contents
+  // If page needs different then current layouts, renders layout aswell
   renderPage({contents, layout}) {
     let body = document.getElementsByTagName('body')[0];
     if (this.currentLayout == layout) {
@@ -191,7 +192,12 @@ class Router {
       body.appendChild(newContent);
     }
   }
-
+  
+  
+  // Handles showing of page contents itself
+  // Calls init of current page, and renders result in router outlet (using renderPage)
+  // If theres an error, renders error message
+  // Calls page's lifecycle events, such as beforePageShow, afterPageShow and beforePageDetach
   showPage() {
     let page = this.Pages.get(this.currentPage);
     if (AppConfig['pages'][this.currentPage]['title']) {
@@ -234,7 +240,9 @@ class Router {
       this.detached = page.beforePageDetach;
     }
   }
-
+  
+  // Handles execution of detached callbacks, that should be
+  // executed after page has been detached
   detachedHandler() {
     if (this.detachedHandler) {
       if (AppConfig.beforePageDetach) {
@@ -247,15 +255,18 @@ class Router {
       }
     }
   }
-
-  prepareRequestURL(url) {  
-    for (let param in this.urlParams){
+  
+  
+  // Prepares data request url, replacing needed params with real params
+  prepareDataRequestURL(url) {
+    for (let param in this.urlParams) {
       url = url.replace(`{${param}}`, this.urlParams[param]);
     }
-    
     return encodeURIForServer(url);
   }
-
+  
+  // Starts loading of non-blocking data, and returns blocking data
+  // Blocking data are added then loaded together with other resources
   loadNonBlockingDataGetBlockingData(needAuthentication) {
     let blockingData = [];
     let nonBlockingData = [];
@@ -278,92 +289,144 @@ class Router {
         url = dataModel.getAll;
       }
       if (dataModel.blocking) {
-        blockingData.push({ name: dataName, url: this.prepareRequestURL(url) });
+        blockingData.push({ name: dataName, url: this.prepareDataRequestURL(url) });
       } else {
-        nonBlockingData.push({ name: dataName, url: this.prepareRequestURL(url) });
+        nonBlockingData.push({ name: dataName, url: this.prepareDataRequestURL(url) });
       }
     }
     App.resourceLoader.loadData(nonBlockingData, needAuthentication);
 
     return blockingData;
   }
-
-  loadResources({needAuthentication, layout, error}) {
-    // Adds blocking data to loading list and starts loading of non-blocking data
-    let blockingData = this.loadNonBlockingDataGetBlockingData(needAuthentication);
+  
+  // returns needed scripts
+  getNeededScripts(neededScripts){
     let neededResources = [];
-    for (let data of blockingData) {
-      neededResources.push(data);
+    
+    for (let scriptName of neededScripts) {
+      let script = AppConfig.scripts[scriptName];
+      if (!this.availableResources.has(script.url)) {
+        neededResources.push({ url: script.url, type: 'script' });
+      }
     }
-
-    // Adds layout scripts and optionally it's dependencies (templates) to loading list
-    if (!this.availableResources.has(AppConfig.layouts[layout].url)) {
-      // For accessing layout name after it has been loaded
-      this.latestLoadedLayout = layout;
-      neededResources.push({ url: AppConfig.layouts[layout].url, type: 'script' });
-    }
-    for (let templateName of AppConfig.layouts[layout].template) {
+    return neededResources;
+  }
+  
+  // returns needed templates
+  getNeededTemplates(neededTemplates){
+    let neededResources = [];
+    
+    for (let templateName of neededTemplates) {
+      console.log(templateName);
       let template = AppConfig.templates[templateName];
       if (!this.availableResources.has(template.url)) {
         neededResources.push({ url: template.url, type: 'template', name: templateName });
       }
     }
+    return neededResources;
+  }
+  
+  // returns needed components and it's dependencies
+  getNeededComponents(neededComponents){
+    let neededResources = [];
+    
+    for (let componentName of neededComponents) {
+      let component = AppConfig.components[componentName];
+      if (!this.availableResources.has(component.url)) {
+        if (isRegisteredHTMLElement(componentName)) {
+          //component already registered or can't be registered because of name conflict with native element
+        } else if (component.type == 'react' && this.registeredReactComponents.has(componentName)) {
+          //react component already registered 
+        } else {
+          let resource = { url: component.url };
+          if (component.template){
+            neededResources = neededResources.concat(this.getNeededTemplates(component.template));
+          }
+          if (component.scripts){
+            neededResources = neededResources.concat(this.getNeededScripts(component.scripts));
+          }
+          if (component.type == 'react') {
+            resource.type = 'react';
+            resource.componentName = componentName;
+          } else {
+            resource.type = 'web-component';
+          }
+          neededResources.push(resource);
+        }
+      }
+    }
+    return neededResources
+  }
+  
+  
+  // Todo: refactor and simplify, using same code twice for loading layout dependencies and page dependencies
+  loadResources({needAuthentication, layout, error}) {
+    // Adds blocking data to loading list and starts loading of non-blocking data
+    let blockingData = this.loadNonBlockingDataGetBlockingData(needAuthentication);
+    
+    let neededResources = [];
+    neededResources = neededResources.concat(blockingData);
+    
+    // Loads global dependencies
+    if (!this.globalDependenciesLoaded){
+      for (let globalDependency of AppConfig.globalDependencies){
+        neededResources.push({ 
+          url: globalDependency.url, 
+          type: 'globalDependency', 
+          wrap: globalDependency.wrap ? globalDependency.wrap : undefined
+        });
+      }
+    }
+    
+    // Adds layout scripts and optionally it's dependencies to loading list
+    if (!this.availableResources.has(AppConfig.layouts[layout].url)) {
+      // For accessing layout name after it has been loaded
+      this.latestLoadedLayout = layout;
+      neededResources.push({ url: AppConfig.layouts[layout].url, type: 'script' });
+    }
+    // Adds templates needed by layout to loading list    
+    if (AppConfig.layouts[layout].template) {
+      neededResources = neededResources.concat(this.getNeededTemplates(AppConfig.layouts[layout].template));
+    }
+    // Adds scripts needed by layout to loading list
+    if (AppConfig.layouts[layout].scripts) {
+      neededResources = neededResources.concat(this.getNeededScripts(AppConfig.layouts[layout].scripts));
+    }
+    // Adds components needed by layout to loading list
+    if (AppConfig.layouts[layout].components) {
+      neededResources = neededResources.concat(this.getNeededComponents(AppConfig.layouts[layout].components));
+    }
 
     if (!error) {
-      // Adds templates to loading list
-      for (let templateName of AppConfig.pages[this.currentPage].template) {
-        let template = AppConfig.templates[templateName];
-        if (!this.availableResources.has(template.url)) {
-          neededResources.push({ url: template.url, type: 'template', name: templateName });
-        }
+      // Adds templates needed by page to loading list
+      if (AppConfig.pages[this.currentPage].template) {
+        neededResources = neededResources.concat(this.getNeededTemplates(AppConfig.pages[this.currentPage].template));
       }
-      // Adds scripts to loading list
+      // Adds scripts needed by page to loading list
       if (AppConfig.pages[this.currentPage].scripts) {
-        for (let scriptName of AppConfig.pages[this.currentPage].scripts) {
-          let script = AppConfig.scripts[scriptName];
-          if (!this.availableResources.has(script.url)) {
-            neededResources.push({ url: script.url, type: 'script' });
-          }
-        }
+        neededResources = neededResources.concat(this.getNeededScripts(AppConfig.pages[this.currentPage].scripts));
       }
-      // Adds components to loading list
+      // Adds components needed by page to loading list
       if (AppConfig.pages[this.currentPage].components) {
-        for (let componentName of AppConfig.pages[this.currentPage].components) {
-          let component = AppConfig.components[componentName];
-          if (!this.availableResources.has(script.url)) {
-            if (isRegisteredHTMLElement(componentName)) {
-              //component already registered or can't be registered because of name conflict with native element
-            } else if (resource.type == 'react' && this.registeredReactComponents.has(componentName)) {
-              //react component already registered 
-            } else {
-              let resource = { url: component.url };
-              if (component.type == 'react') {
-                resource.type = 'react';
-                resource.componentName = componentName;
-              } else {
-                resource.type = 'web-component';
-              }
-              neededResources.push(resource);
-            }
-          }
-        }
+        neededResources = neededResources.concat(this.getNeededComponents(AppConfig.pages[this.currentPage].components));
       }
-      // Adds pages script to loading list
+      // Adds page script itself to loading list
       if (!this.availableResources.has(AppConfig.pages[this.currentPage].url)) {
         neededResources.push({ url: AppConfig.pages[this.currentPage].url, type: 'script' });
       }
     }
-
+    
     let afterResourceLoad = error ?
       function () { App.router.showError(error) } :
       function () { App.router.showPage() };
-    // Sends loading list and callback (that shows curent page) to resource loader
-    // Adds loades resources to available resources set
+    // Sends loading list and callback (that shows curent page or error) to resource loader
+    // Adds loaded resources to available resources set
     if (neededResources.length) {
       App.resourceLoader.loadResources(neededResources, needAuthentication, function () {
         for (let resource of neededResources) {
           App.router.availableResources.add(resource.url);
         }
+        App.router.globalDependenciesLoaded = true;
         afterResourceLoad();
       });
     } else {

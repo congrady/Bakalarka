@@ -52,6 +52,7 @@ gulp.task('insert-new-config-src', ['remove-old-config-srcs'], function(){
 gulp.task('set-production-root', ['insert-new-config-src'], function(){
   return gulp.src('dist/index.html')
     .pipe(replace('="/Client/', '="/dist/'))
+    .pipe(replace("='/Client/", "='/dist/"))
     .pipe(gulp.dest('dist'))
 })
 

@@ -1,7 +1,8 @@
 AppConfig.layouts = {
   'default': {
     url: '/Client/pages/_DefaultLayout/default-layout.js',
-    template: ['default-layout']
+    template: ['default-layout'],
+    components: ['main-navigation', 'main-login']
   }
 }
 
