@@ -8,5 +8,9 @@ AppConfig.beforePageDetach = [
   //function(){ console.log('beforePageDetach'); }
 ];
 AppConfig.onAppInit = [
-  //function(){ console.log('onAppInit'); }
+  function(){
+    App.userName = sessionStorage.getItem('userName');
+    App.token = sessionStorage.getItem('token');
+    App.authLevel = sessionStorage.getItem('authLevel');  
+  }
 ];

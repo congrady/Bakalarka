@@ -6,16 +6,61 @@ var App = {
     if (!App.router) {
       App.router = new Router();
       App.resourceLoader = new ResourceLoader();
-      App.authenticator = new Authenticator();
       App.dataStore = new DataStore();
+    }
+    this.eventListeners = {};
+    if (AppConfig.onAppInit) {
+      for (let func of AppConfig.onAppInit) {
+        func();
+      }
     }
     App.router.servePage();
   },
   
+  getUniqueId(){
+    if (!this.idSerial){
+      this.idSerial = 0;
+    }
+    this.idSerial++;
+    return `_appId_${this.idSerial}`
+  },
+  
+  removeAllEventListeners(){
+    if (this.eventListeners){
+      this.eventListeners = {};
+    }
+  },
+  
   getUrlParam(param){
     if (App.router.urlParams[param]){
-      return App.router.urlParams[param].slice(0, App.router.urlParams[param].length);
+      return copy(param);
     }
+  },
+  
+  emit(eventName, data){
+    if (this.eventListeners && this.eventListeners[eventName]){
+      for (let id in App.eventListeners[eventName]){
+        let eventListener = this.eventListeners[eventName][id];
+        if (data){
+          eventListener.callback(data);
+        } else {
+          eventListener.callback();
+        }
+      }
+    }
+  },
+  
+  removeEventListener(eventName, id){
+    if (this.eventListeners && this.eventListeners[eventName]){
+      delete this.eventListeners[eventName][id];
+    }
+  },
+  
+  on({event, callback, id}){
+    if (!this.eventListeners[event]){
+      this.eventListeners[event] = {};
+    }
+    this.eventListeners[event][id] = {callback: callback};
   },
 
   dataHandler(params) {
@@ -82,35 +127,34 @@ var App = {
       }
     }
   },
-
-  login(options) {
-    App.authenticator.loginRequest(
-      options.login,
-      options.password,
-      AppConfig.loginPath,
-      function(response) {
-        response = response.split(',');
-        App.userName = response[0]
-        App.token = response[1];
-        App.authLevel = response[2];
-        sessionStorage.setItem('userName', response[0]);
-        sessionStorage.setItem('token', response[1]);
-        sessionStorage.setItem('authLevel', response[2]);
-        options.success();
-        App.router.servePage();
-      },
-      options.error
-    );
+  
+  reloadPage(){
+    // shows page without renderLayout set to False, meaning all contents of the page will reload
+    App.router.showPage();
   },
-
-  logout() {
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('userName');
-    sessionStorage.removeItem('authLevel');
-    delete App.userName;
-    delete App.token;
-    delete App.authLevel;
-    App.router.servePage();
+  
+  setAuthLevel(level){
+    App.authLevel = level;
+  },
+  
+  getAuthLevel(){
+    return copy(App.authLevel);
+  },
+  
+  getUserName(){
+    return copy(App.userName);
+  },
+  
+  login({userName, token, authLevel}){
+    App.userName = userName;
+    App.token = token;
+    App.authLevel = authLevel;
+  },
+  
+  logout(){
+    if (App.userName) delete App.userName;;
+    if (App.token) delete App.token;
+    if (App.authLevel) delete App.authLevel;
   },
 
   newPage(page) {

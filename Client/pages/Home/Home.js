@@ -13,7 +13,6 @@ App.newPage({
   init: function() {
     let page = new DocumentFragment();
     page.add('h3', {id: 'page-title', innerHTML: 'Home'});
-    console.log(App.getUrlParam('id'));
 
     /*
     let p = page.add("p");

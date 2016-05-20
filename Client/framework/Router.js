@@ -30,11 +30,6 @@ class Router {
         this.needAuthentication.set(pageName, page.auth);
       }
     }
-    if (AppConfig.onAppInit) {
-      for (let func of AppConfig.onAppInit) {
-        func();
-      }
-    }
   }
   
   // Initializes router paths and it's needed url params
@@ -79,7 +74,7 @@ class Router {
       window.history.pushState(null, null, 'http://' + this.currentURL);
       sessionStorage.setItem('lastURL', this.currentURL);
     }
-    this.servePage();
+    this.servePage(false);
   }
   
   // Sets curent page and it's URL params depending on current URL
@@ -121,10 +116,11 @@ class Router {
     }
   }
   
-  // Decides which page load
+  // Decides which page to load
   // If theres an error, shows error
   // If page needs dependencies that are not already loaded, loads dependencies
   servePage() {
+    //App.removeAllEventListeners();
     this.setCurrentPageAndUrlParams();
     let errorLayout = this.currentLayout ? this.currentLayout : 'default';
     if (!this.currentPage) {
@@ -172,9 +168,9 @@ class Router {
   
   // Renders page contents
   // If page needs different then current layouts, renders layout aswell
-  renderPage({contents, layout}) {
+  renderPage({contents, layout, renderLayout}) {
     let body = document.getElementsByTagName('body')[0];
-    if (this.currentLayout == layout) {
+    if (this.currentLayout == layout && !renderLayout) {
       let routerOutlet = document.getElementById('router-outlet');
       while (routerOutlet.lastChild) {
         routerOutlet.removeChild(routerOutlet.lastChild);
@@ -198,7 +194,10 @@ class Router {
   // Calls init of current page, and renders result in router outlet (using renderPage)
   // If theres an error, renders error message
   // Calls page's lifecycle events, such as beforePageShow, afterPageShow and beforePageDetach
-  showPage() {
+  showPage(renderLayout) {
+    if (renderLayout === 'undefined'){
+      renderLayout = true;
+    }
     let page = this.Pages.get(this.currentPage);
     if (AppConfig['pages'][this.currentPage]['title']) {
       document.getElementsByTagName('title')[0].innerHTML = this.appTitle + AppConfig['pages'][this.currentPage]['title'];
@@ -220,7 +219,7 @@ class Router {
     let contents = page.init();
     if (contents.constructor === DocumentFragment) {
       let layout = page.layout ? page.layout : 'default';
-      this.renderPage({ contents: contents, layout: layout });
+      this.renderPage({ contents: contents, layout: layout, renderLayout: renderLayout });
     } else {
       this.showError();
     }
@@ -317,7 +316,6 @@ class Router {
     let neededResources = [];
     
     for (let templateName of neededTemplates) {
-      console.log(templateName);
       let template = AppConfig.templates[templateName];
       if (!this.availableResources.has(template.url)) {
         neededResources.push({ url: template.url, type: 'template', name: templateName });
@@ -372,7 +370,7 @@ class Router {
       for (let globalDependency of AppConfig.globalDependencies){
         neededResources.push({ 
           url: globalDependency.url, 
-          type: 'globalDependency', 
+          type: 'global-dependency', 
           wrap: globalDependency.wrap ? globalDependency.wrap : undefined
         });
       }

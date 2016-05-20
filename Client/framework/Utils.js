@@ -198,3 +198,15 @@ String.prototype.hashCode = function () {
   }
   return hash;
 }
+
+function copy(obj){
+  if (obj){
+    if(typeof(obj) == 'string' || typeof(obj) == 'number' || typeof(obj) == 'boolean' || typeof(obj) == 'function'){
+      return obj
+    } else if (obj instanceof String) {
+      return obj.slice(0, obj.length);
+    } else {
+      return Object.assign({}, obj);
+    }
+  }
+}

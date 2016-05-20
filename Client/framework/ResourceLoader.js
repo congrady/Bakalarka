@@ -3,6 +3,7 @@
 class ResourceLoader {
 	constructor() {
 		this.unresolvedResourcesCounter = 0;
+		this.urlPrefix = AppConfig.mode == 'dev' ? AppConfig.devModeUrlPrefix : AppConfig.prodModeUrlPrefix;
 	}
 
 	saveData(dataName, response) {
@@ -95,11 +96,23 @@ class ResourceLoader {
 			self.saveData(dataName, response)
 		})
 	}
+	
+	loadGlobalDependency({url, wrap}){
+		var self = this;
+		// Todo: Load it as AMD or CommonJS
+		this.sendRequest(url, function (response) {
+			let head = document.getElementsByTagName('head')[0];
+			let script = document.createElement('script');
+			script.innerHTML = response;
+			head.appendChild(script);
+		})
+	}
 
 	sendRequest(url, resourceSpecificCallBack) {
 		if (this.unresolvedResourcesCounter == -1) {
 			return
 		}
+		url = url.startsWith('https://') ? url : this.urlPrefix + url;
 		var self = this;
 		xhr_get({
 			url: url,
@@ -137,6 +150,8 @@ class ResourceLoader {
 				this.loadTemplate(resource.url, resource.name);
 			} else if (resource.type == 'react-component') {
 				this.loadReactComponent(resource.url, resource.componentName);
+			} else if (resource.type == 'global-dependency') {
+				this.loadGlobalDependency(resource);
 			} else {
 				this.loadBlockingData(resource.url, resource.name);
 			}

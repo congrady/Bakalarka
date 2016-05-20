@@ -66,17 +66,20 @@
         }
       }
       
-      if (App.authLevel <= this.modes['auth0'].requiredAuthLevel){
+      if (App.authLevel && App.authLevel <= this.modes['auth0'].requiredAuthLevel){
         this.activeMode = 'auth0';
       } else {
         this.activeMode = 'free';
-      }
-      
+      }    
+    }
+    
+    attachedCallback(){
       this.makeNavigation(window.location.pathname);
     }
     
     attributeChangedCallback(attrName, oldVal, newVal) {
       if (attrName == 'active'){
+        App.emit('navigation', {message: 'navigating...'});
         this.makeNavigation(newVal);
       }
     }

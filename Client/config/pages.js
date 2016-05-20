@@ -1,6 +1,6 @@
 AppConfig.layouts = {
   'default': {
-    url: '/Client/pages/_DefaultLayout/default-layout.js',
+    url: '/pages/_DefaultLayout/default-layout.js',
     template: ['default-layout'],
     components: ['main-navigation', 'main-login']
   }
@@ -8,20 +8,20 @@ AppConfig.layouts = {
 
 AppConfig.pages = {
   'Home': {
-    url: '/Client/pages/Home/Home.js',
-    path: ['/', '/Home/:id/:igor'],
+    url: '/pages/Home/Home.js',
+    path: ['/', '/Home'],
     title: 'Home',
     template: ['Home']
   },
   'NewTest' : {
-    url: '/Client/pages/NewTest/NewTest.js',
+    url: '/pages/NewTest/NewTest.js',
     path: '/NewTest',
     title: 'NewTest',
     template: ['NewTest'],
     auth: 0
   },
   'NewSegment' : {
-    url: '/Client/pages/NewSegment/NewSegment.js',
+    url: '/pages/NewSegment/NewSegment.js',
     path: '/NewSegment/:testId',
     title: 'New Segment',
     template: ['NewSegment'],
@@ -29,7 +29,7 @@ AppConfig.pages = {
     auth: 0
   },
   'Tests' : {
-    url: '/Client/pages/Tests/Tests.js',
+    url: '/pages/Tests/Tests.js',
     path: '/Tests',
     title: 'Tests',
     components: ['test-component'],
@@ -37,13 +37,13 @@ AppConfig.pages = {
     auth: 1
   },
   'Contact' : {
-    url: '/Client/pages/Contact/Contact.js',
+    url: '/pages/Contact/Contact.js',
     path: '/Contact',
     title: 'Contact',
     template: ['Contact']
   },
   'Test' : {
-    url: '/Client/pages/Test/Test.js',
+    url: '/pages/Test/Test.js',
     path: '/Test',
     title: 'Test',
     data: {TestData: 'specific'},

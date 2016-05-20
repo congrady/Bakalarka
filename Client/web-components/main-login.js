@@ -54,7 +54,8 @@
           <br>
           <p><br></p>
           <button id="logout"><b>Logout</b></button>
-          `);
+          `
+         );
       }
       this.createShadowRoot().innerHTML = template;
       this.div = this.shadowRoot.querySelector('div');
@@ -63,8 +64,18 @@
       }
       else {
         this.setAttribute('mode', 'notLoggedIn');
-      }
+      }      
     };
+    
+    attachedCallback(){      
+      App.on({
+        event: 'navigation', 
+        id: App.getUniqueId(),
+        callback: function(data){          
+          console.log(data.message);
+        }, 
+      });
+    }
     loggedInTemplate(userName){
       return `<br>
       <p>You are logged in as:<br> ${userName}</p>
@@ -75,23 +86,52 @@
     }
     login(event) {
       event.preventDefault();
+      
+      let login = event.target.login.value;
+      let password = event.target.password.value;
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/Login', true);
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      let params = encodeURI(`login=${login}&password=${password}`);
       var self = this;
-      App.login({
-        login: event.target.login.value,
-        password: event.target.password.value,
-        success: function(){
-         self.setAttribute('mode', 'loggedIn');
-         document.querySelector('main-navigation').setAttribute('mode', 'auth');
-        },
-        error: function(){
-         self.loginErrorCallback();
+      xhr.onload = function() {
+        if (xhr.status == 200) {
+          self.loginSuccessful(xhr.responseText);
         }
-      });
+        else {
+          self.loginErrorCallback();
+        }
+      };
+      xhr.onerror = function () {
+        self.loginErrorCallback();
+      };
+      xhr.send(params);
+    }
+    loginSuccessful(response){
+      response = response.split(',');
+      let userName = response[0];
+      let token = response[1];
+      let authLevel = response[2];
+      App.login({userName: userName, token: token, authLevel: authLevel});
+      sessionStorage.setItem('userName', userName);
+      sessionStorage.setItem('token', token);
+      sessionStorage.setItem('authLevel', authLevel);
+      App.login({userName: userName, token: token, authLevel: authLevel});
+      App.reloadPage();
+      this.setAttribute('mode', 'loggedIn');
     }
     loginErrorCallback(){
       this.shadowRoot.getElementById('message').innerHTML = ' Wrong username or password';
       this.$form.login.value = '';
       this.$form.password.value = '';
+    }
+    logout(){
+      this.setAttribute('mode', 'notLoggedIn');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('userName');
+      sessionStorage.removeItem('authLevel');
+      App.logout();
+      App.reloadPage();
     }
     show(mode){
       if (mode == 'notLoggedIn'){
@@ -103,12 +143,10 @@
         };
       }
       else if (mode == 'loggedIn') {
-        this.div.innerHTML = this.loggedInTemplate(App.userName);
+        this.div.innerHTML = this.loggedInTemplate(App.getUserName());
         var self = this;
         this.shadowRoot.querySelector('#logout').onclick = function(){
-          self.setAttribute('mode', 'notLoggedIn');
-          document.querySelector('main-navigation').setAttribute('mode', 'free');
-          App.logout();
+          self.logout();
         }
       }
     }

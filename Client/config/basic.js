@@ -1,6 +1,8 @@
 AppConfig = {
+  mode: 'dev',
+  prodModeUrlPrefix: '/dist',
+  devModeUrlPrefix: '/Client',
   title: 'UX | ',
-  loginPath: '/Login',
   getURL: '/GET/',
   deleteURL: '/DELETE/',
   putURL: '/PUT/',
