@@ -195,7 +195,7 @@ class Router {
   // If theres an error, renders error message
   // Calls page's lifecycle events, such as beforePageShow, afterPageShow and beforePageDetach
   showPage(renderLayout) {
-    if (renderLayout === 'undefined'){
+    if (renderLayout == undefined){
       renderLayout = true;
     }
     let page = this.Pages.get(this.currentPage);

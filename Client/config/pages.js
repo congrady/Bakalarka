@@ -38,7 +38,7 @@ AppConfig.pages = {
   },
   'Contact' : {
     url: '/pages/Contact/Contact.js',
-    path: '/Contact/:id',
+    path: '/Contact',
     title: 'Contact',
     template: ['Contact']
   },
