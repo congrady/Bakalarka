@@ -1,26 +1,9 @@
 
 -- PostgreSQL scripty na vytvorenie tabuliek + trigger funkcie
-CREATE TABLE public.segments
+
+ CREATE TABLE tests
 (
-  id integer NOT NULL DEFAULT nextval('segments_id_seq'::regclass),
-  test_id integer,
-  added_by character varying(64),
-  file_path character varying(64),
-  uploaded timestamp with time zone DEFAULT transaction_timestamp(),
-  CONSTRAINT segments_pkey PRIMARY KEY (id),
-  CONSTRAINT segments_test_id_fkey FOREIGN KEY (test_id)
-      REFERENCES public.tests (id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE CASCADE
-)
-WITH (
-  OIDS=FALSE
-);
-ALTER TABLE public.segments
-  OWNER TO postgres;
-  
- CREATE TABLE public.tests
-(
-  id integer NOT NULL DEFAULT nextval('tests_id_seq'::regclass),
+  id SERIAL,
   name character varying(64),
   added_by character varying(64),
   uploaded timestamp with time zone DEFAULT transaction_timestamp(),
@@ -32,20 +15,32 @@ ALTER TABLE public.segments
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE public.tests
+ALTER TABLE tests
   OWNER TO postgres;
 
--- Trigger: update_last_modified on public.tests
+CREATE TABLE segments
+(
+  id SERIAL,
+  test_id integer,
+  added_by character varying(64),
+  file_path character varying(64),
+  uploaded timestamp with time zone DEFAULT transaction_timestamp(),
+  CONSTRAINT segments_pkey PRIMARY KEY (id),
+  CONSTRAINT segments_test_id_fkey FOREIGN KEY (test_id)
+      REFERENCES tests (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE segments
+  OWNER TO postgres;
 
--- DROP TRIGGER update_last_modified ON public.tests;
+-- Trigger: update_last_modified on tests
 
-CREATE TRIGGER update_last_modified
-  BEFORE UPDATE
-  ON public.tests
-  FOR EACH ROW
-  EXECUTE PROCEDURE public.update_last_modified_column();
+-- DROP TRIGGER update_last_modified ON tests;
   
-  CREATE OR REPLACE FUNCTION public.increment_segments_count()
+  CREATE OR REPLACE FUNCTION increment_segments_count()
   RETURNS trigger AS
 $BODY$
 BEGIN
@@ -55,10 +50,10 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-ALTER FUNCTION public.increment_segments_count()
+ALTER FUNCTION increment_segments_count()
   OWNER TO postgres;
   
-  CREATE OR REPLACE FUNCTION public.update_last_modified_column()
+  CREATE OR REPLACE FUNCTION update_last_modified_column()
   RETURNS trigger AS
 $BODY$
 BEGIN
@@ -68,5 +63,11 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-ALTER FUNCTION public.update_last_modified_column()
+ALTER FUNCTION update_last_modified_column()
   OWNER TO postgres;
+  
+  CREATE TRIGGER update_last_modified
+  BEFORE UPDATE
+  ON tests
+  FOR EACH ROW
+  EXECUTE PROCEDURE update_last_modified_column();

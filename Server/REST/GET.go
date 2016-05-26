@@ -64,7 +64,8 @@ func GET(w http.ResponseWriter, r *http.Request) (string, int, error) {
 	var res string
 	err = db.QueryRow(query).Scan(&res)
 	if err != nil {
-		if err.Error() == "sql: Scan error on column index 0: unsupported driver -> Scan pair: <nil> -> *string" {
+		if err.Error() == "sql: Scan error on column index 0: unsupported driver -> Scan pair: <nil> -> *string" || 
+		 err.Error() == "sql: Scan error on column index 0: unsupported Scan, storing driver.Value type <nil> into type *string" {
 			return "[]", http.StatusOK, nil
 		}
 		return otherError("Error executing query: "+err.Error(), http.StatusBadRequest)

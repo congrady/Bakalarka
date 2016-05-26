@@ -105,7 +105,7 @@
       img.width = '375';
       img.height = '270';
       if (this.segmentsAmount == '0'){
-        img.src = '/data/imgs/error.gif';
+        img.src = './client/assets/img/error.gif';
       } else {
         img.src = `/data/tests/${this.realID}/frame.jpeg`;
       }

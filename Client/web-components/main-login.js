@@ -67,14 +67,16 @@
       }      
     };
     
-    attachedCallback(){      
+    attachedCallback(){
+    /*
+      var self = this;  
       App.on({
         event: 'navigation', 
         id: App.getUniqueId(),
         callback: function(data){          
           console.log(data.message);
         }, 
-      });
+      });*/
     }
     loggedInTemplate(userName){
       return `<br>

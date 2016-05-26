@@ -79,7 +79,7 @@
     
     attributeChangedCallback(attrName, oldVal, newVal) {
       if (attrName == 'active'){
-        App.emit('navigation', {message: 'navigating...'});
+        //App.emit('navigation', {message: 'navigating...'});
         this.makeNavigation(newVal);
       }
     }

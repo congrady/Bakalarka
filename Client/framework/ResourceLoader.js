@@ -14,21 +14,20 @@ class ResourceLoader {
 			for (let obj of dataResponse) {
 				App.dataStore.data[dataName][obj[key]] = obj;
 			}
-		} else if (AppConfig.data[dataName].type == 'json') {
+		} else if (AppConfig.data[dataName].type == 'json' && response) {
 			App.dataStore.data[dataName] = JSON.parse(response);
-		} else {
+		} else if (response){
 			App.dataStore.data[dataName] = response;
 		}
 	}
 
 	handleNonBlockingData(dataName, response) {
-		console.log(dataName);
 		this.saveData(dataName, response);
 		let index = App.dataStore.actionPool.length;
 		while (index--) {
 			let dataPoolEntry = App.dataStore.actionPool[index];
-			if (dataPoolEntry.dataName == message.data.name) {
-				if (message.data.response) {
+			if (dataPoolEntry.dataName == dataName) {
+				if (response) {
 					if (dataPoolEntry.specific) {
 						dataPoolEntry.action(App.dataStore.data[dataPoolEntry.dataName][dataPoolEntry.specific]);
 					} else {
@@ -41,21 +40,27 @@ class ResourceLoader {
 	}
 
 	loadData(neededData, auth) {
+		var self = this;
 		for (let data of neededData) {
 			let xhr = new XMLHttpRequest();
 			xhr.open('GET', data.url, true);
 			let self = this;
 			xhr.onload = function (response) {
+				if (self.unresolvedResourcesCounter == -1){
+					return
+				}
 				if (xhr.status == 200) {
-					self.handleNonBlockingData(data.name, response.response);
+					self.handleNonBlockingData(data.name, xhr.response);
 				} else if (xhr.status == 400) {
-					App.router.showError();
+					self.handleError();
 				} else if (xhr.status == 401) {
-					App.router.showError('unauthorized');
+					self.handleError('unauthorized');
+				} else {
+					self.handleError();
 				}
 			};
 			xhr.onerror = function () {
-				App.router.showError('timeout');
+				self.handleError('timeout');
 			}
 			if (auth) {
 				xhr.setRequestHeader('Authorization', 'Bearer ' + App.token);

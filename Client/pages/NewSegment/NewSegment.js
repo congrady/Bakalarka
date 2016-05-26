@@ -4,8 +4,8 @@ App.newPage({
   init: function () {
     let page = new DocumentFragment();
     page.add('h3', {id: 'page-title', innerHTML: 'New Segment'});
-    page.importTemplate();
-    let form = page.select('form');
+    page.importTemplate('NewSegment');
+    let form = page.querySelector('#form');
     let testSelect = form.querySelector('#testSelect');
     let message = page.select('#message');
     

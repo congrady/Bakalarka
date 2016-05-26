@@ -69,12 +69,7 @@ String.prototype.capitalizeFirstLetter = function () {
 }
 
 DocumentFragment.prototype.select = function (queryString) {
-  let main = document.getElementsByTagName('main')[0];
-  if (main.lastChild) {
-    return main.querySelector(queryString);
-  } else {
-    return this.querySelector(queryString);
-  }
+  return this.querySelector(queryString);
 }
 
 function parseDate(string) {

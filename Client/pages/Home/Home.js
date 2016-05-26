@@ -17,8 +17,6 @@ App.newPage({
     /*
     let p = page.add("p");
 
-    let reactElement = p.add("Hello", {name: "Matus"});
-    //reactElement.sayHello();
 
     page.add("button", {innerHTML: "Test"}).onclick = function(){
       App.updateData({
@@ -42,7 +40,7 @@ App.newPage({
       App.updateClientData({
         dataName: "TestData",
         key: 'matus',
-        data: {name: "matus", added_by: "kloaka"},
+        data: {name: "matus", added_by: "..."},
       });
       console.log(App.dataStore.data);
     };
@@ -58,7 +56,7 @@ App.newPage({
     page.add("button", {innerHTML: "Sync"}).onclick = function(){
       App.syncData({
         dataName: "TestData",
-        success: function(){ alert("ahoj") }
+        success: function(){ alert("success") }
       });
       console.log(App.dataStore.data);
     };*/
