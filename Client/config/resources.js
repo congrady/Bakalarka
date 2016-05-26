@@ -1,12 +1,3 @@
-AppConfig.globalDependencies = [
-  {
-    url: 'https://cdnjs.cloudflare.com/ajax/libs/react/15.0.2/react-dom.min.js'
-  }, 
-  {
-    url: 'https://cdnjs.cloudflare.com/ajax/libs/react/15.0.2/react.min.js'
-  }
-]
-
 AppConfig.templates = {
   'Home': {
     url: '/pages/Home/Home.html'

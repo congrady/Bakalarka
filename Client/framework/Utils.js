@@ -87,6 +87,9 @@ DocumentFragment.prototype.selectAll = function (queryString) {
 Element.prototype.selectAll = DocumentFragment.prototype.selectAll;
 
 DocumentFragment.prototype.add = function (elementType, attrs, insertBefore) {
+  if (!this){
+    
+  }
   if (App.router.registeredReactComponents.has(elementType)) {
     return ReactDOM.render(window[elementType](attrs), this);
   } else {

@@ -12,7 +12,7 @@ gulp.task('clean', function () {
 })
 
 gulp.task('build-js-to-dist', ['clean'], function() {
-  return gulp.src(['Client/**/*.js', '!Client/config/*.js'], {base: 'Client'})
+  return gulp.src(['client/**/*.js', '!client/config/*.js'], {base: 'client'})
     .pipe(babel({
 			presets: ['es2015']
 		}))
@@ -23,12 +23,12 @@ gulp.task('build-js-to-dist', ['clean'], function() {
 });
 
 gulp.task('copy-rest-to-dist',  ['clean'],function() {
-  return gulp.src(['Client/**', '!Client/**/*.js'], {base: 'Client'})
+  return gulp.src(['client/**', '!client/**/*.js'], {base: 'client'})
     .pipe(gulp.dest('dist/'));
 });
 
 gulp.task('build-config-files', ['clean', 'copy-rest-to-dist'], function() {
-  return gulp.src('Client/config/*.js')
+  return gulp.src('client/config/*.js')
     .pipe(concat('config.js'))
     .pipe(babel({
 			presets: ['es2015']
@@ -37,9 +37,25 @@ gulp.task('build-config-files', ['clean', 'copy-rest-to-dist'], function() {
     .pipe(gulp.dest('dist/'));
 });
 
+gulp.task('build-framework', function() {
+  return gulp.src([
+        'client/framework/Utils.js', 
+        'client/framework/Router.js', 
+        'client/framework/ResourceLoader.js', 
+        'client/framework/DataStore.js', 
+        'client/framework/App.js'
+      ])
+    .pipe(concat('bakery.js'))
+    .pipe(babel({
+			presets: ['es2015']
+		}))
+    .pipe(uglify())
+    .pipe(gulp.dest('client/framework/'));
+});
+
 gulp.task('remove-old-config-srcs', ['build-config-files'], function(){
   return gulp.src('dist/index.html')
-    .pipe(replace(/<script src="\/Client\/config.{0,50}" defer><\/script>/g, ''))
+    .pipe(replace(/<script src="\/client\/config.{0,50}" defer><\/script>/g, ''))
     .pipe(gulp.dest('dist'))
 })
 
@@ -51,8 +67,8 @@ gulp.task('insert-new-config-src', ['remove-old-config-srcs'], function(){
 
 gulp.task('set-production-root', ['insert-new-config-src'], function(){
   return gulp.src('dist/index.html')
-    .pipe(replace('="/Client/', '="/dist/'))
-    .pipe(replace("='/Client/", "='/dist/"))
+    .pipe(replace('="/client/', '="/dist/'))
+    .pipe(replace("='/client/", "='/dist/"))
     .pipe(gulp.dest('dist'))
 })
 

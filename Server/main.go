@@ -10,7 +10,7 @@ import (
 
 func main() {
 	var folders []string
-	folders = append(folders, "../Client", "../data")
+	folders = append(folders, "../client", "../data")
 	var files []string
 	endpoints.FileServer(folders, files)
 

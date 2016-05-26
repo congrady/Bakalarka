@@ -33,7 +33,7 @@ var App = {
   
   getUrlParam(param){
     if (App.router.urlParams[param]){
-      return copy(param);
+      return copy(App.router.urlParams[param]);
     }
   },
   

@@ -366,7 +366,7 @@ class Router {
     neededResources = neededResources.concat(blockingData);
     
     // Loads global dependencies
-    if (!this.globalDependenciesLoaded){
+    if (!this.globalDependenciesLoaded && AppConfig.globalDependencies){
       for (let globalDependency of AppConfig.globalDependencies){
         neededResources.push({ 
           url: globalDependency.url, 
