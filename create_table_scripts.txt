@@ -1,0 +1,72 @@
+
+-- PostgreSQL scripty na vytvorenie tabuliek + trigger funkcie
+CREATE TABLE public.segments
+(
+  id integer NOT NULL DEFAULT nextval('segments_id_seq'::regclass),
+  test_id integer,
+  added_by character varying(64),
+  file_path character varying(64),
+  uploaded timestamp with time zone DEFAULT transaction_timestamp(),
+  CONSTRAINT segments_pkey PRIMARY KEY (id),
+  CONSTRAINT segments_test_id_fkey FOREIGN KEY (test_id)
+      REFERENCES public.tests (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.segments
+  OWNER TO postgres;
+  
+ CREATE TABLE public.tests
+(
+  id integer NOT NULL DEFAULT nextval('tests_id_seq'::regclass),
+  name character varying(64),
+  added_by character varying(64),
+  uploaded timestamp with time zone DEFAULT transaction_timestamp(),
+  last_modified timestamp with time zone DEFAULT transaction_timestamp(),
+  segments_amount integer DEFAULT 0,
+  CONSTRAINT tests_pkey PRIMARY KEY (id),
+  CONSTRAINT unique_name UNIQUE (name)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.tests
+  OWNER TO postgres;
+
+-- Trigger: update_last_modified on public.tests
+
+-- DROP TRIGGER update_last_modified ON public.tests;
+
+CREATE TRIGGER update_last_modified
+  BEFORE UPDATE
+  ON public.tests
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.update_last_modified_column();
+  
+  CREATE OR REPLACE FUNCTION public.increment_segments_count()
+  RETURNS trigger AS
+$BODY$
+BEGIN
+    NEW.segments_amount = OLD.segments_amount + 1;
+    RETURN NEW;	
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION public.increment_segments_count()
+  OWNER TO postgres;
+  
+  CREATE OR REPLACE FUNCTION public.update_last_modified_column()
+  RETURNS trigger AS
+$BODY$
+BEGIN
+    NEW.last_modified = now();
+    RETURN NEW;	
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION public.update_last_modified_column()
+  OWNER TO postgres;
