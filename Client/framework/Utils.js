@@ -17,7 +17,11 @@ function xhr_get(params) {
       if (params.badReqeust) {
         params.badRequest();
       }
-    }
+    } else {
+      if (params.otherError) {
+        params.otherError();
+      }
+    }    
   };
   if (params.jwt) {
     xhr.setRequestHeader('Authorization', 'Bearer ' + params.jwt);
@@ -50,6 +54,10 @@ function xhr_post(params) {
     } else if (xhr.status == 400) {
       if (params.badReqeust) {
         params.badRequest();
+      }
+    } else {
+      if (params.otherError) {
+        params.otherError();
       }
     }
   };

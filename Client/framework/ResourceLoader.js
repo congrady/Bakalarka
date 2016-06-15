@@ -5,7 +5,8 @@ class ResourceLoader {
 		this.unresolvedResourcesCounter = 0;
 		this.urlPrefix = AppConfig.mode == 'dev' ? AppConfig.devModeUrlPrefix : AppConfig.prodModeUrlPrefix;
 	}
-
+	
+	// saves data to data store
 	saveData(dataName, response) {
 		if (AppConfig.data[dataName].type == 'json' && AppConfig.data[dataName].key) {
 			let key = AppConfig.data[dataName].key;
@@ -20,7 +21,8 @@ class ResourceLoader {
 			App.dataStore.data[dataName] = response;
 		}
 	}
-
+	
+	// handles non blocking data, doing specified action on them
 	handleNonBlockingData(dataName, response) {
 		this.saveData(dataName, response);
 		let index = App.dataStore.actionPool.length;
@@ -38,7 +40,8 @@ class ResourceLoader {
 			}
 		}
 	}
-
+	
+	// loads non blocking data
 	loadData(neededData, auth) {
 		var self = this;
 		for (let data of neededData) {
@@ -68,24 +71,28 @@ class ResourceLoader {
 			xhr.send();
 		}
 	}
-
+	
+	// handles error loading resources
 	handleError(type) {
 		App.router.showError(type);
 		this.unresolvedResourcesCounter = -1;
 	}
-
+	
+	// loads template
 	loadTemplate(url, templateName) {
 		this.sendRequest(url, function (response) {
 			App.router.htmlTemplates.set(templateName, response);
 		})
 	}
-
+	
+	// loads react component
 	loadReactComponent(url, componentName) {
 		this.sendRequest(url, function (response) {
 			window[componentName] = React.createFactory(eval(response));
 		})
 	}
-
+	
+	// loads script
 	loadScript(url) {
 		this.sendRequest(url, function (response) {
 			let head = document.getElementsByTagName('head')[0];
@@ -94,7 +101,8 @@ class ResourceLoader {
 			head.appendChild(script);
 		})
 	}
-
+	
+	// loads blocking data
 	loadBlockingData(url, dataName) {
 		var self = this;
 		this.sendRequest(url, function (response) {
@@ -102,6 +110,7 @@ class ResourceLoader {
 		})
 	}
 	
+	// loads global dependency
 	loadGlobalDependency({url, wrap}){
 		var self = this;
 		// Todo: Load it as AMD or CommonJS
@@ -112,7 +121,8 @@ class ResourceLoader {
 			head.appendChild(script);
 		})
 	}
-
+	
+	// XHR for resource request
 	sendRequest(url, resourceSpecificCallBack) {
 		if (this.unresolvedResourcesCounter == -1) {
 			return
@@ -143,7 +153,9 @@ class ResourceLoader {
 			}
 		});
 	}
-
+	
+	
+	// Starts loading of resources using their respective handlers
 	loadResources(neededResources, auth, success) {
 		this.unresolvedResourcesCounter = neededResources.length;
 		this.auth = auth;

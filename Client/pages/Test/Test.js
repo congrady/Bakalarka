@@ -1,13 +1,13 @@
 'use strict';
 
 App.newPage({
-  init: function(urlParams) {
+  init: function() {
     let page = new DocumentFragment();
 
     let div = page.add('div');
     App.dataHandler({
       dataName: 'TestData',
-      specific: urlParams[0],
+      specific: App.getUrlParam('id'),
       action: function(data) {
         div.add('h3', {
           id: 'page-title',
@@ -52,7 +52,7 @@ App.newPage({
             id: 'frame',
             width: '400',
             height: '250',
-            src: '/data/imgs/error.gif'
+            src: '../client/assets/img/error.gif'
           }, 'scaleDown');
         }
         div.add('h3', {

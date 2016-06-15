@@ -259,7 +259,7 @@ class Router {
   // Prepares data request url, replacing needed params with real params
   prepareDataRequestURL(url) {
     for (let param in this.urlParams) {
-      url = url.replace(`{${param}}`, this.urlParams[param]);
+      url = url.replace(`{${param}}`, `${param}=${this.urlParams[param]}`);
     }
     return encodeURIForServer(url);
   }
@@ -277,9 +277,9 @@ class Router {
       let url;
       let dataModel = AppConfig.data[dataName];
       if (neededData[dataName] == 'specific') {
-        let keyIndex = dataModel.keyIndex ? dataModel.keyIndex : 0;
-        if (App.dataStore.data[dataName] && dataModel.key) {
-          if (App.dataStore.data[dataName][this.urlParams[keyIndex]]) {
+        let key = dataModel.key ? dataModel.key : undefined;
+        if (App.dataStore.data[dataName] && key) {
+          if (App.dataStore.data[dataName][key]) {
             continue
           }
         }

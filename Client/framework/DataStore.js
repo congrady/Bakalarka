@@ -14,6 +14,7 @@ class DataStore {
     this.actionPool = [];
   }
   
+  // returns copy of desired data
   getData(dataName, specific){
     if (specific) {
       if (this.data[dataName] &&  this.data[dataName][specific]){
@@ -25,7 +26,17 @@ class DataStore {
       }
     }
   }
-
+  
+  // invalidates data, meaning they will be loaded again when next time needed
+  invalidateData(dataName, index){
+    if (this.data[dataName] && this.data[dataName][index]){
+      this.data[dataName][index] = undefined;
+      return true
+    }
+    return false
+  }
+  
+  // adds data handler for non blocking data to actionPool
   dataHandler(params) {
     if (params.specific && App.dataStore.data[params.dataName] && App.dataStore.data[params.dataName][params.specific]) {
       params.action(App.dataStore.data[params.dataName][params.specific]);
@@ -33,7 +44,8 @@ class DataStore {
       App.dataStore.actionPool.push(params);
     }
   }
-
+  
+  // prepares data request
   fillForm(params) {
     let formData = new FormData();
     formData.append('table', AppConfig.data[params.dataName].table);
@@ -50,7 +62,8 @@ class DataStore {
     }
     return formData
   }
-
+  
+  // deletes data for both client and server
   deleteData(params) {
     let requestParams = {};
     requestParams.method = 'DELETE';
@@ -80,7 +93,8 @@ class DataStore {
     }
     this.ajaxREST(requestParams)
   }
-
+  
+  // updates data for both client and server
   updateData(params) {
     let requestParams = {};
     requestParams.method = 'POST';
@@ -113,7 +127,8 @@ class DataStore {
     }
     this.ajaxREST(requestParams)
   }
-
+  
+  // puts data for both client and server
   putData(params) {
     let requestParams = {};
     requestParams.method = 'PUT';
@@ -143,7 +158,10 @@ class DataStore {
     }
     this.ajaxREST(requestParams)
   }
-
+  
+  // enques data change
+  // happens on client data manipulation
+  // sync data flushes this changes to the server
   enqueueDataChange(params) {
     let key = params.key ? params.key : params.data[App.dataStore.dataKeys[params.dataName]];
     for (let dataName in this.dataChanges) {
@@ -174,11 +192,13 @@ class DataStore {
       data: params.data ? params.data : 'undefined'
     }
   }
-
+  
+  // deletes client data
   deleteClientData(params) {
     delete this.data[params.dataName][params.key];
   }
-
+  
+  // updates client data
   updateClientData(params) {
     let key = params.key;
     for (let propName in params.data) {
@@ -190,14 +210,17 @@ class DataStore {
       }
     }
   }
-
+  
+  // puts client data
+  // this operation is indepotent
   putClientData(params) {
     if (!App.dataStore.data[params.dataName]) {
       App.dataStore.data[params.dataName] = {};
     }
     App.dataStore.data[params.dataName][params.data[AppConfig.data[params.dataName].key]] = params.data;
   }
-
+  
+  // XHR for data mutations
   ajaxREST(params) {
     let xhr = new XMLHttpRequest();
     xhr.open(params.method, params.url, true);
@@ -222,7 +245,8 @@ class DataStore {
     }
     xhr.send(params.formData);
   }
-
+  
+  // synchronizes data with server
   syncData(params) {
     if (!this.dataChanges[params.dataName]) {
       return

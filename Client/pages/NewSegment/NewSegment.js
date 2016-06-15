@@ -10,6 +10,7 @@ App.newPage({
     let message = page.select('#message');
     
     let urlParamTestId = App.getUrlParam('testId');
+    var testID;
     if (urlParamTestId) {
       page.select('#testSelect').style.display = 'none';
       page.select('#select_label').style.display = 'none';
@@ -21,13 +22,14 @@ App.newPage({
         }
       }})
     }
-
+       
     function upload (data) {
       let xhr = new XMLHttpRequest();
       xhr.open('POST', '/AddNewSegment', true);
       xhr.onload = function (event) {
         if (xhr.status == 200) {
           if (urlParamTestId) {
+            App.invalidateData('TestData', testID);
             App.navigate('/Test/' + urlParamTestId);
           } else {
             message.innerHTML = 'New segment successfuly saved.';
@@ -63,11 +65,12 @@ App.newPage({
         return
       }
       let formData = new FormData();
-      if (!testID) {
-        let selectElement = form.querySelector('#testSelect');
-        let testID = selectElement.options[selectElement.selectedIndex].value;
-        formData.append('testID', testID);
-      }
+      
+      let selectElement = form.querySelector('#testSelect');
+      testID = urlParamTestId ? 
+        urlParamTestId : 
+        selectElement.options[selectElement.selectedIndex].value;
+      
       formData.append('video', video);
       formData.append('et', et);
       formData.append('testID', testID);

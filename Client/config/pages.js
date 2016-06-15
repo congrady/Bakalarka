@@ -44,7 +44,7 @@ AppConfig.pages = {
   },
   'Test' : {
     url: '/pages/Test/Test.js',
-    path: '/Test',
+    path: '/Test/:id',
     title: 'Test',
     data: {TestData: 'specific'},
     auth: 1

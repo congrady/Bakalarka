@@ -20,7 +20,7 @@ App.newPage({
         success: function(){
           App.navigate('/Tests')
         },
-        badRequest: function() {
+        otherError: function() {
           message.innerHTML = 'Test with this name already exists.'
           message.style.color = 'red';
         }
